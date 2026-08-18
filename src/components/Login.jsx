@@ -9,9 +9,13 @@ import { useForm } from "react-hook-form";
 function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { register, handleSubmit } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-  const [error, setError] = useState("");
+  const [Error, setError] = useState("");
 
   const login = async (data) => {
     setError("");
@@ -27,7 +31,7 @@ function Login() {
         navigate("/");
       }
     } catch (error) {
-      setError(error);
+      setError(error.message);
     }
   };
   return (
@@ -53,7 +57,7 @@ function Login() {
           </Link>
         </p>
 
-        {error && <p className="text-red-600 mt-8 text-center">{error}</p>}
+        {Error && <p className="text-red-600 mt-8 text-center">{Error}</p>}
         <form onSubmit={handleSubmit(login)} className="mt-8">
           <div className="space-y-5">
             <Input
@@ -61,13 +65,31 @@ function Login() {
               placeHolder="Enter your email"
               type="email"
               {...register("email", {
-                required: true,
+                required: "Email is required",
                 pattern: {
                   value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
                   message: "Enter a valid email",
                 },
               })}
             />
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email.message}</p>
+            )}
+            <Input
+              label="Password:"
+              placeHolder="Enter Your password"
+              type="password"
+              {...register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 8,
+                  message: "Password must be at least 8 characters",
+                },
+              })}
+            />
+            {errors.password && (
+              <p className="text-red-500 text-sm">{errors.password.message}</p>
+            )}
             <Button type="submit" className="w-full">
               Sign in
             </Button>

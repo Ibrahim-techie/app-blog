@@ -8,12 +8,13 @@ class AuthService {
     this.account = new Account(client);
   }
 
-  async createAccount({ email, password }) {
+  async createAccount({ email, password, name }) {
     try {
       await this.account.create({
         userId: ID.unique(),
         email,
         password,
+        name,
       });
 
       return await this.logIn({ email: email, password: password });
