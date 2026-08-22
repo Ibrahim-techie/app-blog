@@ -1,6 +1,6 @@
 import { Editor } from "@tinymce/tinymce-react";
 import { Controller } from "react-hook-form";
-import config from "../Config/config";
+import config from "../Config/Config";
 
 function RTE({ name, control, defaultValue = "", ...props }) {
   return (
@@ -11,6 +11,8 @@ function RTE({ name, control, defaultValue = "", ...props }) {
       render={({ field: { onChange } }) => (
         <Editor
           apiKey={config.TinyMCE}
+          initialValue={defaultValue}
+          onEditorChange={onChange}
           init={{
             branding: false,
             elementpath: false,
@@ -25,8 +27,6 @@ function RTE({ name, control, defaultValue = "", ...props }) {
             content_style:
               "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
           }}
-          initialValue={defaultValue}
-          onEditorChange={onChange}
         />
       )}
     />
