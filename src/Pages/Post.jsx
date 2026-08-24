@@ -7,11 +7,11 @@ import { Button, Container } from "../components";
 import fileservice from "../services/storage.service";
 
 function Post() {
-  const [post, setPost] = useState({});
+  const [post, setPost] = useState();
 
   const userData = useSelector((state) => state.auth.userData);
   const { slug } = useParams();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!!slug);
   const [showcnfDlt, setshowcnfDlt] = useState(false);
   const navigate = useNavigate();
 
@@ -22,8 +22,6 @@ function Post() {
 
   useEffect(() => {
     if (slug) {
-      setLoading(true);
-
       postservice
         .getPost(slug)
         .then((post) => {
@@ -38,8 +36,6 @@ function Post() {
     } else {
       navigate("/");
     }
-
-    setLoading(false);
   }, [slug, navigate]);
 
   if (loading) {
@@ -116,7 +112,6 @@ function Post() {
                   bgColor="bg-red-500"
                   onClick={() => {
                     deletePost();
-                    setshowcnfDlt(false);
                   }}
                 >
                   Yes, Delete
