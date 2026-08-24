@@ -20,7 +20,7 @@ class Postservice {
           content: content,
           featuredImage: featuredImage,
           status: status,
-          userId: userID,
+          userID: userID,
         },
       });
 

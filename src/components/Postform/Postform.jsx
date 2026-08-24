@@ -74,7 +74,7 @@ function Postform({ post }) {
 
       const createPost = await postservice.createPost({
         ...data,
-        userID: userData.userID,
+        userID: userData.$id,
       });
 
       if (createPost) {
