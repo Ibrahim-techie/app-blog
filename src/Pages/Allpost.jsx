@@ -2,11 +2,11 @@ import { Postcard, Container } from "../components";
 import postservice from "../services/Post.service";
 import { useState, useEffect } from "react";
 
-function Allpost() {
+function AllPost() {
   const [posts, setPosts] = useState([]);
 
   const getPosts = async () => {
-    const response = await postservice.getPost();
+    const response = await postservice.getPosts();
     if (response) {
       setPosts(response.rows);
     }
@@ -31,4 +31,4 @@ function Allpost() {
   );
 }
 
-export default Allpost;
+export default AllPost;

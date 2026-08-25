@@ -52,20 +52,27 @@ function Post() {
 
   const deletePost = async () => {
     try {
-      const status = await fileservice.fileDelete(post.featuredImage);
-      if (status) {
-        const delstatus = await postservice.deletePost(slug);
-        if (delstatus) {
-          setshowcnfDlt(false);
-          navigate("/");
-        }
-      } else {
-        console.log("Error While Deleting Image");
+      // Step 1: Delete the post
+      const postDeleted = await postservice.deletePost(slug);
+      if (!postDeleted) {
+        console.error("Failed to delete post");
+        return;
+      }
+
+      // Step 2: Close confirmation modal and navigate
+      setshowcnfDlt(false);
+      navigate("/");
+
+      // Step 3: Delete the associated file (optional cleanup)
+      const fileDeleted = await fileservice.fileDelete(post.featuredImage);
+      if (!fileDeleted) {
+        console.error("Failed to delete associated image");
       }
     } catch (error) {
-      console.log("Error while Deleting Post", error);
+      console.error("Error while deleting post:", error);
     }
   };
+
   return post ? (
     <div className="py-8">
       <Container>
