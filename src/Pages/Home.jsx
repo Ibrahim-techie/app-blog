@@ -1,13 +1,17 @@
 import { Postcard, Container } from "../components";
 import { useSelector, useDispatch } from "react-redux";
 import postservice from "../services/Post.service";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { allPosts, myposts } from "../redux/postSlice";
+import { Button } from "../components/index";
+import { Link } from "react-router-dom";
 
 function Home() {
   const authStatus = useSelector((state) => state.auth.status);
   const userData = useSelector((state) => state.auth.userData);
   const userPosts = useSelector((state) => state.post.mypost);
+  const [poststatus, setPostStatus] = useState("active");
+  const filteredPosts = userPosts.filter((post) => post.status === poststatus);
 
   const dispatch = useDispatch();
 
@@ -31,6 +35,8 @@ function Home() {
         });
     }
   }, [authStatus, userData?.$id, dispatch]);
+
+  // inactive post
 
   // Only show posts created by the logged-in user
 
@@ -104,6 +110,39 @@ function Home() {
               <p className="mt-2 text-gray-500">
                 Manage and read the content you've created.
               </p>
+              <div className="mt-5 inline-flex rounded-xl border border-gray-200 bg-gray-100 p-1 shadow-sm">
+                <Button
+                  type="button"
+                  bgColor={
+                    poststatus === "active"
+                      ? "bg-indigo-600"
+                      : "bg-transparent hover:bg-white"
+                  }
+                  textColor={
+                    poststatus === "active" ? "text-white" : "text-gray-600"
+                  }
+                  className="rounded-lg px-5 py-2 text-sm font-semibold transition-all duration-200"
+                  onClick={() => setPostStatus("active")}
+                >
+                  Active
+                </Button>
+
+                <Button
+                  type="button"
+                  bgColor={
+                    poststatus === "inactive"
+                      ? "bg-indigo-600"
+                      : "bg-transparent hover:bg-white"
+                  }
+                  textColor={
+                    poststatus === "inactive" ? "text-white" : "text-gray-600"
+                  }
+                  className="rounded-lg px-5 py-2 text-sm font-semibold transition-all duration-200"
+                  onClick={() => setPostStatus("inactive")}
+                >
+                  Inactive
+                </Button>
+              </div>
             </div>
 
             {/* Post Count */}
@@ -114,7 +153,7 @@ function Home() {
 
           {/* Posts Grid */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {userPosts.map((post) => (
+            {filteredPosts.map((post) => (
               <Postcard key={post.$id} {...post} />
             ))}
           </div>

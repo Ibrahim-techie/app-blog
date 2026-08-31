@@ -1,6 +1,6 @@
 import client from "./client";
 import config from "../Config/Config";
-import { TablesDB, Query } from "appwrite";
+import { TablesDB } from "appwrite";
 
 class Postservice {
   tablesDB;
@@ -14,7 +14,7 @@ class Postservice {
       const result = this.tablesDB.createRow({
         databaseId: config.databaseId,
         tableId: config.tableId,
-        rowId: slug.slice(0,36),
+        rowId: slug.slice(0, 36),
         data: {
           title: title,
           content: content,
@@ -36,7 +36,7 @@ class Postservice {
 
   async updatePost(slug, { title, content, featuredImage, status }) {
     try {
-     const result= await this.tablesDB.updateRow({
+      const result = await this.tablesDB.updateRow({
         databaseId: config.databaseId,
         tableId: config.tableId,
         rowId: slug,
@@ -97,8 +97,8 @@ class Postservice {
       const result = await this.tablesDB.listRows({
         databaseId: config.databaseId,
         tableId: config.tableId,
-        queries: [Query.equal("status", ["active"])],
-        total: true, 
+
+        total: true,
       });
 
       return result;
