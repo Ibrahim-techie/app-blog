@@ -1,142 +1,100 @@
-
 import { Link } from "react-router-dom";
 import Logo from "../Logo";
+import LinkGroup from "./LinkGroup";
 
 function Footer() {
+  const companyLinks = [
+    { name: "Features", path: "/" },
+    { name: "Pricing", path: "/" },
+    { name: "Affiliate Program", path: "/" },
+    { name: "Press Kit", path: "/" },
+  ];
+
+  const supportLinks = [
+    { name: "Account", path: "/" },
+    { name: "Help", path: "/" },
+    { name: "Contact Us", path: "/" },
+    { name: "Customer Support", path: "/" },
+  ];
+
+  const legalLinks = [
+    { name: "Terms & Conditions", path: "/" },
+    { name: "Privacy Policy", path: "/" },
+    { name: "Licensing", path: "/" },
+  ];
+
   return (
-    <section className="relative overflow-hidden py-10 bg-gray-400 border border-t-2 border-t-black">
-      <div className="relative z-10 mx-auto max-w-7xl px-4">
-        <div className="-m-6 flex flex-wrap">
-          <div className="w-full p-6 md:w-1/2 lg:w-5/12">
-            <div className="flex h-full flex-col justify-between">
-              <div className="mb-4 inline-flex items-center">
-                <Logo width="100px" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">
-                  &copy; Copyright 2023. All Rights Reserved by DevUI.
-                </p>
-              </div>
+    <footer className="relative overflow-hidden bg-gray-950 text-white">
+      {/* Decorative background */}
+      <div className="absolute -right-32 -top-32 h-72 w-72 rounded-full bg-indigo-600/10 blur-3xl" />
+      <div className="absolute -bottom-32 -left-32 h-72 w-72 rounded-full bg-purple-600/10 blur-3xl" />
+
+      <div className="relative mx-auto max-w-7xl px-6 py-14 lg:px-8">
+        {/* Main Footer */}
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-5">
+          {/* Brand Section */}
+          <div className="lg:col-span-2">
+            <Link to="/" className="inline-block">
+              <Logo width="110px" />
+            </Link>
+
+            <p className="mt-5 max-w-sm text-sm leading-6 text-gray-400">
+              A modern platform to create, share, and discover meaningful
+              content. Built with simplicity and performance in mind.
+            </p>
+
+            {/* Social Icons */}
+            <div className="mt-7 flex items-center gap-3">
+              <a
+                href="#"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-800 bg-gray-900 text-sm text-gray-400 transition-all duration-200 hover:border-gray-700 hover:bg-gray-800 hover:text-white"
+                aria-label="GitHub"
+              >
+                GH
+              </a>
+
+              <a
+                href="#"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-800 bg-gray-900 text-sm text-gray-400 transition-all duration-200 hover:border-gray-700 hover:bg-gray-800 hover:text-white"
+                aria-label="LinkedIn"
+              >
+                in
+              </a>
+
+              <a
+                href="#"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-800 bg-gray-900 text-sm text-gray-400 transition-all duration-200 hover:border-gray-700 hover:bg-gray-800 hover:text-white"
+                aria-label="Twitter"
+              >
+                X
+              </a>
             </div>
           </div>
-          <div className="w-full p-6 md:w-1/2 lg:w-2/12">
-            <div className="h-full">
-              <h3 className="tracking-px mb-9  text-xs font-semibold uppercase text-gray-500">
-                Company
-              </h3>
-              <ul>
-                <li className="mb-4">
-                  <Link
-                    className=" text-base font-medium text-gray-900 hover:text-gray-700"
-                    to="/"
-                  >
-                    Features
-                  </Link>
-                </li>
-                <li className="mb-4">
-                  <Link
-                    className=" text-base font-medium text-gray-900 hover:text-gray-700"
-                    to="/"
-                  >
-                    Pricing
-                  </Link>
-                </li>
-                <li className="mb-4">
-                  <Link
-                    className=" text-base font-medium text-gray-900 hover:text-gray-700"
-                    to="/"
-                  >
-                    Affiliate Program
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    className=" text-base font-medium text-gray-900 hover:text-gray-700"
-                    to="/"
-                  >
-                    Press Kit
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="w-full p-6 md:w-1/2 lg:w-2/12">
-            <div className="h-full">
-              <h3 className="tracking-px mb-9  text-xs font-semibold uppercase text-gray-500">
-                Support
-              </h3>
-              <ul>
-                <li className="mb-4">
-                  <Link
-                    className=" text-base font-medium text-gray-900 hover:text-gray-700"
-                    to="/"
-                  >
-                    Account
-                  </Link>
-                </li>
-                <li className="mb-4">
-                  <Link
-                    className=" text-base font-medium text-gray-900 hover:text-gray-700"
-                    to="/"
-                  >
-                    Help
-                  </Link>
-                </li>
-                <li className="mb-4">
-                  <Link
-                    className=" text-base font-medium text-gray-900 hover:text-gray-700"
-                    to="/"
-                  >
-                    Contact Us
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    className=" text-base font-medium text-gray-900 hover:text-gray-700"
-                    to="/"
-                  >
-                    Customer Support
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="w-full p-6 md:w-1/2 lg:w-3/12">
-            <div className="h-full">
-              <h3 className="tracking-px mb-9  text-xs font-semibold uppercase text-gray-500">
-                Legals
-              </h3>
-              <ul>
-                <li className="mb-4">
-                  <Link
-                    className=" text-base font-medium text-gray-900 hover:text-gray-700"
-                    to="/"
-                  >
-                    Terms &amp; Conditions
-                  </Link>
-                </li>
-                <li className="mb-4">
-                  <Link
-                    className=" text-base font-medium text-gray-900 hover:text-gray-700"
-                    to="/"
-                  >
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    className=" text-base font-medium text-gray-900 hover:text-gray-700"
-                    to="/"
-                  >
-                    Licensing
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
+
+          {/* Company */}
+          <LinkGroup title="Company" links={companyLinks} />
+
+          {/* Support */}
+          <LinkGroup title="Support" links={supportLinks} />
+
+          {/* Legal */}
+          <LinkGroup title="Legal" links={legalLinks} />
+        </div>
+
+        {/* Divider */}
+        <div className="my-10 h-px bg-gray-800" />
+
+        {/* Bottom Section */}
+        <div className="flex flex-col gap-4 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} DevUI. All rights reserved.</p>
+
+          <p>
+            Built with <span className="text-gray-300">React</span> &{" "}
+            <span className="text-gray-300">Tailwind CSS</span>
+          </p>
         </div>
       </div>
-    </section>
+    </footer>
   );
 }
 

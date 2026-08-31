@@ -98,7 +98,7 @@ class Postservice {
         databaseId: config.databaseId,
         tableId: config.tableId,
         queries: [Query.equal("status", ["active"])],
-        total: true,
+        total: true, 
       });
 
       return result;

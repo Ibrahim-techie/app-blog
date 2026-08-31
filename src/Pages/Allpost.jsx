@@ -1,20 +1,9 @@
+import { useSelector } from "react-redux";
 import { Postcard, Container } from "../components";
-import postservice from "../services/Post.service";
-import { useState, useEffect } from "react";
 
 function AllPost() {
-  const [posts, setPosts] = useState([]);
-
-  const getPosts = async () => {
-    const response = await postservice.getPosts();
-    if (response) {
-      setPosts(response.rows);
-    }
-  };
-
-  useEffect(() => {
-    getPosts();
-  }, []);
+  const posts = useSelector((state) => state.post.all);
+  // const [posts, setPosts] = useState([]);
 
   return (
     <div className="w-full py-8">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { login as storeLogin } from "../redux/authSlice";
 import { Button, Input, Logo } from "./index";
 import { useDispatch } from "react-redux";
@@ -9,6 +9,8 @@ import { useForm } from "react-hook-form";
 function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const message = location.state?.message;
   const {
     register,
     handleSubmit,
@@ -26,6 +28,8 @@ function Login() {
 
         if (userData) {
           dispatch(storeLogin(userData));
+          
+          
         }
 
         navigate("/");
@@ -56,6 +60,11 @@ function Login() {
             Sign Up
           </Link>
         </p>
+        {message && (
+          <p className="text-blue-600 mt-4 text-center font-medium">
+            {message}
+          </p>
+        )}
 
         {Error && <p className="text-red-600 mt-8 text-center">{Error}</p>}
         <form onSubmit={handleSubmit(login)} className="mt-8">
