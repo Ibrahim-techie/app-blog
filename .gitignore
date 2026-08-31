@@ -26,3 +26,4 @@ dist-ssr
 .env
 .env.sample
 src/components/tinymce_test.html
+

@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import authService from "./services/auth.service";
 import { useDispatch } from "react-redux";
 import { login, logout } from "./redux/authSlice";
+import { Header,Footer } from "./components";
+import { Outlet } from "react-router-dom";
+
 
 function App() {
   const [loading, setloading] = useState(true);
@@ -33,14 +36,17 @@ function App() {
       </div>
     );
   }
-
-  return (
-    <div className=" bg-black h-full text-2xl text-white">
-      <div>Header</div>
-      <div>Outlet</div>
-      <div>Footer</div>
+  return !loading ? (
+    <div className="min-h-screen flex flex-wrap content-between bg-gray-400">
+      <div className="w-full block">
+        <Header />
+        <main>
+      <Outlet />
+        </main>
+        <Footer />
+      </div>
     </div>
-  );
+  ) : null;
 }
 
 export default App;

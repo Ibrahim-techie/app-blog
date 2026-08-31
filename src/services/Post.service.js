@@ -14,7 +14,7 @@ class Postservice {
       const result = this.tablesDB.createRow({
         databaseId: config.databaseId,
         tableId: config.tableId,
-        rowId: slug,
+        rowId: slug.slice(0,36),
         data: {
           title: title,
           content: content,
@@ -36,7 +36,7 @@ class Postservice {
 
   async updatePost(slug, { title, content, featuredImage, status }) {
     try {
-      await this.tablesDB.updateRow({
+     const result= await this.tablesDB.updateRow({
         databaseId: config.databaseId,
         tableId: config.tableId,
         rowId: slug,
@@ -47,7 +47,7 @@ class Postservice {
           status: status,
         },
       });
-      return true;
+      return result;
     } catch (error) {
       console.log(
         "Error occured while updating database::updatePost::Post.service.js",

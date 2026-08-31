@@ -1,4 +1,4 @@
-import { PostCard, Container } from "../components";
+import { Postcard, Container } from "../components";
 import { useSelector } from "react-redux";
 import postservice from "../services/Post.service";
 import { useEffect, useState } from "react";
@@ -6,7 +6,9 @@ import { useEffect, useState } from "react";
 function Home() {
   const [posts, setPosts] = useState([]);
   const authStatus = useSelector((state) => state.auth.status);
-
+  const userData = useSelector((state) => state.auth.userData);
+ 
+  
   useEffect(() => {
     if (authStatus) {
       postservice
@@ -24,7 +26,8 @@ function Home() {
           <div className="flex flex-wrap">
             {posts.map((post) => (
               <div key={post.$id} className="p-2 w-1/4">
-                <PostCard {...post} />
+                   {post.userID === userData?.$id ? <Postcard {...post} /> : null}
+               
               </div>
             ))}
           </div>

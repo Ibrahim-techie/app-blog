@@ -38,10 +38,17 @@ function Postform({ post }) {
 
       // Update the post with the new image if uploaded.
       // Otherwise, keep the existing image.
+      console.log(post.$id);
+      
       const updatePost = await postservice.updatePost(post.$id, {
+     
+        
         ...data,
         featuredImage: file ? file.$id : oldImageId,
       });
+      
+      console.log("UpdatePost result:", updatePost);
+
 
       if (updatePost) {
         // Post was updated successfully.
@@ -49,6 +56,7 @@ function Postform({ post }) {
         if (file) {
           await fileservice.fileDelete(oldImageId);
         }
+         
 
         navigate(`/post/${updatePost.$id}`);
       } else {

@@ -10,9 +10,11 @@ export default function Protected({ children, authentication = true }) {
 
   useEffect(() => {
     if (authStatus !== authentication) {
-      navigate(authentication ? "/login" : "/");
+      navigate(authentication ? "/login" : "/", {
+        state: { message: "Login first to view posts" },
+      });
     }
-    
+
     setloader(false);
   }, [authStatus, navigate, authentication]);
 

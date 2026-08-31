@@ -1,5 +1,5 @@
 import config from "../Config/Config";
-import { ID, Storage } from "appwrite";
+import { ID, Storage, Permission, Role } from "appwrite";
 import client from "./client";
 
 class fileService {
@@ -15,6 +15,7 @@ class fileService {
         bucketId: config.bucketId,
         fileId: ID.unique(),
         file: file,
+        permissions: [Permission.read(Role.any())],
       });
 
       return result;
@@ -48,22 +49,11 @@ class fileService {
 
   filePreview(fileID) {
     try {
-      const result = this.storage.getFilePreview({
+      const result = this.storage.getFileView({
         bucketId: config.bucketId,
         fileId: fileID,
-        //   width: 0, // optional
-        //   height: 0, // optional
-        //   gravity: ImageGravity.Center, // optional
-        //   quality: -1, // optional
-        //   borderWidth: 0, // optional
-        //   borderColor: "", // optional
-        //   borderRadius: 0, // optional
-        //   opacity: 0, // optional
-        //   rotation: -360, // optional
-        //   background: "", // optional
-        //   output: ImageFormat.Jpg, // optional
-        //   token: "<TOKEN>", // optional
       });
+      console.log("Preview Request has been made ");
 
       return result;
     } catch (error) {

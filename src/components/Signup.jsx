@@ -16,7 +16,7 @@ function Signup() {
     try {
       const userData = await authService.createAccount(data);
       if (userData) {
-        const getuserData = authService.getCurrentUser();
+        const getuserData = await authService.getCurrentUser();
 
         if (getuserData) {
           dispatch(login(getuserData));
@@ -24,7 +24,7 @@ function Signup() {
         }
       }
     } catch (error) {
-      setError(error);
+      setError(error.message);
     }
   };
 
@@ -56,14 +56,14 @@ function Signup() {
           <div className="space-y-5"></div>
           <Input
             label="Full-Name"
-            placeHolder="Enter your Full Name"
+            placeholder="Enter your Full Name"
             {...register("name", {
               required: "Name is Required",
             })}
           />
           <Input
             label="email"
-            placeHolder="Enter Your Email"
+            placeholder="Enter Your Email"
             type="email"
             {...register("email", {
               required: "Email is required",
@@ -76,7 +76,7 @@ function Signup() {
 
           <Input
             label="password"
-            placeHolder="Enter Your Password"
+            placeholder="Enter Your Password"
             type="password"
             {...register("password", {
               required: "Password is required",

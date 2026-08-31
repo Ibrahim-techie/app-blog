@@ -39,15 +39,14 @@ class AuthService {
     }
   }
 
-  async getCurrentUser() {
-    try {
-      return await this.account.get();
-    } catch (error) {
-      console.log("Error in getCurrentUser :: auth.service.js::error", error);
-    }
-
-    return null;
+async getCurrentUser() {
+  try {
+    return await this.account.get();
+  } catch {
+    return null; // explicitly signal "no user"
   }
+}
+
 
   async logOut() {
     try {

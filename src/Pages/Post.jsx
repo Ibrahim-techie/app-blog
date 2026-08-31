@@ -80,7 +80,7 @@ function Post() {
           <img
             src={fileservice.filePreview(post.featuredImage)}
             alt={post.title}
-            className="rounded-xl"
+            className="rounded-xl w-64 h-48 border-2 object-cover"
           />
 
           {isUserAuthor && (

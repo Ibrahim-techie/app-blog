@@ -1,4 +1,3 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
@@ -12,36 +11,65 @@ import AllPost from "./Pages/AllPost.jsx";
 import AddPost from "./Pages/AddPost.jsx";
 import Post from "./Pages/Post.jsx";
 import NotFound from "./Pages/NotFound.jsx";
-
+import Home from "./Pages/Home";
+import { Authlayout } from "./components/index.js";
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
       {
+        path: "/",
+        element: <Home />,
+      },
+      {
         path: "login",
-        element: <Login />,
+        element: (
+          <Authlayout authentication={false}>
+            <Login />
+          </Authlayout>
+        ),
       },
       {
         path: "signup",
-        element: <Signup />,
+        element: (
+          <Authlayout authentication={false}>
+            <Signup />
+          </Authlayout>
+        ),
       },
       {
         path: "all-posts",
-        element: <AllPost />,
+        element: (
+          <Authlayout authentication={true}>
+            <AllPost />
+          </Authlayout>
+        ),
       },
       {
         path: "add-post",
-        element: <AddPost />,
+        element: (
+          <Authlayout>
+            <AddPost />
+          </Authlayout>
+        ),
       },
       {
         path: "post/:slug",
-        element: <Post />,
+        element: (
+          <Authlayout authentication={true}>
+            <Post />
+          </Authlayout>
+        ),
       },
 
       {
         path: "edit-post/:slug",
-        element: <EditPost />,
+        element: (
+          <Authlayout authentication={true}>
+            <EditPost />
+          </Authlayout>
+        ),
       },
       {
         path: "*",
@@ -51,9 +79,7 @@ const router = createBrowserRouter([
   },
 ]);
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <Provider store={store}>
-      <RouterProvider router={router} />
-    </Provider>
-  </StrictMode>,
+  <Provider store={store}>
+    <RouterProvider router={router} />
+  </Provider>,
 );
