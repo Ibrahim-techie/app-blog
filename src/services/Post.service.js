@@ -1,6 +1,6 @@
 import client from "./client";
 import config from "../Config/Config";
-import { TablesDB } from "appwrite";
+import { TablesDB, Query } from "appwrite";
 
 class Postservice {
   tablesDB;
@@ -9,7 +9,15 @@ class Postservice {
     this.tablesDB = new TablesDB(client);
   }
 
-  async createPost({ title, slug, content, featuredImage, status, userID }) {
+  async createPost({
+    title,
+    slug,
+    content,
+    featuredImage,
+    status,
+    userID,
+    author,
+  }) {
     try {
       const result = this.tablesDB.createRow({
         databaseId: config.databaseId,
@@ -21,6 +29,7 @@ class Postservice {
           featuredImage: featuredImage,
           status: status,
           userID: userID,
+          author: author,
         },
       });
 
@@ -34,7 +43,7 @@ class Postservice {
     }
   }
 
-  async updatePost(slug, { title, content, featuredImage, status }) {
+  async updatePost(slug, { title, content, featuredImage, status, author }) {
     try {
       const result = await this.tablesDB.updateRow({
         databaseId: config.databaseId,
@@ -45,6 +54,7 @@ class Postservice {
           content: content,
           featuredImage: featuredImage,
           status: status,
+          author: author,
         },
       });
       return result;
@@ -97,7 +107,6 @@ class Postservice {
       const result = await this.tablesDB.listRows({
         databaseId: config.databaseId,
         tableId: config.tableId,
-
         total: true,
       });
 
@@ -111,7 +120,46 @@ class Postservice {
       return false;
     }
   }
+
+  async getcursoRows({ lastId=null, limit = 12 }) {
+    const queries = [
+      Query.limit(limit),
+      Query.orderDesc("$createdAt"),
+      Query.orderDesc("$id"),
+      Query.select([
+        "$id",
+        "$createdAt",
+        "title",
+        "featuredImage",
+        "status",
+        "userID",
+        "author",
+      ]),
+      Query.equal("status", "active")
+    ];
+
+lastId?queries.push(Query.cursorAfter(lastId)):null;
+
+    try {
+      const result = await this.tablesDB.listRows({
+        databaseId: config.databaseId,
+        tableId: config.tableId,
+        queries,
+        total: false,
+      });
+      return result;
+    } catch (error) {
+      console.log(
+        "Error occured while getting posts from  database::getPosts::Post.service.js",
+        error,
+      );
+
+      return false;
+    }
+  }
 }
+
+// scroll pagination for All posts page initilally
 
 const postservice = new Postservice();
 

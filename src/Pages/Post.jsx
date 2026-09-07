@@ -170,7 +170,7 @@ function Post() {
             </div>
 
             <h2 id="delete-title" className="text-xl font-bold text-gray-900">
-              Delete this post?
+               {post.title}
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-gray-500">

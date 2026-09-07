@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import fileservice from "../../services/storage.service";
 
 function Postform({ post }) {
+    const userData = useSelector((state) => state.auth.userData);
   const {
     register,
     handleSubmit,
@@ -21,11 +22,12 @@ function Postform({ post }) {
       content: post?.content || "",
       slug: post?.$id || "",
       status: post?.status || "active",
+      author: post?.author || userData?.name || "",
     },
   });
 
   const navigate = useNavigate();
-  const userData = useSelector((state) => state.auth.userData);
+
 
   // --------------------------------
   // Convert title into URL-friendly slug
@@ -62,6 +64,8 @@ function Postform({ post }) {
   // Submit
   // --------------------------------
   const submit = async (data) => {
+    console.log(data);
+    
     try {
       // ==============================
       // UPDATE EXISTING POST
@@ -116,6 +120,7 @@ function Postform({ post }) {
 
       const createPost = await postservice.createPost({
         ...data,
+
         featuredImage: file.$id,
         userID: userData.$id,
       });
@@ -175,27 +180,21 @@ function Postform({ post }) {
               )}
             </div>
 
-            {/* Slug */}
+            {/* Author */}
             <div className="mb-6">
               <Input
-                label="Slug"
-                placeholder="post-slug"
-                {...register("slug", {
-                  required: "Slug is required",
+                label="Author"
+                placeholder="Author-Name"
+                {...register("author", {
+                  required: "Author is required",
                 })}
-                onInput={(e) => {
-                  setValue("slug", slugTransform(e.target.value), {
-                    shouldValidate: true,
-                  });
-                }}
               />
 
-              <p className="mt-2 text-xs text-gray-400">
-                This becomes part of your post URL.
-              </p>
-
-              {errors.slug && (
-                <p className="mt-1 text-sm text-red-500">Slug is required</p>
+             
+              {errors.author && (
+                <p className="mt-1 text-sm text-red-500">
+                  {errors.author.message}
+                </p>
               )}
             </div>
 
