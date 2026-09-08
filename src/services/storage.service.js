@@ -53,7 +53,7 @@ class fileService {
         bucketId: config.bucketId,
         fileId: fileID,
       });
-      console.log("Preview Request has been made ");
+      // console.log("Preview Request has been made ");
 
       return result;
     } catch (error) {

@@ -60,6 +60,7 @@ function Login() {
             Sign Up
           </Link>
         </p>
+        {/* this is for redirected from all-post for guest user  */}
         {message && (
           <p className="text-blue-600 mt-4 text-center font-medium">
             {message}

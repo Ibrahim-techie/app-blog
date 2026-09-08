@@ -1,4 +1,3 @@
-
 import { Postcard, Container } from "../components";
 import { useSelector, useDispatch } from "react-redux";
 import postservice from "../services/Post.service";
@@ -23,17 +22,10 @@ function Home() {
   useEffect(() => {
     if (authStatus) {
       postservice
-        .getPosts()
+        .getPosts(userData.$id)
         .then((response) => {
-          const posts = response.rows;
-
-          dispatch(allPosts(posts));
-
-          const currentuserPosts = posts.filter(
-            (post) => post.userID === userData.$id,
-          );
-
-          dispatch(myposts(currentuserPosts));
+         
+          dispatch(myposts(response.rows));
         })
         .catch((error) => {
           console.error("Error fetching posts:", error);
@@ -101,12 +93,9 @@ function Home() {
     <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Container>
         <section className="px-4 py-10 sm:px-6 lg:px-0">
-
           {/* Dashboard Header */}
           <div className="mb-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-8">
-
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-
               {/* Heading */}
               <div>
                 <div className="mb-3 flex items-center gap-2">
@@ -144,7 +133,6 @@ function Home() {
             {/* Status Filter */}
             <div className="mt-7 border-t border-gray-100 pt-6 dark:border-gray-800">
               <div className="inline-flex rounded-xl border border-gray-200 bg-gray-100 p-1 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-
                 <Button
                   type="button"
                   bgColor={
@@ -198,7 +186,6 @@ function Home() {
                 >
                   All
                 </Button>
-
               </div>
             </div>
           </div>
@@ -233,4 +220,3 @@ function Home() {
 }
 
 export default Home;
-

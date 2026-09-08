@@ -102,12 +102,17 @@ class Postservice {
     }
   }
 
-  async getPosts() {
+  async getPosts(userID) {
     try {
       const result = await this.tablesDB.listRows({
         databaseId: config.databaseId,
         tableId: config.tableId,
         total: true,
+         queries: [
+    Query.equal("userID", userID),
+   
+    Query.orderDesc("$createdAt")
+  ]
       });
 
       return result;

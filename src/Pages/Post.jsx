@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { useState, useEffect } from "react";
-import HTMLReactParser from "html-react-parser/lib/index";
+import HTMLReactParser from "html-react-parser";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import postservice from "../services/Post.service";
 import { Button, Container } from "../components";
@@ -9,9 +9,9 @@ import fileservice from "../services/storage.service";
 function Post() {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [showcnfDlt, setShowCnfDlt] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const allposts = useSelector((state) => state.post.all);
   const userData = useSelector((state) => state.auth.userData);
 
   const { slug } = useParams();
@@ -27,17 +27,38 @@ function Post() {
       return;
     }
 
-    setLoading(true);
-    const currentPost = allposts.find((post) => post.$id === slug);
+    let cancelled = false;
 
-    if (currentPost) {
-      setLoading(false);
-      setPost(currentPost);
-    } else {
-      setLoading(false);
-      navigate("/");
+    async function loadPost() {
+      setLoading(true);
+      setError("");
+      setPost(null);
+
+      try {
+        // List results omit content, so load the complete article by its ID.
+        const currentPost = await postservice.getPost(slug);
+        if (!currentPost || typeof currentPost.content !== "string") {
+          throw new Error("The post content is unavailable.");
+        }
+        if (!cancelled) setPost(currentPost);
+      } catch (error) {
+        if (!cancelled) {
+          setError(
+            error.code === 404
+              ? "This post could not be found."
+              : "We couldn't load this post. Please try refreshing the page.",
+          );
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
-  }, [slug, navigate, allposts]);
+
+    loadPost();
+    return () => {
+      cancelled = true;
+    };
+  }, [slug, navigate]);
 
   // Delete post
   const deletePost = async () => {
@@ -86,6 +107,21 @@ function Post() {
                 Loading post...
               </p>
             </div>
+          </div>
+        </Container>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="min-h-screen bg-gray-50 py-12">
+        <Container>
+          <div role="alert" className="text-center">
+            <p className="mb-4 text-gray-700">{error}</p>
+            <Link to="/all-posts" className="font-semibold text-indigo-600">
+              Back to all posts
+            </Link>
           </div>
         </Container>
       </main>

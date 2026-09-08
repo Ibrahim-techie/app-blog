@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import authService from "./services/auth.service";
 import { useDispatch } from "react-redux";
 import { login, logout } from "./redux/authSlice";
-import { Header,Footer } from "./components";
+import { Header,Footer, Loader } from "./components";
 import { Outlet } from "react-router-dom";
 
 
@@ -32,7 +32,7 @@ function App() {
   if (loading) {
     return (
       <div>
-        <h1>.....loading</h1>
+        <Loader/>
       </div>
     );
   }
