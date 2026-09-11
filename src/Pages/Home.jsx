@@ -1,8 +1,8 @@
-import { Postcard, Container } from "../components";
+import { Postcard, Container, Loader } from "../components";
 import { useSelector, useDispatch } from "react-redux";
 import postservice from "../services/Post.service";
 import { useEffect, useState } from "react";
-import { allPosts, myposts } from "../redux/postSlice";
+import {  myposts } from "../redux/postSlice";
 import { Button } from "../components/index";
 
 function Home() {
@@ -11,6 +11,8 @@ function Home() {
   const userPosts = useSelector((state) => state.post.mypost);
 
   const [poststatus, setPostStatus] = useState("active");
+  const [loadedUserId, setLoadedUserId] = useState(null);
+  const loading = loadedUserId !== userData?.$id;
 
   const dispatch = useDispatch();
 
@@ -20,17 +22,22 @@ function Home() {
       : userPosts.filter((post) => post.status === poststatus);
 
   useEffect(() => {
+    let cancelled = false;
     if (authStatus) {
       postservice
         .getPosts(userData.$id)
         .then((response) => {
-         
+          if (cancelled) return;
           dispatch(myposts(response.rows));
         })
         .catch((error) => {
           console.error("Error fetching posts:", error);
+        })
+        .finally(() => {
+          if (!cancelled) setLoadedUserId(userData.$id);
         });
     }
+    return () => { cancelled = true; };
   }, [authStatus, userData?.$id, dispatch]);
 
   // ---------------- NOT LOGGED IN ----------------
@@ -61,6 +68,16 @@ function Home() {
   }
 
   // ---------------- NO POSTS ----------------
+
+  if (loading) {
+    return (
+      <main className="min-h-[70vh] bg-gray-50 dark:bg-gray-950">
+        <Container>
+          <Loader text="Loading your posts" />
+        </Container>
+      </main>
+    );
+  }
 
   if (userPosts.length === 0) {
     return (

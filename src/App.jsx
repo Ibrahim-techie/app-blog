@@ -27,12 +27,12 @@ function App() {
       .finally(() => {
         setloading(false);
       });
-  });
+  }, [dispatch]);
 
   if (loading) {
     return (
-      <div>
-        <Loader/>
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <Loader text="Preparing your workspace" />
       </div>
     );
   }

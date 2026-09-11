@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import HTMLReactParser from "html-react-parser";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import postservice from "../services/Post.service";
-import { Button, Container } from "../components";
+import { Button, Container, Loader } from "../components";
 import fileservice from "../services/storage.service";
 
 function Post() {
@@ -97,17 +97,9 @@ function Post() {
   // Loading state
   if (loading) {
     return (
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
         <Container>
-          <div className="flex min-h-[70vh] items-center justify-center">
-            <div className="text-center">
-              <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-indigo-600" />
-
-              <p className="text-sm font-medium text-gray-500">
-                Loading post...
-              </p>
-            </div>
-          </div>
+          <Loader text="Loading post" />
         </Container>
       </main>
     );

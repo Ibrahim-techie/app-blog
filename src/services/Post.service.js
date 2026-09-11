@@ -110,8 +110,8 @@ class Postservice {
         total: true,
          queries: [
     Query.equal("userID", userID),
-   
-    Query.orderDesc("$createdAt")
+   Query.limit(100),
+    Query.orderDesc("$createdAt"),
   ]
       });
 
@@ -162,10 +162,53 @@ lastId?queries.push(Query.cursorAfter(lastId)):null;
       return false;
     }
   }
+  
+
+  async searchRows({ searchTerm, lastId = null, limit = 12 }) {
+  const queries = [
+    Query.search("title", searchTerm),
+    Query.equal("status", "active"),
+    Query.orderDesc("$createdAt"),
+    Query.orderDesc("$id"),
+    Query.limit(limit),
+    Query.select([
+      "$id",
+      "$createdAt",
+      "title",
+      "featuredImage",
+      "status",
+      "userID",
+      "author",
+    ]),
+  ];
+
+  if (lastId) {
+    queries.push(Query.cursorAfter(lastId));
+  }
+
+  try {
+    const result = await this.tablesDB.listRows({
+      databaseId: config.databaseId,
+      tableId: config.tableId,
+      queries,
+      total: false,
+    });
+
+    return result;
+  } catch (error) {
+    console.log(
+      "Error occurred while searching posts::searchRows::Post.service.js",
+      error
+    );
+
+    return false;
+  }
+}
 }
 
 // scroll pagination for All posts page initilally
 
 const postservice = new Postservice();
+
 
 export default postservice;
