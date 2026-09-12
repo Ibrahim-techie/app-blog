@@ -151,6 +151,7 @@ lastId?queries.push(Query.cursorAfter(lastId)):null;
         tableId: config.tableId,
         queries,
         total: false,
+          ttl: 3600 ,
       });
       return result;
     } catch (error) {

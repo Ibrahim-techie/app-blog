@@ -32,7 +32,7 @@ function PostCard({ $id, title, featuredImage, author }) {
         <div
           className="
             absolute inset-0
-            bg-gradient-to-t from-black/50 via-black/5 to-transparent
+           bg-linear-to-t from-black/50 via-black/5 to-transparent
             opacity-70
             transition-opacity duration-500
             group-hover:opacity-90
