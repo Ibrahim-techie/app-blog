@@ -1,139 +1,95 @@
-import { useCallback, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { Button, Input, Select, RTE } from "../index";
 import postservice from "../../services/Post.service";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useQueryClient } from "@tanstack/react-query";
 import fileservice from "../../services/storage.service";
+import { postPath, slugify } from "../../utils/postUrl";
+
+const notBlank = (label) => (value) =>
+  value.trim().length > 0 || `${label} is required`;
 
 function Postform({ post }) {
-    const userData = useSelector((state) => state.auth.userData);
+  const userData = useSelector((state) => state.auth.userData);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [submitError, setSubmitError] = useState("");
+
   const {
     register,
     handleSubmit,
     control,
-    watch,
-    setValue,
     getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
       title: post?.title || "",
       content: post?.content || "",
-      slug: post?.$id || "",
       status: post?.status || "active",
       author: post?.author || userData?.name || "",
     },
   });
 
-  const navigate = useNavigate();
+  // Live preview of the readable part of the URL.
+  const title = useWatch({ control, name: "title" });
 
-
-  // --------------------------------
-  // Convert title into URL-friendly slug
-  // --------------------------------
-  const slugTransform = useCallback((value) => {
-    if (value && typeof value === "string") {
-      return value
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, "")
-        .replace(/\s+/g, "-")
-        .replace(/-+/g, "-");
-    }
-
-    return "";
-  }, []);
-
-  // --------------------------------
-  // Automatically generate slug
-  // --------------------------------
-  useEffect(() => {
-    const subscription = watch((value, { name }) => {
-      if (name === "title") {
-        setValue("slug", slugTransform(value.title), {
-          shouldValidate: true,
-        });
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [watch, slugTransform, setValue]);
-
-  // --------------------------------
-  // Submit
-  // --------------------------------
   const submit = async (data) => {
-    console.log(data);
-    
+    setSubmitError("");
+
+    // An image we uploaded that no saved post points to yet. If anything
+    // fails before the save succeeds, it gets deleted so storage stays clean.
+    let orphanImageId = null;
+
     try {
-      // ==============================
-      // UPDATE EXISTING POST
-      // ==============================
-      if (post) {
-        const oldImageId = post.featuredImage;
+      let imageId = post?.featuredImage;
 
-        // Upload new image only if selected
-        const file = data.image?.[0]
-          ? await fileservice.fileUpload(data.image[0])
-          : null;
-
-        const updatePost = await postservice.updatePost(post.$id, {
-          ...data,
-          featuredImage: file ? file.$id : oldImageId,
-        });
-
-        if (updatePost) {
-          // Delete old image only after successful update
-          if (file && oldImageId) {
-            await fileservice.fileDelete(oldImageId);
-          }
-
-          navigate(`/post/${updatePost.$id}`);
-        } else {
-          // Update failed → clean up newly uploaded image
-          if (file) {
-            await fileservice.fileDelete(file.$id);
-          }
-
-          console.error("Failed to update post");
+      if (data.image?.[0]) {
+        const file = await fileservice.fileUpload(data.image[0]);
+        if (!file) {
+          throw new Error("We couldn't upload your image. Please try again.");
         }
-
-        return;
+        imageId = file.$id;
+        orphanImageId = file.$id;
       }
 
-      // ==============================
-      // CREATE NEW POST
-      // ==============================
-
-      if (!data.image?.[0]) {
-        console.error("Featured image is required");
-        return;
+      if (!imageId) {
+        throw new Error("Please choose a featured image.");
       }
 
-      const file = await fileservice.fileUpload(data.image[0]);
+      const fields = {
+        title: data.title.trim(),
+        content: data.content,
+        status: data.status,
+        author: data.author.trim(),
+        featuredImage: imageId,
+      };
 
-      if (!file) {
-        console.error("Failed to upload image");
-        return;
+      const saved = post
+        ? await postservice.updatePost(post.$id, {
+            ...fields,
+            userID: post.userID,
+          })
+        : await postservice.createPost({ ...fields, userID: userData.$id });
+
+      // The saved post now uses the new image, so it is no longer an orphan.
+      orphanImageId = null;
+
+      // Replacing the image: remove the old one only after the save worked,
+      // otherwise a failed save would leave the post pointing at nothing.
+      if (post?.featuredImage && post.featuredImage !== imageId) {
+        const removed = await fileservice.fileDelete(post.featuredImage);
+        if (!removed) console.error("Old featured image could not be deleted");
       }
 
-      const createPost = await postservice.createPost({
-        ...data,
-
-        featuredImage: file.$id,
-        userID: userData.$id,
-      });
-
-      if (createPost) {
-        navigate(`/post/${createPost.$id}`);
-      } else {
-        // Post creation failed → remove uploaded image
-        await fileservice.fileDelete(file.$id);
-        console.error("Failed to create post");
-      }
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      navigate(postPath(saved));
     } catch (error) {
-      console.error("Error submitting post:", error);
+      if (orphanImageId) await fileservice.fileDelete(orphanImageId);
+      setSubmitError(
+        error?.message || "Something went wrong while saving. Please try again.",
+      );
     }
   };
 
@@ -170,12 +126,21 @@ function Postform({ post }) {
                 className="mb-1"
                 {...register("title", {
                   required: "Title is required",
+                  validate: notBlank("Title"),
                 })}
               />
 
-              {errors.title && (
+              {errors.title ? (
                 <p className="mt-1 text-sm text-red-500">
                   {errors.title.message}
+                </p>
+              ) : (
+                <p className="mt-1 truncate pl-1 text-xs text-gray-400">
+                  URL: /post/
+                  <span className="font-medium text-gray-600">
+                    {slugify(title)}
+                  </span>
+                  /{post ? post.$id : "…"}
                 </p>
               )}
             </div>
@@ -187,10 +152,10 @@ function Postform({ post }) {
                 placeholder="Author-Name"
                 {...register("author", {
                   required: "Author is required",
+                  validate: notBlank("Author"),
                 })}
               />
 
-             
               {errors.author && (
                 <p className="mt-1 text-sm text-red-500">
                   {errors.author.message}
@@ -271,6 +236,15 @@ function Postform({ post }) {
             {/* Divider */}
             <div className="mb-6 h-px bg-gray-200" />
 
+            {submitError && (
+              <p
+                role="alert"
+                className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+              >
+                {submitError}
+              </p>
+            )}
+
             {/* Submit */}
             <Button
               type="submit"
@@ -289,7 +263,7 @@ function Postform({ post }) {
             {post && (
               <button
                 type="button"
-                onClick={() => navigate(`/post/${post.$id}`)}
+                onClick={() => navigate(postPath(post))}
                 className="mt-3 w-full rounded-lg px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
               >
                 Cancel

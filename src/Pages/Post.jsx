@@ -2,9 +2,13 @@ import { useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import HTMLReactParser from "html-react-parser";
 import { useNavigate, Link, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import postservice from "../services/Post.service";
 import { Button, Container, Loader } from "../components";
 import fileservice from "../services/storage.service";
+import { postPath, slugify } from "../utils/postUrl";
+
+const NOT_FOUND = "This post could not be found.";
 
 function Post() {
   const [post, setPost] = useState(null);
@@ -12,17 +16,25 @@ function Post() {
   const [error, setError] = useState("");
   const [showcnfDlt, setShowCnfDlt] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
   const userData = useSelector((state) => state.auth.userData);
 
-  const { slug } = useParams();
+  // :id finds the post. :slug is only the readable part of the URL, and is
+  // missing entirely on old /post/:id links.
+  const { id, slug } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // Check whether current user is the author
   const isUserAuthor = post?.userID && post.userID === userData?.$id;
 
+  // Inactive posts are drafts: only their author should see them. This is a
+  // UI guard; the real lock is the read permission set in Post.service.js.
+  const isHidden = post && post.status !== "active" && !isUserAuthor;
+
   // Fetch post
   useEffect(() => {
-    if (!slug) {
+    if (!id) {
       navigate("/");
       return;
     }
@@ -36,7 +48,7 @@ function Post() {
 
       try {
         // List results omit content, so load the complete article by its ID.
-        const currentPost = await postservice.getPost(slug);
+        const currentPost = await postservice.getPost(id);
         if (!currentPost || typeof currentPost.content !== "string") {
           throw new Error("The post content is unavailable.");
         }
@@ -45,7 +57,7 @@ function Post() {
         if (!cancelled) {
           setError(
             error.code === 404
-              ? "This post could not be found."
+              ? NOT_FOUND
               : "We couldn't load this post. Please try refreshing the page.",
           );
         }
@@ -58,40 +70,60 @@ function Post() {
     return () => {
       cancelled = true;
     };
-  }, [slug, navigate]);
+  }, [id, navigate]);
+
+  // Keep one address per post. An old link, a renamed title, or a hand-typed
+  // slug all get replaced with the current /post/:slug/:id. "replace" swaps
+  // the history entry, so the Back button doesn't bounce through the old URL.
+  useEffect(() => {
+    if (!post || isHidden) return;
+    if (slug !== slugify(post.title)) {
+      navigate(postPath(post), { replace: true });
+    }
+  }, [post, slug, isHidden, navigate]);
 
   // Delete post
   const deletePost = async () => {
     if (!post) return;
 
+    setDeleting(true);
+    setDeleteError("");
+
     try {
-      setDeleting(true);
-
-      // Delete post from database
-      const postDeleted = await postservice.deletePost(slug);
-
-      if (!postDeleted) {
-        console.error("Failed to delete post");
-        return;
-      }
-
-      // Delete associated image
-      if (post.featuredImage) {
-        const fileDeleted = await fileservice.fileDelete(post.featuredImage);
-
-        if (!fileDeleted) {
-          console.error("Failed to delete associated image");
-        }
-      }
-
-      // Close modal and navigate
-      setShowCnfDlt(false);
-      navigate("/");
+      await postservice.deletePost(post.$id);
     } catch (error) {
-      console.error("Error while deleting post:", error);
-    } finally {
+      // Nothing was deleted, so keep the dialog open and say why.
+      setDeleteError(
+        error?.message || "We couldn't delete this post. Please try again.",
+      );
       setDeleting(false);
+      return;
     }
+
+    // The post is gone. Its image is now unused; if removing it fails the
+    // reader never notices, so log it instead of blocking them.
+    if (post.featuredImage) {
+      const removed = await fileservice.fileDelete(post.featuredImage);
+      if (!removed) console.error("Failed to delete associated image");
+    }
+
+    // Drop the row from every cached list right away. Invalidating alone would
+    // still render the cached copy on the way back, leaving a card that 404s.
+    queryClient.setQueriesData({ queryKey: ["posts"] }, (old) =>
+      old?.pages
+        ? {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              rows: page.rows.filter((row) => row.$id !== post.$id),
+            })),
+          }
+        : old,
+    );
+    queryClient.invalidateQueries({ queryKey: ["posts"] });
+
+    // "replace" so Back doesn't return to the deleted post's URL.
+    navigate("/", { replace: true });
   };
 
   // Loading state
@@ -105,12 +137,14 @@ function Post() {
     );
   }
 
-  if (error) {
+  // A hidden draft gets the same message as a missing post, so the page
+  // doesn't reveal that a draft with this id exists.
+  if (error || isHidden) {
     return (
       <main className="min-h-screen bg-gray-50 py-12">
         <Container>
           <div role="alert" className="text-center">
-            <p className="mb-4 text-gray-700">{error}</p>
+            <p className="mb-4 text-gray-700">{error || NOT_FOUND}</p>
             <Link to="/all-posts" className="font-semibold text-indigo-600">
               Back to all posts
             </Link>
@@ -206,12 +240,24 @@ function Post() {
               image will be permanently deleted.
             </p>
 
+            {deleteError && (
+              <p
+                role="alert"
+                className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+              >
+                {deleteError}
+              </p>
+            )}
+
             {/* Actions */}
             <div className="mt-7 flex justify-end gap-3">
               <Button
                 bgColor="bg-gray-100"
                 className="text-gray-700! hover:bg-gray-200!"
-                onClick={() => setShowCnfDlt(false)}
+                onClick={() => {
+                  setShowCnfDlt(false);
+                  setDeleteError("");
+                }}
                 disabled={deleting}
               >
                 Cancel
