@@ -1,6 +1,17 @@
 import client from "./client";
 import config from "../Config/Config";
-import { TablesDB, Query } from "appwrite";
+import { TablesDB, Query, ID, Permission, Role } from "appwrite";
+
+// Who may do what with one post: any signed-in user can read an active post,
+// only the author can read an inactive one, and only the author can edit or
+// delete it. Appwrite enforces these once "Row security" is enabled on the table.
+function postPermissions(userID, status) {
+  return [
+    Permission.read(status === "active" ? Role.users() : Role.user(userID)),
+    Permission.update(Role.user(userID)),
+    Permission.delete(Role.user(userID)),
+  ];
+}
 
 class Postservice {
   tablesDB;
@@ -9,20 +20,14 @@ class Postservice {
     this.tablesDB = new TablesDB(client);
   }
 
-  async createPost({
-    title,
-    slug,
-    content,
-    featuredImage,
-    status,
-    userID,
-    author,
-  }) {
+  async createPost({ title, content, featuredImage, status, userID, author }) {
     try {
-      const result = this.tablesDB.createRow({
+      // Appwrite generates the id, so two posts with the same title never
+      // collide. The readable slug lives only in the URL (see utils/postUrl.js).
+      return await this.tablesDB.createRow({
         databaseId: config.databaseId,
         tableId: config.tableId,
-        rowId: slug.slice(0, 36),
+        rowId: ID.unique(),
         data: {
           title: title,
           content: content,
@@ -31,9 +36,8 @@ class Postservice {
           userID: userID,
           author: author,
         },
+        permissions: postPermissions(userID, status),
       });
-
-      return result;
     } catch (error) {
       console.log(
         "Error occured while database making::createPost::Post.service.js",
@@ -43,12 +47,15 @@ class Postservice {
     }
   }
 
-  async updatePost(slug, { title, content, featuredImage, status, author }) {
+  async updatePost(
+    id,
+    { title, content, featuredImage, status, author, userID },
+  ) {
     try {
-      const result = await this.tablesDB.updateRow({
+      return await this.tablesDB.updateRow({
         databaseId: config.databaseId,
         tableId: config.tableId,
-        rowId: slug,
+        rowId: id,
         data: {
           title: title,
           content: content,
@@ -56,41 +63,41 @@ class Postservice {
           status: status,
           author: author,
         },
+        // Status decides who can read the post, so refresh the permissions
+        // whenever it might have changed.
+        ...(userID && { permissions: postPermissions(userID, status) }),
       });
-      return result;
     } catch (error) {
       console.log(
         "Error occured while updating database::updatePost::Post.service.js",
         error,
       );
-      return false;
+      throw error;
     }
   }
 
-  async deletePost(slug) {
+  async deletePost(id) {
     try {
       await this.tablesDB.deleteRow({
         databaseId: config.databaseId,
         tableId: config.tableId,
-        rowId: slug,
+        rowId: id,
       });
-      return true;
     } catch (error) {
       console.log(
         "Error occured while deleting post from  database::deletePost::Post.service.js",
         error,
       );
-
-      return false;
+      throw error;
     }
   }
 
-  async getPost(slug) {
+  async getPost(id) {
     try {
       const result = await this.tablesDB.getRow({
         databaseId: config.databaseId,
         tableId: config.tableId,
-        rowId: slug,
+        rowId: id,
       });
       return result;
     } catch (error) {
@@ -108,11 +115,11 @@ class Postservice {
         databaseId: config.databaseId,
         tableId: config.tableId,
         total: true,
-         queries: [
-    Query.equal("userID", userID),
-   Query.limit(100),
-    Query.orderDesc("$createdAt"),
-  ]
+        queries: [
+          Query.equal("userID", userID),
+          Query.limit(100),
+          Query.orderDesc("$createdAt"),
+        ],
       });
 
       return result;
@@ -126,7 +133,13 @@ class Postservice {
     }
   }
 
-  async getcursoRows({ lastId=null, limit = 12 }) {
+  // this is for f
+  async getcursorRows({
+    lastId = null,
+    limit = 12,
+    userID = null,
+    status = "active",
+  }) {
     const queries = [
       Query.limit(limit),
       Query.orderDesc("$createdAt"),
@@ -140,10 +153,14 @@ class Postservice {
         "userID",
         "author",
       ]),
-      Query.equal("status", "active")
     ];
 
-lastId?queries.push(Query.cursorAfter(lastId)):null;
+    // add status if only active and inactive provided
+    if (status && status !== "all") {
+      queries.push(Query.equal("status", status));
+    }
+    lastId ? queries.push(Query.cursorAfter(lastId)) : null;
+    userID ? queries.push(Query.equal("userID", userID)) : null;
 
     try {
       const result = await this.tablesDB.listRows({
@@ -151,65 +168,73 @@ lastId?queries.push(Query.cursorAfter(lastId)):null;
         tableId: config.tableId,
         queries,
         total: false,
-          ttl: 3600 ,
       });
       return result;
     } catch (error) {
       console.log(
-        "Error occured while getting posts from  database::getPosts::Post.service.js",
+        "Error occured while getting posts from  database::getcursorRows::Post.service.js",
         error,
       );
 
-      return false;
+      throw error;
     }
   }
-  
 
-  async searchRows({ searchTerm, lastId = null, limit = 12 }) {
-  const queries = [
-    Query.search("title", searchTerm),
-    Query.equal("status", "active"),
-    Query.orderDesc("$createdAt"),
-    Query.orderDesc("$id"),
-    Query.limit(limit),
-    Query.select([
-      "$id",
-      "$createdAt",
-      "title",
-      "featuredImage",
-      "status",
-      "userID",
-      "author",
-    ]),
-  ];
+  async searchRows({
+    searchTerm,
+    lastId = null,
+    limit = 12,
+    userID = null,
+    status = "active",
+  }) {
+    const queries = [
+      Query.search("title", searchTerm),
+      Query.orderDesc("$createdAt"),
+      Query.orderDesc("$id"),
+      Query.limit(limit),
+      Query.select([
+        "$id",
+        "$createdAt",
+        "title",
+        "featuredImage",
+        "status",
+        "userID",
+        "author",
+      ]),
+    ];
 
-  if (lastId) {
-    queries.push(Query.cursorAfter(lastId));
+    if (status && status !== "all") {
+      queries.push(Query.equal("status", status));
+    }
+    if (userID) {
+      queries.push(Query.equal("userID", userID));
+    }
+    if (lastId) {
+      queries.push(Query.cursorAfter(lastId));
+    }
+
+    try {
+      const result = await this.tablesDB.listRows({
+        databaseId: config.databaseId,
+        tableId: config.tableId,
+        queries,
+        total: false,
+      });
+
+      return result;
+    } catch (error) {
+      console.log(
+        "Error occurred while searching posts::searchRows::Post.service.js",
+        error,
+      );
+
+      throw error;
+    }
   }
-
-  try {
-    const result = await this.tablesDB.listRows({
-      databaseId: config.databaseId,
-      tableId: config.tableId,
-      queries,
-      total: false,
-    });
-
-    return result;
-  } catch (error) {
-    console.log(
-      "Error occurred while searching posts::searchRows::Post.service.js",
-      error
-    );
-
-    return false;
-  }
-}
 }
 
 // scroll pagination for All posts page initilally
 
 const postservice = new Postservice();
-
 
 export default postservice;

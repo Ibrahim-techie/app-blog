@@ -2,55 +2,78 @@ import { useState, useRef, useEffect } from "react";
 import { Postcard, Container, Loader } from "../components";
 import postservice from "../services/Post.service";
 import GooeySearchBar from "../components/search";
-import usePaginatedList from "../customHooks/usePaginatedList";
 import useDebouncedValue from "../customHooks/useDebouncedValue";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 const PAGE_SIZE = 12;
+const MIN_SEARCH_LENGTH = 3;
+
+// Cursor pagination: the next page starts after the last row we already have.
+// A short page means the server had nothing left, so stop asking.
+const getNextPageParam = (lastPage) =>
+  lastPage.rows.length < PAGE_SIZE
+    ? undefined
+    : lastPage.rows[lastPage.rows.length - 1].$id;
 
 function AllPost() {
   const [search, setSearch] = useState("");
-  const [retryCount, setRetryCount] = useState(0);
   const debouncedSearch = useDebouncedValue(search, 300);
   const trimmed = debouncedSearch.trim();
+
   const isSearching = search.trim().length > 0;
-  const isPending = isSearching && search !== debouncedSearch;
+  const isDebouncing = isSearching && search !== debouncedSearch;
+  const isTooShort = isSearching && trimmed.length < MIN_SEARCH_LENGTH;
   const loaderRef = useRef(null);
 
-  const feed = usePaginatedList({
-    fetchPage: async(cursor) =>
-      postservice
-        .getcursoRows({ lastId: cursor, limit: PAGE_SIZE })
-        .then((res) => res.rows),
-    resetKey: "feed",
-    pageSize: PAGE_SIZE,
+  const feed = useInfiniteQuery({
+    queryKey: ["posts", "feed"],
+    queryFn: ({ pageParam }) =>
+      postservice.getcursorRows({ lastId: pageParam, limit: PAGE_SIZE }),
+    initialPageParam: null,
+    getNextPageParam,
+    staleTime: 60000,
   });
 
-  
-  const searchList = usePaginatedList({
-    fetchPage:async (cursor) => {
-      if (trimmed.length < 3) return Promise.resolve([]);
-      return postservice
-        .searchRows({ searchTerm: trimmed, lastId: cursor, limit: PAGE_SIZE })
-        .then((res) => res.rows);
-    },
-    resetKey: `${trimmed}:${retryCount}`,
-    pageSize: PAGE_SIZE,
+  const searchList = useInfiniteQuery({
+    queryKey: ["posts", "search", trimmed],
+    queryFn: ({ pageParam }) =>
+      postservice.searchRows({
+        searchTerm: trimmed,
+        lastId: pageParam,
+        limit: PAGE_SIZE,
+      }),
+    initialPageParam: null,
+    getNextPageParam,
+    staleTime: 60000,
+    enabled: isSearching && trimmed.length >= MIN_SEARCH_LENGTH,
   });
 
   const active = isSearching ? searchList : feed;
+  const posts = active.data?.pages.flatMap((page) => page.rows) ?? [];
 
-  const activeRef = useRef(active);
-  useEffect(() => {
-    activeRef.current = active;
-  }, [active]);
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = active;
 
+  // Rebuilding the observer whenever the page settles re-reports the current
+  // intersection, so a first page too short to fill the screen keeps loading
+  // instead of waiting for a scroll that never comes.
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) activeRef.current.loadMore();
-    });
-    if (loaderRef.current) observer.observe(loaderRef.current);
+    const sentinel = loaderRef.current;
+    if (!sentinel || !hasNextPage || isFetchingNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) fetchNextPage();
+      },
+      //pretend that viewport is 200px bigger so it can be fetched early
+      { rootMargin: "200px" },
+    );
+
+    observer.observe(sentinel);
     return () => observer.disconnect();
-  }, []);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const isRefreshing =
+    active.isFetching && !active.isFetchingNextPage && !active.isPending;
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -78,64 +101,108 @@ function AllPost() {
               onChange={setSearch}
               placeholder="Search posts by title..."
             />
-            {isSearching && (
-              <div className="mx-auto mt-3 max-w-3xl px-1 text-sm text-slate-500 dark:text-slate-400">
-                Searching for{" "}
-                <span className="font-semibold text-slate-800 dark:text-slate-200">
-                  "{search}"
+
+            <div className="mx-auto mt-3 flex max-w-3xl items-center justify-between gap-3 px-1">
+              {isSearching ? (
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Searching for{" "}
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    &quot;{search}&quot;
+                  </span>
+                </p>
+              ) : (
+                <span />
+              )}
+
+              {isRefreshing && (
+                <span className="flex shrink-0 items-center gap-2 rounded-full bg-slate-200/70 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-indigo-500" />
+                  Updating
                 </span>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
-          {isPending ||
-          (isSearching && active.loading && active.data.length === 0) ? (
+          {isDebouncing ? (
             <Loader
               text="Searching posts"
               className="rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
             />
-          ) : active.error ? (
+          ) : isTooShort ? (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-20 text-center dark:border-slate-700 dark:bg-slate-900">
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-2xl dark:bg-slate-800">
+                ⌨️
+              </div>
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+                Keep typing
+              </h2>
+              <p className="mx-auto mt-2 max-w-md text-sm text-slate-500 dark:text-slate-400">
+                Enter at least {MIN_SEARCH_LENGTH} characters to search posts.
+              </p>
+            </div>
+          ) : active.isError ? (
             <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-16 text-center dark:border-red-900 dark:bg-red-950/30">
               <h2 className="text-xl font-semibold text-red-700 dark:text-red-400">
                 Something went wrong
               </h2>
               <p className="mt-2 text-sm text-red-600 dark:text-red-300">
-                {active.error}
+                {active.error?.message ??
+                  "We couldn't load these posts. Please try again."}
               </p>
               <button
-                onClick={() => setRetryCount((c) => c + 1)}
-                className="mt-5 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                onClick={() => active.refetch()}
+                disabled={active.isFetching}
+                className="mt-5 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Retry
+                {active.isFetching ? "Retrying…" : "Retry"}
               </button>
             </div>
-          ) : isSearching && active.data.length === 0 ? (
+          ) : active.isPending ? (
+            <Loader
+              text={isSearching ? "Searching posts" : "Loading posts"}
+              className="rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
+            />
+          ) : posts.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-20 text-center dark:border-slate-700 dark:bg-slate-900">
               <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-2xl dark:bg-slate-800">
-                🔎
+                {isSearching ? "🔎" : "📝"}
               </div>
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
-                No posts found
+                {isSearching ? "No posts found" : "No posts yet"}
               </h2>
               <p className="mx-auto mt-2 max-w-md text-sm text-slate-500 dark:text-slate-400">
-                We couldn't find any posts matching your search.
+                {isSearching
+                  ? "We couldn't find any posts matching your search."
+                  : "There's nothing published here yet. Check back soon."}
               </p>
             </div>
           ) : (
-            <>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {active.data.map((post) => (
-                  <div
-                    key={post.$id}
-                    className="group transition-transform duration-300 hover:-translate-y-1"
-                  >
-                    <Postcard {...post} />
-                  </div>
-                ))}
-              </div>
-              <div ref={loaderRef} className="h-10" />
-            </>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {posts.map((post) => (
+                <Postcard key={post.$id} {...post} />
+              ))}
+            </div>
           )}
+
+          {isFetchingNextPage && (
+            <div className="flex items-center justify-center gap-1.5 py-6">
+              <span className="size-2 animate-bounce rounded-full bg-slate-500 [animation-delay:-0.3s] dark:bg-slate-400" />
+              <span className="size-2 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.15s] dark:bg-slate-300" />
+              <span className="size-2 animate-bounce rounded-full bg-slate-500 dark:bg-slate-400" />
+            </div>
+          )}
+
+          {!hasNextPage && !isFetchingNextPage && posts.length > 0 && (
+            <div className="flex items-center justify-center gap-4 py-10">
+              <span className="h-px w-12 bg-slate-200 dark:bg-slate-800" />
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+                You&apos;ve reached the end
+              </p>
+              <span className="h-px w-12 bg-slate-200 dark:bg-slate-800" />
+            </div>
+          )}
+
+          <div ref={loaderRef} className="h-10" />
         </section>
       </Container>
     </main>

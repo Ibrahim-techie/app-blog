@@ -1,11 +1,11 @@
-
 import fileservice from "../services/storage.service";
 import { Link } from "react-router-dom";
+import { postPath } from "../utils/postUrl";
 
 function PostCard({ $id, title, featuredImage, author }) {
   return (
     <Link
-      to={`/post/${$id}`}
+      to={postPath({ $id, title })}
       className="
         group relative flex h-full flex-col overflow-hidden rounded-3xl
         border border-gray-200/70 bg-white
