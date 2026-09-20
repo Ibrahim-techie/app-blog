@@ -24,6 +24,7 @@ dist-ssr
 *.sw?
 # env
 .env
-.env.sample
 src/components/tinymce_test.html
 
+.claude/launch.json
+scripts/fix-post-permissions.mjs

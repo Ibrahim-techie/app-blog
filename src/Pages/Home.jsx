@@ -103,32 +103,42 @@ function Home() {
           <div className="flex min-h-[70vh] items-center justify-center px-4">
             <div className="max-w-md text-center">
               <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-100 text-2xl shadow-sm dark:bg-indigo-950">
-                🔒
+                ✍️
               </div>
 
               <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-                Login to read posts
+                Read, write, publish
               </h1>
 
               <p className="mt-3 text-gray-500 dark:text-gray-400">
-                Sign in to your account to access your posts and start creating
-                content.
+                Browse what people are writing — no account needed. Sign in to
+                publish your own posts and manage them from a dashboard.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <Link
-                  to="/login"
+                  to="/all-posts"
                   className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700"
+                >
+                  Browse posts
+                </Link>
+                <Link
+                  to="/login"
+                  className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
                 >
                   Sign in
                 </Link>
+              </div>
+
+              <p className="mt-6 text-sm text-gray-400 dark:text-gray-500">
+                New here?{" "}
                 <Link
                   to="/signup"
-                  className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+                  className="font-semibold text-indigo-600 hover:underline dark:text-indigo-400"
                 >
-                  Create account
+                  Create an account
                 </Link>
-              </div>
+              </p>
             </div>
           </div>
         </Container>

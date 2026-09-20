@@ -34,6 +34,8 @@ function PostCard({ $id, title, featuredImage, author }) {
         <img
           src={fileservice.filePreview(featuredImage)}
           alt={title}
+          loading="lazy"
+          decoding="async"
           className="
             h-full w-full object-cover
             transition-transform duration-700 ease-out
