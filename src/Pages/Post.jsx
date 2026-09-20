@@ -7,70 +7,83 @@ import postservice from "../services/Post.service";
 import { Button, Container, Loader } from "../components";
 import fileservice from "../services/storage.service";
 import { postPath, slugify } from "../utils/postUrl";
-
+import { useQuery } from "@tanstack/react-query";
 const NOT_FOUND = "This post could not be found.";
 
 function Post() {
-  const [post, setPost] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+
   const [showcnfDlt, setShowCnfDlt] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
   const userData = useSelector((state) => state.auth.userData);
 
   // :id finds the post. :slug is only the readable part of the URL, and is
-  // missing entirely on old /post/:id links.
+  // missing entirely on old /post/:id links. as it was not practical set up
   const { id, slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  //fetch post 
+  const {
+  data: post,
+  isPending: loading,
+  error,
+} = useQuery({
+  queryKey: ["post", id],
+  queryFn: () => postservice.getPost(id),
+  enabled: !!id,
+  staleTime: 60_000,
+  retry: false,
+});
 
-  // Check whether current user is the author
+  // Check whether current user is the author !!
   const isUserAuthor = post?.userID && post.userID === userData?.$id;
 
   // Inactive posts are drafts: only their author should see them. This is a
   // UI guard; the real lock is the read permission set in Post.service.js.
   const isHidden = post && post.status !== "active" && !isUserAuthor;
 
-  // Fetch post
-  useEffect(() => {
-    if (!id) {
-      navigate("/");
-      return;
-    }
 
-    let cancelled = false;
+  
+  // // Fetch post
+  // useEffect(() => {
+  //   if (!id) {
+  //     navigate("/");
+  //     return;
+  //   }
 
-    async function loadPost() {
-      setLoading(true);
-      setError("");
-      setPost(null);
+  //   let cancelled = false;
 
-      try {
-        // List results omit content, so load the complete article by its ID.
-        const currentPost = await postservice.getPost(id);
-        if (!currentPost || typeof currentPost.content !== "string") {
-          throw new Error("The post content is unavailable.");
-        }
-        if (!cancelled) setPost(currentPost);
-      } catch (error) {
-        if (!cancelled) {
-          setError(
-            error.code === 404
-              ? NOT_FOUND
-              : "We couldn't load this post. Please try refreshing the page.",
-          );
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
+  //   async function loadPost() {
+  //     setLoading(true);
+  //     setError("");
+  //     setPost(null);
 
-    loadPost();
-    return () => {
-      cancelled = true;
-    };
-  }, [id, navigate]);
+  //     try {
+  //       // List results omit content, so load the complete article by its ID.
+  //       const currentPost = await postservice.getPost(id);
+  //       if (!currentPost || typeof currentPost.content !== "string") {
+  //         throw new Error("The post content is unavailable.");
+  //       }
+  //       if (!cancelled) setPost(currentPost);
+  //     } catch (error) {
+  //       if (!cancelled) {
+  //         setError(
+  //           error.code === 404
+  //             ? NOT_FOUND
+  //             : "We couldn't load this post. Please try refreshing the page.",
+  //         );
+  //       }
+  //     } finally {
+  //       if (!cancelled) setLoading(false);
+  //     }
+  //   }
+
+  //   loadPost();
+  //   return () => {
+  //     cancelled = true;
+  //   };
+  // }, [id, navigate]);
+
 
   // Keep one address per post. An old link, a renamed title, or a hand-typed
   // slug all get replaced with the current /post/:slug/:id. "replace" swaps
