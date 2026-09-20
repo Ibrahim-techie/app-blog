@@ -42,12 +42,9 @@ const router = createBrowserRouter([
         ),
       },
       {
+        // Public: anyone can browse the feed without an account.
         path: "all-posts",
-        element: (
-          <Authlayout authentication={true}>
-            <AllPost />
-          </Authlayout>
-        ),
+        element: <AllPost />,
       },
       {
         path: "add-post",
@@ -58,23 +55,17 @@ const router = createBrowserRouter([
         ),
       },
       {
-        // Only :id is used to load the post; :slug just makes the URL readable.
+        // Public. Only :id is used to load the post; :slug just makes the URL
+        // readable. Drafts stay hidden from guests — see Post.jsx and the read
+        // permission in Post.service.js.
         path: "post/:slug/:id",
-        element: (
-          <Authlayout authentication={true}>
-            <Post />
-          </Authlayout>
-        ),
+        element: <Post />,
       },
       {
         // Links shared before ids were unique looked like /post/<old-id>.
         // Post loads them and redirects to the /post/:slug/:id form.
         path: "post/:id",
-        element: (
-          <Authlayout authentication={true}>
-            <Post />
-          </Authlayout>
-        ),
+        element: <Post />,
       },
 
       {

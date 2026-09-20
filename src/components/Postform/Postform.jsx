@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { useQueryClient } from "@tanstack/react-query";
 import fileservice from "../../services/storage.service";
 import { postPath, slugify } from "../../utils/postUrl";
+import { compressImage } from "../../utils/compressImage";
 
 const notBlank = (label) => (value) =>
   value.trim().length > 0 || `${label} is required`;
@@ -46,7 +47,9 @@ function Postform({ post }) {
       let imageId = post?.featuredImage;
 
       if (data.image?.[0]) {
-        const file = await fileservice.fileUpload(data.image[0]);
+        // Shrink before upload — a 4000px phone photo is shown in a 300px card.
+        const picked = await compressImage(data.image[0]);
+        const file = await fileservice.fileUpload(picked);
         if (!file) {
           throw new Error("We couldn't upload your image. Please try again.");
         }

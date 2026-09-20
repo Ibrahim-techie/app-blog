@@ -2,12 +2,13 @@ import client from "./client";
 import config from "../Config/Config";
 import { TablesDB, Query, ID, Permission, Role } from "appwrite";
 
-// Who may do what with one post: any signed-in user can read an active post,
-// only the author can read an inactive one, and only the author can edit or
-// delete it. Appwrite enforces these once "Row security" is enabled on the table.
+// Who may do what with one post: anyone at all can read a published post (the
+// feed is public, no account needed), only the author can read their own draft,
+// and only the author can edit or delete it. Appwrite enforces these once
+// "Row security" is enabled on the table.
 function postPermissions(userID, status) {
   return [
-    Permission.read(status === "active" ? Role.users() : Role.user(userID)),
+    Permission.read(status === "active" ? Role.any() : Role.user(userID)),
     Permission.update(Role.user(userID)),
     Permission.delete(Role.user(userID)),
   ];
