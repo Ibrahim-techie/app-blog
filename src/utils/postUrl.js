@@ -16,7 +16,8 @@ export function slugify(title) {
     .slice(0, MAX_SLUG_LENGTH)
     .replace(/^-+|-+$/g, ""); // no leading or trailing "-"
 
-  // A title made only of emoji or punctuation leaves nothing behind.
+  // A title made only of emoji or punctuation leaves nothing behind.like in title if there is just 😂😂
+  
   return slug || "post";
 }
 

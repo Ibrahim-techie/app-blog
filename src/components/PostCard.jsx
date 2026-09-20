@@ -1,11 +1,24 @@
 import fileservice from "../services/storage.service";
 import { Link } from "react-router-dom";
 import { postPath } from "../utils/postUrl";
+import { useQueryClient } from "@tanstack/react-query";
+import postservice from "../services/Post.service";
 
 function PostCard({ $id, title, featuredImage, author }) {
+  const queryclient = useQueryClient();
+  const prefetchpost = () => (
+    void queryclient.query({
+      queryKey: ["post", $id],
+      queryFn: () => postservice.getPost($id),
+      staleTime: 60000,
+    }),
+    console.log(`fetched post whose ID is :${$id}`)
+  );
+
   return (
     <Link
       to={postPath({ $id, title })}
+      onMouseEnter={prefetchpost}
       className="
         group relative flex h-full flex-col overflow-hidden rounded-3xl
         border border-gray-200/70 bg-white
@@ -133,4 +146,3 @@ function PostCard({ $id, title, featuredImage, author }) {
 }
 
 export default PostCard;
-
