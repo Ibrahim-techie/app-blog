@@ -125,6 +125,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
 import { login as storeLogin } from "../redux/authSlice";
 import { Logo } from "./index";
 import authService from "../services/auth.service";
@@ -174,6 +175,10 @@ function Login() {
         if (userData) {
           dispatch(storeLogin(userData));
         }
+        // The dashboard replaces this page, so the toast is the confirmation.
+        toast.success(
+          userData?.name ? `Welcome back, ${userData.name}` : "Welcome back",
+        );
         navigate("/");
       }
     } catch (err) {

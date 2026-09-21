@@ -8,6 +8,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import fileservice from "../../services/storage.service";
 import { postPath, slugify } from "../../utils/postUrl";
 import { compressImage } from "../../utils/compressImage";
+import { toast } from "sonner";
+
+const formatBytes = (bytes) =>
+  bytes >= 1024 * 1024
+    ? `${(bytes / 1024 / 1024).toFixed(1)} MB`
+    : `${Math.round(bytes / 1024)} KB`;
 
 const notBlank = (label) => (value) =>
   value.trim().length > 0 || `${label} is required`;
@@ -43,18 +49,39 @@ function Postform({ post }) {
     // fails before the save succeeds, it gets deleted so storage stays clean.
     let orphanImageId = null;
 
+    // One toast that changes as the save progresses, rather than three stacked
+    // ones. Passing the same id replaces the toast in place.
+    const toastId = toast.loading(
+      post ? "Saving your changes…" : "Publishing your post…",
+    );
+
     try {
       let imageId = post?.featuredImage;
 
       if (data.image?.[0]) {
+        const original = data.image[0];
+
         // Shrink before upload — a 4000px phone photo is shown in a 300px card.
-        const picked = await compressImage(data.image[0]);
+        const picked = await compressImage(original);
+
+        toast.loading("Uploading image…", {
+          id: toastId,
+          description:
+            picked.size < original.size
+              ? `Optimised ${formatBytes(original.size)} → ${formatBytes(picked.size)}`
+              : undefined,
+        });
+
         const file = await fileservice.fileUpload(picked);
         if (!file) {
           throw new Error("We couldn't upload your image. Please try again.");
         }
         imageId = file.$id;
         orphanImageId = file.$id;
+
+        toast.loading(post ? "Saving your changes…" : "Publishing your post…", {
+          id: toastId,
+        });
       }
 
       if (!imageId) {
@@ -87,12 +114,30 @@ function Postform({ post }) {
       }
 
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+
+      // The user is about to land on the post page, so this toast is the only
+      // confirmation that the save actually succeeded.
+      toast.success(post ? "Changes saved" : "Post published", {
+        id: toastId,
+        description:
+          fields.status === "inactive"
+            ? "Saved as a draft — only you can see it"
+            : fields.title,
+      });
+
       navigate(postPath(saved));
     } catch (error) {
       if (orphanImageId) await fileservice.fileDelete(orphanImageId);
-      setSubmitError(
-        error?.message || "Something went wrong while saving. Please try again.",
-      );
+
+      const message =
+        error?.message || "Something went wrong while saving. Please try again.";
+
+      // The toast carries the headline; the inline message stays beside the
+      // submit button so the detail is still there after the toast fades.
+      toast.error(post ? "Couldn't save your changes" : "Couldn't publish", {
+        id: toastId,
+      });
+      setSubmitError(message);
     }
   };
 

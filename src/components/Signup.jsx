@@ -5,6 +5,7 @@ import { login } from "../redux/authSlice";
 import { Button, Logo, Input } from "./index";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 function Signup() {
   const navigate = useNavigate();
@@ -20,6 +21,9 @@ function Signup() {
 
         if (getuserData) {
           dispatch(login(getuserData));
+          toast.success("Account created", {
+            description: "Write your first post whenever you're ready.",
+          });
           navigate("/");
         }
       }

@@ -11,7 +11,8 @@ export default function Protected({ children, authentication = true }) {
   useEffect(() => {
     if (authStatus !== authentication) {
       navigate(authentication ? "/login" : "/", {
-        state: { message: "Login first to view posts" },
+        // Reading is public now — only writing needs an account.
+        state: { message: "Sign in to write and manage your posts" },
       });
     }
 
