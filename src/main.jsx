@@ -14,11 +14,14 @@ import NotFound from "./Pages/NotFound.jsx";
 import Home from "./Pages/Home";
 import { Authlayout } from "./components/index.js";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import AppToaster from "./components/AppToaster.jsx";
+import ErrorPage from "./components/ErrorPage.jsx";
 
-const queryclient = new QueryClient();
+const queryClient = new QueryClient();
 const router = createBrowserRouter([
   {
     path: "/",
+    errorElement:<ErrorPage/>,
     element: <App />,
     children: [
       {
@@ -85,7 +88,8 @@ const router = createBrowserRouter([
 ]);
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
-    <QueryClientProvider client={queryclient}>
+    <QueryClientProvider client={queryClient}>
+      <AppToaster />
       <RouterProvider router={router} />
     </QueryClientProvider>
   </Provider>,

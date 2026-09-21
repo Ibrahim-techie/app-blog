@@ -7,6 +7,7 @@ import postservice from "../services/Post.service";
 import { Button, Container, Loader } from "../components";
 import fileservice from "../services/storage.service";
 import { postPath, slugify } from "../utils/postUrl";
+import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 const NOT_FOUND = "This post could not be found.";
 
@@ -102,10 +103,13 @@ function Post() {
     setDeleting(true);
     setDeleteError("");
 
+    const toastId = toast.loading("Deleting post…");
+
     try {
       await postservice.deletePost(post.$id);
     } catch (error) {
       // Nothing was deleted, so keep the dialog open and say why.
+      toast.error("Couldn't delete this post", { id: toastId });
       setDeleteError(
         error?.message || "We couldn't delete this post. Please try again.",
       );
@@ -134,6 +138,8 @@ function Post() {
         : old,
     );
     queryClient.invalidateQueries({ queryKey: ["posts"] });
+
+    toast.success("Post deleted", { id: toastId, description: post.title });
 
     // "replace" so Back doesn't return to the deleted post's URL.
     navigate("/", { replace: true });
