@@ -4,7 +4,10 @@ import { postPath } from "../utils/postUrl";
 import { useQueryClient } from "@tanstack/react-query";
 import postservice from "../services/Post.service";
 
-function PostCard({ $id, title, featuredImage, author }) {
+function PostCard({ $createdAt, $id, title, featuredImage, author }) {
+  const isoString = $createdAt ?? null;
+  const date = new Date(isoString);
+
   const queryclient = useQueryClient();
   const prefetchpost = () => (
     void queryclient.query({
@@ -126,6 +129,10 @@ function PostCard({ $id, title, featuredImage, author }) {
 
               <p className="truncate text-sm font-semibold text-gray-700">
                 {author || "Anonymous"}
+              </p>
+              
+              <p className="truncate text-sm font-semibold text-gray-700">
+                {date.toDateString()}
               </p>
             </div>
           </div>
