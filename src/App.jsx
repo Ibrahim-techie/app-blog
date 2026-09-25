@@ -3,9 +3,8 @@ import { useState, useEffect } from "react";
 import authService from "./services/auth.service";
 import { useDispatch } from "react-redux";
 import { login, logout } from "./redux/authSlice";
-import { Header,Footer, Loader } from "./components";
+import { Header, Footer, Loader } from "./components";
 import { Outlet } from "react-router-dom";
-
 
 function App() {
   const [loading, setloading] = useState(true);
@@ -41,7 +40,7 @@ function App() {
       <div className="w-full block">
         <Header />
         <main>
-      <Outlet />
+          <Outlet />
         </main>
         <Footer />
       </div>
