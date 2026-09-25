@@ -1,4 +1,4 @@
-import { Account, ID } from "appwrite";
+import { Account, ID, OAuthProvider } from "appwrite";
 
 import client from "./client";
 class AuthService {
@@ -39,14 +39,27 @@ class AuthService {
     }
   }
 
-async getCurrentUser() {
-  try {
-    return await this.account.get();
-  } catch {
-    return null; // explicitly signal "no user"
-  }
-}
+  //oAuth2 session with google
 
+  signInwithGoogle() {
+    return this.account.createOAuth2Session({
+      provider: OAuthProvider.Google,
+      success: `${window.location.origin}/`,
+      failure: `${window.location.origin}/login`,
+      scopes: [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile",
+      ],
+    });
+  }
+
+  async getCurrentUser() {
+    try {
+      return await this.account.get();
+    } catch {
+      return null; // explicitly signal "no user"
+    }
+  }
 
   async logOut() {
     try {

@@ -6,12 +6,18 @@ import { Button, Logo, Input } from "./index";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import GoogleIcon from "../assets/GoogleIcon";
 
 function Signup() {
   const navigate = useNavigate();
   const [Error, setError] = useState("");
   const dispatch = useDispatch();
-  const { register, handleSubmit } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
   const create = async (data) => {
     setError("");
     try {
@@ -65,6 +71,9 @@ function Signup() {
               required: "Name is Required",
             })}
           />
+          {errors.name && (
+            <p className="text-red-600 text-sm">{errors.name.message}</p>
+          )}
           <Input
             label="email"
             placeholder="Enter Your Email"
@@ -77,7 +86,9 @@ function Signup() {
               },
             })}
           />
-
+          {errors.email && (
+            <p className="text-red-600 text-sm">{errors.email.message}</p>
+          )}
           <Input
             label="password"
             placeholder="Enter Your Password"
@@ -91,9 +102,33 @@ function Signup() {
             })}
           />
 
-          <Button type="submit" className="w-full">
+          {errors.password && (
+            <p className="text-red-600 text-sm">{errors.password.message}</p>
+          )}
+          <Button
+            type="submit"
+            className="p-2 w-full m-2 rounded-xl hover:bg-blue-600 hover:scale-95 transition ease-in-out font-medium"
+          >
             Create Account
           </Button>
+
+          <h1 className="m-2 text-center text-xl text-black">
+            Sign up with Google
+          </h1>
+
+          <button
+            type="button"
+            className="flex items-center justify-center w-full h-12 gap-3 rounded-lg border border-gray-300 bg-white shadow hover:shadow-md transition duration-200"
+            onClick={() => {
+              console.log("Google button clicked");
+              authService.signInwithGoogle();
+            }}
+          >
+            <GoogleIcon className="w-8 h-8" />
+            <span className="text-sm font-medium text-gray-700">
+              Continue with Google
+            </span>
+          </button>
         </form>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { themeSwitch } from "../../redux/systemSlice";
 import { useSelector, useDispatch } from "react-redux";
+import { th } from "framer-motion/client";
 
 function Header() {
   const dispatch = useDispatch();
@@ -16,18 +17,18 @@ function Header() {
     { name: "Add Post", url: "/add-post", active: authStatus },
   ];
 
-  const [themeMode, setThemeMode] = useState("light");
+  const [themeMode, setThemeMode] = useState(() => {
+    const stored = localStorage.getItem("theme");
+    return stored ? stored : "light";
+  });
 
-  // Update Redux
+  // Update Redux and persist with localstorage
   useEffect(() => {
+    localStorage.setItem("theme", themeMode);
     dispatch(themeSwitch(themeMode));
-  }, [themeMode, dispatch]);
-
-  // Update HTML class
-  useEffect(() => {
     document.documentElement.classList.remove("light", "dark");
     document.documentElement.classList.add(themeMode);
-  }, [themeMode]);
+  }, [themeMode, dispatch]);
 
   const toggleTheme = () => {
     setThemeMode((prev) => (prev === "light" ? "dark" : "light"));
