@@ -96,6 +96,8 @@ function Home() {
 
   // ---------------- NOT LOGGED IN ----------------
 
+  // trmporary testing
+
   if (!isSignedIn) {
     return (
       <main className="min-h-[70vh] bg-gray-50 dark:bg-gray-950">

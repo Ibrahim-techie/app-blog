@@ -28,7 +28,7 @@ class Postservice {
       return await this.tablesDB.createRow({
         databaseId: config.databaseId,
         tableId: config.tableId,
-        rowId: ID.unique(),
+        rowId: ID.unique(), //26 characters long
         data: {
           title: title,
           content: content,
