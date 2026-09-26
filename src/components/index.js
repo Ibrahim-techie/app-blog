@@ -13,7 +13,7 @@ import Postform from "./Postform/Postform";
 import Login from "./Login";
 import Signup from "./Signup";
 import Loader from "./Loading";
-import Comment from "./comments/comment";
+import Comments from "./comments/Comments";
 export {
   Container,
   Logoutbtn,
@@ -30,5 +30,5 @@ export {
   Login,
   Signup,
   Loader,
-  Comment,
+  Comments,
 };

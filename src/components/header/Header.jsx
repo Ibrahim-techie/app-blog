@@ -3,7 +3,6 @@ import { Link, NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { themeSwitch } from "../../redux/systemSlice";
 import { useSelector, useDispatch } from "react-redux";
-import { th } from "framer-motion/client";
 
 function Header() {
   const dispatch = useDispatch();
