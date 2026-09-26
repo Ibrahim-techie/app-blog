@@ -9,6 +9,7 @@ import fileservice from "../services/storage.service";
 import { postPath, slugify } from "../utils/postUrl";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
+import {Comment} from "../components";
 const NOT_FOUND = "This post could not be found.";
 
 function Post() {
@@ -294,6 +295,7 @@ function Post() {
           </div>
         </div>
       )}
+      <Comment postId={id}/>
     </main>
   );
 }
