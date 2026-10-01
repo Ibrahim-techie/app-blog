@@ -3,10 +3,13 @@ import { Link, NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { themeSwitch } from "../../redux/systemSlice";
 import { useSelector, useDispatch } from "react-redux";
+import UserName from "../UserName";
+import { User } from "lucide-react";
 
 function Header() {
   const dispatch = useDispatch();
   const authStatus = useSelector((state) => state.auth.status);
+  const UserData = useSelector((state) => state.auth.userData);
 
   const navItems = [
     { name: "Home", url: "/", active: true },
@@ -53,6 +56,14 @@ function Header() {
           >
             <Logo width="90px" />
           </Link>
+          <div className="flex items-center space-x-2">
+            <User
+              size={22} // use size instead of scale
+              strokeWidth={2} // correct prop name
+              className="text-gray-200"
+            />
+            <UserName userName={UserData?.name} />
+          </div>
 
           {/* Navigation */}
           <ul className="flex items-center gap-1">

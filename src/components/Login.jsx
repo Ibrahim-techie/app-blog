@@ -44,7 +44,7 @@ function Login() {
           );
         }
 
-        navigate("/");
+        navigate("/",{replace:true});
       }
     } catch (error) {
       setError(error.message);

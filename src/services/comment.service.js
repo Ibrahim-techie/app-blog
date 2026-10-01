@@ -1,7 +1,7 @@
 import client from "./client";
 import config from "../Config/Config";
 
-import { TablesDB, Query, ID, Permission, Role } from "appwrite";
+import { TablesDB, Query, ID, Permission, Role, Realtime } from "appwrite";
 
 function commentPermissions(userId) {
   return [
@@ -13,9 +13,11 @@ function commentPermissions(userId) {
 
 class CommentService {
   tablesDB;
+  realtime;
 
   constructor() {
     this.tablesDB = new TablesDB(client);
+    this.realtime = new Realtime(client);
   }
 
   // Create a new comment
@@ -110,11 +112,12 @@ class CommentService {
    * machine is invisible to another until that tab refetches. Appwrite pushes
    * create/update/delete events over a websocket, which closes that gap.
    *
-   * Returns the unsubscribe function — call it on unmount.
+   * Resolves to the subscription — unsubscribe on unmount via
+   * subscribeWithCleanup() in utils/realtime.js.
    */
   subscribeToComments(onChange) {
     const channel = `databases.${config.databaseId}.tables.${config.commenttableId}.rows`;
-    return client.subscribe(channel, onChange);
+    return this.realtime.subscribe(channel, onChange);
   }
 
   // Delete a comment

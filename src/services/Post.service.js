@@ -1,6 +1,6 @@
 import client from "./client";
 import config from "../Config/Config";
-import { TablesDB, Query, ID, Permission, Role } from "appwrite";
+import { TablesDB, Query, ID, Permission, Role, Realtime } from "appwrite";
 
 // Who may do what with one post: anyone at all can read a published post (the
 // feed is public, no account needed), only the author can read their own draft,
@@ -16,9 +16,11 @@ function postPermissions(userID, status) {
 
 class Postservice {
   tablesDB;
+  realtime;
 
   constructor() {
     this.tablesDB = new TablesDB(client);
+    this.realtime=new Realtime(client);
   }
 
   async createPost({ title, content, featuredImage, status, userID, author }) {
@@ -231,6 +233,11 @@ class Postservice {
 
       throw error;
     }
+  }
+
+  subscribeToPosts(onChange) {
+    const channel = `databases.${config.databaseId}.tables.${config.tableId}.rows`;
+    return this.realtime.subscribe(channel, onChange);
   }
 }
 
