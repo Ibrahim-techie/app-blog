@@ -3,7 +3,7 @@ const config = {
   databaseId: import.meta.env.VITE_APPWRITE_DATABASE_ID,
   tableId: import.meta.env.VITE_APPWRITE_TABLE_ID,
   commenttableId: import.meta.env.VITE_APPWRITE_COMMENT_TABLE_ID,
-  liketableId:import.meta.env.VITE_APPWRITE_LIKES_TABLE_ID,
+  liketableId: import.meta.env.VITE_APPWRITE_LIKES_TABLE_ID,
   bucketId: import.meta.env.VITE_APPWRITE_BUCKET_ID,
   endPoint: import.meta.env.VITE_APPWRITE_ENDPOINT,
   TinyMCE: import.meta.env.VITE_TINYMCE_API_KEY,
