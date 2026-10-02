@@ -12,6 +12,7 @@ import AddPost from "./Pages/AddPost.jsx";
 import Post from "./Pages/Post.jsx";
 import NotFound from "./Pages/NotFound.jsx";
 import Home from "./Pages/Home";
+import SavedPosts from "./Pages/SavedPosts.jsx";
 import { Authlayout } from "./components/index.js";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import AppToaster from "./components/AppToaster.jsx";
@@ -54,6 +55,15 @@ const router = createBrowserRouter([
         element: (
           <Authlayout>
             <AddPost />
+          </Authlayout>
+        ),
+      },
+      {
+        // Private: a user's saved posts are readable only by that user.
+        path: "saved",
+        element: (
+          <Authlayout authentication={true}>
+            <SavedPosts />
           </Authlayout>
         ),
       },

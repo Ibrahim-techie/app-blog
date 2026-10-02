@@ -8,6 +8,7 @@ import { Button, Container, Loader, Comments } from "../components";
 import fileservice from "../services/storage.service";
 import { postPath, slugify } from "../utils/postUrl";
 import LikeButton from "../components/likes/LikeButton";
+import SaveButton from "../components/saved/SaveButton";
 import DeletePostDialog from "../components/post/DeletePostDialog";
 import useDeletePost from "../customHooks/useDeletePost";
 import useRealtimePosts from "../customHooks/useRealtimePost";
@@ -202,7 +203,10 @@ function Post() {
 
             {/* ================= ACTION BAR ================= */}
             <div className="mt-12 flex items-center justify-between border-t border-gray-200 pt-6 dark:border-gray-800">
-              <LikeButton postId={post.$id} />
+              <div className="flex flex-wrap items-center gap-3">
+                <LikeButton postId={post.$id} />
+                <SaveButton postId={post.$id} />
+              </div>
 
               <span className="text-sm text-gray-400">
                 Share your thoughts below

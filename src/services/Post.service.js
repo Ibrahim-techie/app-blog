@@ -112,6 +112,48 @@ class Postservice {
     }
   }
 
+  /**
+   * Several posts by id in a single request — used to turn a page of saved
+   * post ids into cards without one round trip per post.
+   *
+   * Two things callers must know: the result is NOT in the order of `ids`, and
+   * any id that no longer exists, or that the reader may not see (someone
+   * else's draft), is simply absent rather than an error.
+   */
+  async getPostsByIds(ids) {
+    if (!ids?.length) return [];
+
+    try {
+      const result = await this.tablesDB.listRows({
+        databaseId: config.databaseId,
+        tableId: config.tableId,
+        queries: [
+          Query.equal("$id", ids),
+          Query.limit(ids.length),
+          // Card fields only — the article body is the largest column and the
+          // list never shows it.
+          Query.select([
+            "$id",
+            "$createdAt",
+            "title",
+            "featuredImage",
+            "status",
+            "userID",
+            "author",
+          ]),
+        ],
+        total: false,
+      });
+      return result.rows;
+    } catch (error) {
+      console.log(
+        "Error occured while getting posts by id::getPostsByIds::Post.service.js",
+        error,
+      );
+      throw error;
+    }
+  }
+
   async getPosts(userID) {
     try {
       const result = await this.tablesDB.listRows({

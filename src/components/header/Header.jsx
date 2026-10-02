@@ -17,6 +17,7 @@ function Header() {
     { name: "Login", url: "/login", active: !authStatus },
     { name: "Signup", url: "/signup", active: !authStatus },
     { name: "Add Post", url: "/add-post", active: authStatus },
+    { name: "Saved", url: "/saved", active: authStatus },
   ];
 
   const [themeMode, setThemeMode] = useState(() => {
