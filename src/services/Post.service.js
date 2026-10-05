@@ -178,6 +178,49 @@ class Postservice {
     }
   }
 
+  /**
+   * Ids of every published post by one user — for the profile stats, which
+   * count likes and comments across all of them.
+   *
+   * Pages through `$id` only, so even a prolific author costs a few tiny
+   * requests rather than one huge one.
+   */
+  async getPublishedPostIds(userID) {
+    const PAGE = 100;
+    const ids = [];
+    let lastId = null;
+
+    try {
+      for (;;) {
+        const queries = [
+          Query.equal("userID", userID),
+          Query.equal("status", "active"),
+          Query.orderAsc("$id"),
+          Query.limit(PAGE),
+          Query.select(["$id"]),
+        ];
+        if (lastId) queries.push(Query.cursorAfter(lastId));
+
+        const { rows } = await this.tablesDB.listRows({
+          databaseId: config.databaseId,
+          tableId: config.tableId,
+          queries,
+          total: false,
+        });
+
+        ids.push(...rows.map((row) => row.$id));
+        if (rows.length < PAGE) return ids;
+        lastId = rows[rows.length - 1].$id;
+      }
+    } catch (error) {
+      console.log(
+        "Error occured while getting post ids::getPublishedPostIds::Post.service.js",
+        error,
+      );
+      throw error;
+    }
+  }
+
   // this is for f
   async getcursorRows({
     lastId = null,

@@ -78,6 +78,40 @@ class LikeService {
   }
 
   /**
+   * Likes across many posts, leaving out one user's own — "likes received"
+   * on a profile shouldn't count the author liking their own work.
+   *
+   * Appwrite caps the values in a single equal() at 100, so the ids are
+   * counted in chunks and summed.
+   */
+  async getLikeCountForPosts(postIds, excludeUserId) {
+    let total = 0;
+
+    try {
+      for (let i = 0; i < postIds.length; i += 100) {
+        const response = await this.tablesDB.listRows({
+          databaseId: config.databaseId,
+          tableId: config.liketableId,
+          queries: [
+            Query.equal("postId", postIds.slice(i, i + 100)),
+            Query.notEqual("userId", excludeUserId),
+            Query.limit(1),
+          ],
+          total: true,
+        });
+        total += response.total ?? 0;
+      }
+      return total;
+    } catch (error) {
+      console.log(
+        "Error occurred while counting likes :: getLikeCountForPosts :: like.service.js",
+        error,
+      );
+      throw error;
+    }
+  }
+
+  /**
    * This user's like on this post, or null.
    *
    * Returns the row rather than a boolean because unliking needs its $id —

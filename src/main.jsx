@@ -13,6 +13,7 @@ import Post from "./Pages/Post.jsx";
 import NotFound from "./Pages/NotFound.jsx";
 import Home from "./Pages/Home";
 import SavedPosts from "./Pages/SavedPosts.jsx";
+import Profile from "./Pages/Profile.jsx";
 import { Authlayout } from "./components/index.js";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import AppToaster from "./components/AppToaster.jsx";
@@ -64,6 +65,15 @@ const router = createBrowserRouter([
         element: (
           <Authlayout authentication={true}>
             <SavedPosts />
+          </Authlayout>
+        ),
+      },
+      {
+        // Private: always the signed-in user's own profile.
+        path: "profile",
+        element: (
+          <Authlayout authentication={true}>
+            <Profile />
           </Authlayout>
         ),
       },

@@ -1,6 +1,19 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* WRITR palette — used as bg-writr-bg, text-writr-muted, border-writr-border… */
+@theme {
+  --color-writr-bg: #f3f1ea;
+  --color-writr-surface: #faf9f5;
+  --color-writr-surface-2: #eae7dd;
+  --color-writr-text: #111412;
+  --color-writr-text-2: #4b4f4a;
+  --color-writr-muted: #777b75;
+  --color-writr-border: #c9c8c1;
+  --color-writr-sage: #aab8b0;
+  --color-writr-green: #25332d;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .morph-loading-shape {
     animation: none !important;

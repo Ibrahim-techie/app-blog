@@ -61,6 +61,29 @@ class AuthService {
     }
   }
 
+  // Both of these act on the signed-in session's own account — Appwrite has no
+  // way to aim them at another user, so "only edit your own profile" is
+  // enforced by the server, not by the UI.
+  async updateName(name) {
+    try {
+      return await this.account.updateName({ name });
+    } catch (error) {
+      console.log("Error in updateName :: auth.service.js::error", error);
+      throw error;
+    }
+  }
+
+  // Prefs are replaced wholesale, so callers must pass the existing prefs
+  // merged with their changes or every other key is lost.
+  async updatePrefs(prefs) {
+    try {
+      return await this.account.updatePrefs({ prefs });
+    } catch (error) {
+      console.log("Error in updatePrefs :: auth.service.js::error", error);
+      throw error;
+    }
+  }
+
   async logOut() {
     try {
       await this.account.deleteSessions();

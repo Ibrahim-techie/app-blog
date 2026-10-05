@@ -83,6 +83,35 @@ class CommentService {
     }
   }
 
+  // Comments across many posts, leaving out one user's own replies. Chunked by
+  // 100 ids for the same reason as getLikeCountForPosts in like.service.js.
+  async getCommentCountForPosts(postIds, excludeUserId) {
+    let total = 0;
+
+    try {
+      for (let i = 0; i < postIds.length; i += 100) {
+        const response = await this.tablesDB.listRows({
+          databaseId: config.databaseId,
+          tableId: config.commenttableId,
+          queries: [
+            Query.equal("postId", postIds.slice(i, i + 100)),
+            Query.notEqual("userId", excludeUserId),
+            Query.limit(1),
+          ],
+          total: true,
+        });
+        total += response.total ?? 0;
+      }
+      return total;
+    } catch (error) {
+      console.log(
+        "Error occurred while counting comments :: getCommentCountForPosts :: comment.service.js",
+        error,
+      );
+      throw error;
+    }
+  }
+
   // Update a comment
   async updateComment({ commentId, content }) {
     try {
