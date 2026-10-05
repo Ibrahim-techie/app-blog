@@ -2,7 +2,12 @@ import { Bookmark } from "lucide-react";
 import { toast } from "sonner";
 import usePostSave from "../../customHooks/usePostSave";
 
-function SaveButton({ postId }) {
+/**
+ * Save / unsave a post. `variant="icon"` is the bare bookmark used on article
+ * cards, `variant="bar"` the "Bookmark" action on the post page, and the
+ * default a bordered button. All run the same usePostSave logic.
+ */
+function SaveButton({ postId, variant = "button" }) {
   const { saved, canSave, isChecking, isPending, toggle } =
     usePostSave(postId);
 
@@ -15,28 +20,66 @@ function SaveButton({ postId }) {
           description: "Saved posts are kept in your account.",
         });
 
+  const shared = {
+    type: "button",
+    onClick,
+    // Wait for the saved state before allowing a click, so a fast press
+    // can't try to save a post that is already saved.
+    disabled: isChecking || isPending,
+    "aria-pressed": saved,
+    "aria-label": saved ? "Remove from saved posts" : "Save this post",
+    title: canSave ? undefined : "Sign in to save this post",
+  };
+
+  if (variant === "bar") {
+    return (
+      <button
+        {...shared}
+        className={`inline-flex items-center gap-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+          saved ? "text-ink-brand" : "text-ink-text-2 hover:text-ink-text"
+        }`}
+      >
+        <Bookmark
+          size={18}
+          strokeWidth={1.75}
+          fill={saved ? "currentColor" : "none"}
+          aria-hidden="true"
+        />
+        {isPending ? (saved ? "Removing…" : "Saving…") : saved ? "Bookmarked" : "Bookmark"}
+      </button>
+    );
+  }
+
+  if (variant === "icon") {
+    return (
+      <button
+        {...shared}
+        className="inline-flex size-7 items-center justify-center rounded-[2px] text-ink-text transition-colors hover:bg-ink-surface-2 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <Bookmark
+          size={17}
+          strokeWidth={1.75}
+          fill={saved ? "currentColor" : "none"}
+          aria-hidden="true"
+        />
+      </button>
+    );
+  }
+
   return (
     <button
-      type="button"
-      onClick={onClick}
-      // Wait for the saved state before allowing a click, so a fast press
-      // can't try to save a post that is already saved.
-      disabled={isChecking || isPending}
-      aria-pressed={saved}
-      aria-label={saved ? "Remove from saved posts" : "Save this post"}
-      title={canSave ? undefined : "Sign in to save this post"}
-      className={`group inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 ${
+      {...shared}
+      className={`inline-flex h-10 items-center gap-2 rounded-[3px] border px-4 text-xs font-extrabold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${
         saved
-          ? "border-indigo-200 bg-indigo-50 text-indigo-600 dark:border-indigo-900 dark:bg-indigo-950/40 dark:text-indigo-400"
-          : "border-gray-200 bg-white text-gray-600 hover:border-indigo-200 hover:text-indigo-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-indigo-900 dark:hover:text-indigo-400"
+          ? "border-ink-sage bg-ink-sage text-ink-on-sage"
+          : "border-ink-border bg-ink-surface text-ink-text hover:border-ink-border-strong"
       }`}
     >
       <Bookmark
-        size={18}
+        size={16}
+        strokeWidth={1.75}
         fill={saved ? "currentColor" : "none"}
-        className={`transition-transform duration-200 ${
-          saved ? "scale-110" : "group-hover:scale-110"
-        }`}
+        aria-hidden="true"
       />
       <span>{isPending ? (saved ? "Removing…" : "Saving…") : saved ? "Saved" : "Save"}</span>
     </button>

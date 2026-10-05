@@ -1,156 +1,172 @@
 import fileservice from "../services/storage.service";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { Heart, MessageCircle } from "lucide-react";
 import { postPath } from "../utils/postUrl";
 import { useQueryClient } from "@tanstack/react-query";
 import postservice from "../services/Post.service";
+import { categoryLabel } from "../constants/categories";
+import { cardDate } from "../utils/postText";
+import UserAvatar from "./UserAvatar";
+import SaveButton from "./saved/SaveButton";
 
-function PostCard({ $createdAt, $id, title, featuredImage, author }) {
-  const isoString = $createdAt ?? null;
-  const date = new Date(isoString);
+// The three card sizes in the INK designs.
+//  featured — Home's three-up grid: tall image, 22px title.
+//  grid     — Explore / Profile / Bookmarks four-up grid: shorter image.
+//  compact  — the Post page's "Related articles" column: 20px title.
+const VARIANTS = {
+  featured: {
+    image: "aspect-[270/210]",
+    body: "gap-4 px-4 pt-4 pb-5",
+    title: "text-[22px] tracking-[-0.66px]",
+  },
+  grid: {
+    image: "aspect-[270/160]",
+    body: "gap-3 p-4",
+    title: "text-[22px] tracking-[-0.66px]",
+  },
+  compact: {
+    image: "aspect-[291/124]",
+    body: "gap-4 p-4",
+    title: "text-[20px] tracking-[-0.6px]",
+  },
+};
+
+/**
+ * The INK article card, shared by Home, Explore, Bookmarks, Profile and the
+ * Post page.
+ *
+ * Takes a post row as props. Everything else is optional and simply not drawn
+ * when absent: `excerpt` / `readingMinutes` (only callers that loaded the
+ * body have them), `likes` / `comments` (counts from useCardMeta), the
+ * category, and the author photo.
+ *
+ * `showSave` adds the bookmark. Grids pre-load every card's saved state in one
+ * request (useCardMeta), so the buttons don't each ask Appwrite.
+ */
+function PostCard({
+  $createdAt,
+  $id,
+  title,
+  featuredImage,
+  author,
+  userID,
+  category,
+  excerpt,
+  readingMinutes,
+  likes,
+  comments,
+  showSave = false,
+  variant = "featured",
+}) {
+  const me = useSelector((state) => state.auth.userData);
+  const label = categoryLabel(category);
+  const size = VARIANTS[variant] ?? VARIANTS.featured;
+
+  // Avatars live in each user's private account prefs, so the only photo a
+  // reader can see is their own — on their own posts. Everyone else gets
+  // initials.
+  const isMine = Boolean(me?.$id && me.$id === userID);
+  const avatarId = isMine ? me.prefs?.avatarId : null;
 
   const queryclient = useQueryClient();
-  const prefetchpost = () => (
+  const prefetchpost = () =>
     void queryclient.query({
       queryKey: ["post", $id],
       queryFn: () => postservice.getPost($id),
       staleTime: 60000,
-    })
-    // console.log(`fetched post whose ID is :${$id}`)
-  );
+    });
+  // console.log(`fetched post whose ID is :${$id}`)
+
+  const hasEngagement = likes !== undefined || comments !== undefined;
 
   return (
-    <Link
-      to={postPath({ $id, title })}
+    <article
       onMouseEnter={prefetchpost}
-      className="
-        group relative flex h-full flex-col overflow-hidden rounded-3xl
-        border border-gray-200/70 bg-white
-        shadow-[0_4px_20px_rgba(0,0,0,0.04)]
-        transition-all duration-500
-        hover:-translate-y-2
-        hover:border-gray-300
-        hover:shadow-[0_20px_45px_rgba(0,0,0,0.10)]
-      "
+      className="group relative flex h-full flex-col overflow-hidden rounded-[2px] border border-ink-border bg-ink-surface transition-colors hover:border-ink-border-strong"
     >
-      {/* Image */}
-      <div className="relative h-60 w-full overflow-hidden bg-gray-100">
-        <img
-          src={fileservice.filePreview(featuredImage)}
-          alt={title}
-          loading="lazy"
-          decoding="async"
-          className="
-            h-full w-full object-cover
-            transition-transform duration-700 ease-out
-            group-hover:scale-105
-          "
-        />
-
-        {/* Image Overlay */}
-        <div
-          className="
-            absolute inset-0
-           bg-linear-to-t from-black/50 via-black/5 to-transparent
-            opacity-70
-            transition-opacity duration-500
-            group-hover:opacity-90
-          "
-        />
-
-        {/* Read badge */}
-        <div
-          className="
-            absolute left-4 top-4
-            rounded-full
-            bg-white/90 px-3 py-1.5
-            text-xs font-semibold text-gray-800
-            shadow-sm backdrop-blur-md
-          "
-        >
-          Article
+      <div className="flex flex-col gap-4">
+        <div className={`${size.image} w-full overflow-hidden bg-ink-surface-2`}>
+          {featuredImage && (
+            <img
+              src={fileservice.filePreview(featuredImage)}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="size-full object-cover"
+            />
+          )}
         </div>
-
-        {/* Arrow */}
-        <div
-          className="
-            absolute bottom-4 right-4
-            flex h-10 w-10 items-center justify-center
-            rounded-full
-            bg-white/90
-            text-lg text-gray-800
-            shadow-md backdrop-blur-md
-            transition-all duration-300
-            group-hover:bg-indigo-600
-            group-hover:text-white
-            group-hover:rotate-[-45deg]
-          "
-        >
-          →
-        </div>
+        {label && (
+          <p className="px-4 font-mono text-[9px] font-medium leading-[14px] text-ink-brand">
+            {label.toUpperCase()}
+          </p>
+        )}
       </div>
 
-      {/* Content */}
-      <div className="flex flex-1 flex-col p-6">
-        {/* Title */}
-        <h2
-          className="
-            line-clamp-2
-            text-xl font-bold leading-7
-            tracking-tight text-gray-900
-            transition-colors duration-300
-            group-hover:text-indigo-600
-          "
-        >
-          {title}
-        </h2>
-
-        {/* Divider */}
-        <div className="my-5 h-px w-full bg-gray-100" />
-
-        {/* Author / Read */}
-        <div className="mt-auto flex items-center justify-between">
-          {/* Author */}
-          <div className="flex min-w-0 items-center gap-3">
-            <div
-              className="
-                flex h-9 w-9 shrink-0 items-center justify-center
-                rounded-full
-                bg-gradient-to-br from-indigo-500 to-purple-600
-                text-sm font-bold text-white
-              "
-            >
-              {author?.charAt(0)?.toUpperCase() || "A"}
-            </div>
-
-            <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
-                Written by
-              </p>
-
-              <p className="truncate text-sm font-semibold text-gray-700">
-                {author || "Anonymous"}
-              </p>
-              
-              <p className="truncate text-sm font-semibold text-gray-700">
-                {date.toDateString()}
-              </p>
-            </div>
-          </div>
-
-          {/* Read */}
-          <span
-            className="
-              shrink-0 text-sm font-semibold
-              text-gray-500
-              transition-colors duration-300
-              group-hover:text-indigo-600
-            "
+      <div className={`flex flex-1 flex-col ${size.body}`}>
+        <h3 className={`${size.title} font-bold leading-[1.25] text-ink-text`}>
+          {/* The link stretches over the whole card, so the card stays one
+              big click target while the buttons sit above it. */}
+          <Link
+            to={postPath({ $id, title })}
+            className="after:absolute after:inset-0 after:content-[''] focus-visible:underline focus-visible:outline-none"
           >
-            Read
-          </span>
+            {title}
+          </Link>
+        </h3>
+
+        {excerpt && (
+          <p className="line-clamp-3 text-[15px] leading-[1.65] text-ink-text-2">
+            {excerpt}
+          </p>
+        )}
+
+        <div className="mt-auto h-px w-full bg-ink-border opacity-80" />
+
+        <div className="flex items-center gap-2">
+          <UserAvatar
+            name={author}
+            avatarId={avatarId}
+            size={27}
+            className={`rounded-[3px] text-[9px] ${
+              isMine
+                ? "bg-ink-sage text-ink-avatar-text"
+                : "bg-ink-surface-2 text-ink-brand"
+            }`}
+          />
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <p className="truncate text-xs font-extrabold text-ink-text">
+              {author || "Anonymous"}
+            </p>
+            <p className="truncate font-mono text-[11px] text-ink-muted">
+              <time dateTime={$createdAt}>{cardDate($createdAt)}</time>
+              {readingMinutes ? ` · ${readingMinutes} MIN READ` : ""}
+            </p>
+          </div>
+          {showSave && (
+            <div className="relative z-10 shrink-0">
+              <SaveButton postId={$id} variant="icon" />
+            </div>
+          )}
         </div>
+
+        {hasEngagement && (
+          <div className="flex items-center gap-4 pt-1 font-mono text-[11px] text-ink-muted">
+            <span className="flex items-center gap-1.5" title="Likes">
+              <Heart size={14} strokeWidth={1.75} aria-hidden="true" />
+              <span className="tabular-nums">{likes ?? "—"}</span>
+              <span className="sr-only">likes</span>
+            </span>
+            <span className="flex items-center gap-1.5" title="Comments">
+              <MessageCircle size={14} strokeWidth={1.75} aria-hidden="true" />
+              <span className="tabular-nums">{comments ?? "—"}</span>
+              <span className="sr-only">comments</span>
+            </span>
+          </div>
+        )}
       </div>
-    </Link>
+    </article>
   );
 }
 
