@@ -98,11 +98,13 @@ class SavedService {
    * costs the same per page as someone with three. Only the fields needed to
    * look the posts up are selected — the rows are pure userId/postId links.
    */
-  async getSavedPosts({ userId, lastId = null, limit = 12 }) {
+  async getSavedPosts({ userId, lastId = null, limit = 12, order = "desc" }) {
+    // "asc" = oldest saves first; the cursor follows whichever order is used.
+    const sort = order === "asc" ? Query.orderAsc : Query.orderDesc;
     const queries = [
       Query.equal("userId", userId),
-      Query.orderDesc("$createdAt"),
-      Query.orderDesc("$id"),
+      sort("$createdAt"),
+      sort("$id"),
       Query.limit(limit),
       Query.select(["$id", "$createdAt", "postId"]),
     ];
@@ -121,6 +123,56 @@ class SavedService {
     } catch (error) {
       console.log(
         "Error occurred while fetching saved posts :: getSavedPosts :: saved.service.js",
+        error,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * This user's saved rows among a page of posts, in one request — lets a
+   * grid of cards know which bookmarks are filled without one query per card.
+   */
+  async getUserSavedForPosts(userId, postIds) {
+    if (!postIds.length) return [];
+    try {
+      const response = await this.tablesDB.listRows({
+        databaseId: config.databaseId,
+        tableId: config.savedtableId,
+        queries: [
+          Query.equal("userId", userId),
+          Query.equal("postId", postIds),
+          Query.limit(postIds.length),
+        ],
+        total: false,
+      });
+      return response.rows;
+    } catch (error) {
+      console.log(
+        "Error occurred while checking saved posts :: getUserSavedForPosts :: saved.service.js",
+        error,
+      );
+      throw error;
+    }
+  }
+
+  /** How many posts this user has saved — one row requested, total reported. */
+  async getSavedCount(userId) {
+    try {
+      const response = await this.tablesDB.listRows({
+        databaseId: config.databaseId,
+        tableId: config.savedtableId,
+        queries: [
+          Query.equal("userId", userId),
+          Query.limit(1),
+          Query.select(["$id"]),
+        ],
+        total: true,
+      });
+      return response.total ?? 0;
+    } catch (error) {
+      console.log(
+        "Error occurred while counting saved posts :: getSavedCount :: saved.service.js",
         error,
       );
       throw error;

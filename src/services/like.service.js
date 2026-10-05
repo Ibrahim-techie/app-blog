@@ -78,6 +78,89 @@ class LikeService {
   }
 
   /**
+   * Like counts for a page of cards, as `{ postId: count }`, in one request:
+   * the like rows for those posts come back with only their postId and are
+   * tallied here. If a page's posts somehow have more likes than one response
+   * holds, falls back to counting each post exactly.
+   */
+  async getLikeCountsByPost(postIds) {
+    if (!postIds.length) return {};
+    try {
+      const response = await this.tablesDB.listRows({
+        databaseId: config.databaseId,
+        tableId: config.liketableId,
+        queries: [
+          Query.equal("postId", postIds),
+          Query.select(["postId"]),
+          Query.limit(5000),
+        ],
+        total: true,
+      });
+
+      if (response.total > response.rows.length) {
+        const exact = await Promise.all(postIds.map((id) => this.getLikeCount(id)));
+        return Object.fromEntries(postIds.map((id, i) => [id, exact[i]]));
+      }
+
+      const counts = Object.fromEntries(postIds.map((id) => [id, 0]));
+      for (const row of response.rows) counts[row.postId] += 1;
+      return counts;
+    } catch (error) {
+      console.log(
+        "Error occurred while counting likes :: getLikeCountsByPost :: like.service.js",
+        error,
+      );
+      throw error;
+    }
+  }
+
+  /** One page of the posts a user has liked, most recent like first. */
+  async getUserLikes({ userId, lastId = null, limit = 12 }) {
+    const queries = [
+      Query.equal("userId", userId),
+      Query.orderDesc("$createdAt"),
+      Query.orderDesc("$id"),
+      Query.limit(limit),
+      Query.select(["$id", "$createdAt", "postId"]),
+    ];
+    if (lastId) queries.push(Query.cursorAfter(lastId));
+
+    try {
+      return await this.tablesDB.listRows({
+        databaseId: config.databaseId,
+        tableId: config.liketableId,
+        queries,
+        total: false,
+      });
+    } catch (error) {
+      console.log(
+        "Error occurred while fetching liked posts :: getUserLikes :: like.service.js",
+        error,
+      );
+      throw error;
+    }
+  }
+
+  /** Every like on the platform — one row requested, the total reported. */
+  async getTotalLikeCount() {
+    try {
+      const response = await this.tablesDB.listRows({
+        databaseId: config.databaseId,
+        tableId: config.liketableId,
+        queries: [Query.limit(1), Query.select(["$id"])],
+        total: true,
+      });
+      return response.total ?? 0;
+    } catch (error) {
+      console.log(
+        "Error occurred while counting all likes :: getTotalLikeCount :: like.service.js",
+        error,
+      );
+      throw error;
+    }
+  }
+
+  /**
    * Likes across many posts, leaving out one user's own — "likes received"
    * on a profile shouldn't count the author liking their own work.
    *

@@ -83,6 +83,83 @@ class CommentService {
     }
   }
 
+  // Comment counts for a page of cards, as { postId: count } — one request,
+  // the same approach as getLikeCountsByPost in like.service.js.
+  async getCommentCountsByPost(postIds) {
+    if (!postIds.length) return {};
+    try {
+      const response = await this.tablesDB.listRows({
+        databaseId: config.databaseId,
+        tableId: config.commenttableId,
+        queries: [
+          Query.equal("postId", postIds),
+          Query.select(["postId"]),
+          Query.limit(5000),
+        ],
+        total: true,
+      });
+
+      if (response.total > response.rows.length) {
+        const exact = await Promise.all(
+          postIds.map((id) => this.getCommentCount(id)),
+        );
+        return Object.fromEntries(postIds.map((id, i) => [id, exact[i]]));
+      }
+
+      const counts = Object.fromEntries(postIds.map((id) => [id, 0]));
+      for (const row of response.rows) counts[row.postId] += 1;
+      return counts;
+    } catch (error) {
+      console.log(
+        "Error occurred while counting comments :: getCommentCountsByPost :: comment.service.js",
+        error,
+      );
+      throw error;
+    }
+  }
+
+  // How many comments one post has — one row requested, the total reported.
+  async getCommentCount(postId) {
+    try {
+      const response = await this.tablesDB.listRows({
+        databaseId: config.databaseId,
+        tableId: config.commenttableId,
+        queries: [
+          Query.equal("postId", postId),
+          Query.limit(1),
+          Query.select(["$id"]),
+        ],
+        total: true,
+      });
+      return response.total ?? 0;
+    } catch (error) {
+      console.log(
+        "Error occurred while counting comments :: getCommentCount :: comment.service.js",
+        error,
+      );
+      throw error;
+    }
+  }
+
+  // Every comment on the platform — one row requested, the total reported.
+  async getTotalCommentCount() {
+    try {
+      const response = await this.tablesDB.listRows({
+        databaseId: config.databaseId,
+        tableId: config.commenttableId,
+        queries: [Query.limit(1), Query.select(["$id"])],
+        total: true,
+      });
+      return response.total ?? 0;
+    } catch (error) {
+      console.log(
+        "Error occurred while counting all comments :: getTotalCommentCount :: comment.service.js",
+        error,
+      );
+      throw error;
+    }
+  }
+
   // Comments across many posts, leaving out one user's own replies. Chunked by
   // 100 ids for the same reason as getLikeCountForPosts in like.service.js.
   async getCommentCountForPosts(postIds, excludeUserId) {

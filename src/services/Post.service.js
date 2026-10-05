@@ -14,6 +14,23 @@ function postPermissions(userID, status) {
   ];
 }
 
+// Everything a post card shows. The article body is the largest column and no
+// list displays it, so lists select only these. A field missing here is
+// silently missing from every card — add new card fields in this one place.
+const CARD_FIELDS = [
+  "$id",
+  "$createdAt",
+  "title",
+  "featuredImage",
+  "status",
+  "userID",
+  "author",
+  "category",
+];
+
+// The category column is an enum, which rejects "" — "no category" is null.
+const categoryValue = (category) => category || null;
+
 class Postservice {
   tablesDB;
   realtime;
@@ -23,7 +40,15 @@ class Postservice {
     this.realtime=new Realtime(client);
   }
 
-  async createPost({ title, content, featuredImage, status, userID, author }) {
+  async createPost({
+    title,
+    content,
+    featuredImage,
+    status,
+    userID,
+    author,
+    category,
+  }) {
     try {
       // Appwrite generates the id, so two posts with the same title never
       // collide. The readable slug lives only in the URL (see utils/postUrl.js).
@@ -38,6 +63,7 @@ class Postservice {
           status: status,
           userID: userID,
           author: author,
+          category: categoryValue(category),
         },
         permissions: postPermissions(userID, status),
       });
@@ -52,7 +78,7 @@ class Postservice {
 
   async updatePost(
     id,
-    { title, content, featuredImage, status, author, userID },
+    { title, content, featuredImage, status, author, userID, category },
   ) {
     try {
       return await this.tablesDB.updateRow({
@@ -65,6 +91,9 @@ class Postservice {
           featuredImage: featuredImage,
           status: status,
           author: author,
+          // Left untouched when a caller doesn't mention it, so an update
+          // that isn't about category can never wipe one.
+          ...(category !== undefined && { category: categoryValue(category) }),
         },
         // Status decides who can read the post, so refresh the permissions
         // whenever it might have changed.
@@ -130,17 +159,7 @@ class Postservice {
         queries: [
           Query.equal("$id", ids),
           Query.limit(ids.length),
-          // Card fields only — the article body is the largest column and the
-          // list never shows it.
-          Query.select([
-            "$id",
-            "$createdAt",
-            "title",
-            "featuredImage",
-            "status",
-            "userID",
-            "author",
-          ]),
+          Query.select(CARD_FIELDS),
         ],
         total: false,
       });
@@ -227,20 +246,17 @@ class Postservice {
     limit = 12,
     userID = null,
     status = "active",
+    category = null,
+    // "asc" lists oldest first. The cursor still works: cursorAfter follows
+    // whichever order the query asks for.
+    order = "desc",
   }) {
+    const sort = order === "asc" ? Query.orderAsc : Query.orderDesc;
     const queries = [
       Query.limit(limit),
-      Query.orderDesc("$createdAt"),
-      Query.orderDesc("$id"),
-      Query.select([
-        "$id",
-        "$createdAt",
-        "title",
-        "featuredImage",
-        "status",
-        "userID",
-        "author",
-      ]),
+      sort("$createdAt"),
+      sort("$id"),
+      Query.select(CARD_FIELDS),
     ];
 
     // add status if only active and inactive provided
@@ -249,6 +265,7 @@ class Postservice {
     }
     lastId ? queries.push(Query.cursorAfter(lastId)) : null;
     userID ? queries.push(Query.equal("userID", userID)) : null;
+    category ? queries.push(Query.equal("category", category)) : null;
 
     try {
       const result = await this.tablesDB.listRows({
@@ -274,22 +291,21 @@ class Postservice {
     limit = 12,
     userID = null,
     status = "active",
+    category = null,
+    order = "desc",
   }) {
+    const sort = order === "asc" ? Query.orderAsc : Query.orderDesc;
     const queries = [
       Query.search("title", searchTerm),
-      Query.orderDesc("$createdAt"),
-      Query.orderDesc("$id"),
+      sort("$createdAt"),
+      sort("$id"),
       Query.limit(limit),
-      Query.select([
-        "$id",
-        "$createdAt",
-        "title",
-        "featuredImage",
-        "status",
-        "userID",
-        "author",
-      ]),
+      Query.select(CARD_FIELDS),
     ];
+
+    if (category) {
+      queries.push(Query.equal("category", category));
+    }
 
     if (status && status !== "all") {
       queries.push(Query.equal("status", status));
@@ -316,6 +332,93 @@ class Postservice {
         error,
       );
 
+      throw error;
+    }
+  }
+
+  /**
+   * The newest published posts, with their body — the Home featured cards
+   * show an excerpt and a reading time, which need the text. Kept to a few
+   * rows so loading `content` stays cheap.
+   */
+  async getFeaturedPosts(limit = 3) {
+    try {
+      const result = await this.tablesDB.listRows({
+        databaseId: config.databaseId,
+        tableId: config.tableId,
+        queries: [
+          Query.equal("status", "active"),
+          Query.orderDesc("$createdAt"),
+          Query.orderDesc("$id"),
+          Query.limit(limit),
+          Query.select([...CARD_FIELDS, "content"]),
+        ],
+        total: false,
+      });
+      return result.rows;
+    } catch (error) {
+      console.log(
+        "Error occured while getting featured posts::getFeaturedPosts::Post.service.js",
+        error,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Up to `limit` other published posts for the "Related articles" column:
+   * same category when the post has one, otherwise simply the newest.
+   */
+  async getRelatedPosts({ postId, category = null, limit = 3 }) {
+    const queries = [
+      Query.equal("status", "active"),
+      Query.notEqual("$id", postId),
+      Query.orderDesc("$createdAt"),
+      Query.limit(limit),
+      Query.select(CARD_FIELDS),
+    ];
+    if (category) queries.push(Query.equal("category", category));
+
+    try {
+      const result = await this.tablesDB.listRows({
+        databaseId: config.databaseId,
+        tableId: config.tableId,
+        queries,
+        total: false,
+      });
+      return result.rows;
+    } catch (error) {
+      console.log(
+        "Error occured while getting related posts::getRelatedPosts::Post.service.js",
+        error,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * How many posts match, without downloading them: one row is requested and
+   * Appwrite reports the total. Used for the published-articles statistic and
+   * the per-category counts.
+   */
+  async getPostCount({ status = "active", category = null } = {}) {
+    const queries = [Query.limit(1), Query.select(["$id"])];
+    if (status) queries.push(Query.equal("status", status));
+    if (category) queries.push(Query.equal("category", category));
+
+    try {
+      const result = await this.tablesDB.listRows({
+        databaseId: config.databaseId,
+        tableId: config.tableId,
+        queries,
+        total: true,
+      });
+      return result.total ?? 0;
+    } catch (error) {
+      console.log(
+        "Error occured while counting posts::getPostCount::Post.service.js",
+        error,
+      );
       throw error;
     }
   }
