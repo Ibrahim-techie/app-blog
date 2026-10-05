@@ -57,47 +57,40 @@ function Comments({ postId }) {
   return (
     <section
       aria-labelledby="comments-heading"
-      className="mx-auto mt-10 max-w-4xl"
+      className="pt-5"
     >
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-8">
-        <div className="mb-6 flex items-baseline gap-3">
-          <h2
-            id="comments-heading"
-            className="text-xl font-bold tracking-tight text-gray-900 dark:text-white"
-          >
-            Comments
-          </h2>
-          {!isPending && !isError && (
-            <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-sm font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-              {total}
-            </span>
-          )}
-        </div>
+      <div>
+        <h2
+          id="comments-heading"
+          className="mb-6 scroll-mt-28 text-[28px] font-bold tracking-[-0.56px] text-ink-text"
+        >
+          COMMENTS{!isPending && !isError && ` (${total})`}
+        </h2>
 
         <PostComment postId={postId} />
 
-        <div className="mt-8">
+        <div className="mt-2">
           {isPending ? (
             <Loader text="Loading comments" compact />
           ) : isError ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-6 text-center dark:border-red-900 dark:bg-red-950/30">
-              <p className="text-sm font-medium text-red-700 dark:text-red-400">
+            <div className="rounded-[2px] border border-ink-error/50 bg-ink-surface px-4 py-6 text-center">
+              <p className="text-sm font-extrabold text-ink-error">
                 We couldn&apos;t load the comments.
               </p>
-              <p className="mt-1 text-xs text-red-600 dark:text-red-300">
+              <p className="mt-1 text-xs text-ink-text-2">
                 {error?.message}
               </p>
               <button
                 type="button"
                 onClick={() => refetch()}
                 disabled={isFetching}
-                className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-4 inline-flex h-9 items-center rounded-[3px] border border-ink-border-strong bg-ink-primary px-4 text-xs font-extrabold text-ink-on-primary disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isFetching ? "Retrying…" : "Try again"}
               </button>
             </div>
           ) : comments.length === 0 ? (
-            <p className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+            <p className="py-8 text-center text-sm text-ink-text-2">
               No comments yet — be the first to say something.
             </p>
           ) : (
@@ -110,11 +103,11 @@ function Comments({ postId }) {
                     type="button"
                     onClick={() => fetchNextPage()}
                     disabled={isFetchingNextPage}
-                    className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+                    className="inline-flex h-10 items-center rounded-[3px] border border-ink-border bg-ink-surface px-5 text-xs font-extrabold text-ink-text transition-colors hover:border-ink-border-strong disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {isFetchingNextPage
                       ? "Loading…"
-                      : `Load more comments (${total - comments.length} left)`}
+                      : `View all ${total} comments`}
                   </button>
                 </div>
               )}

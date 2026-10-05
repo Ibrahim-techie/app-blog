@@ -1,15 +1,26 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Postcard, Container, Loader } from "../components";
 import ProfileHeader from "../components/profile/ProfileHeader";
-import ProfileStats from "../components/profile/ProfileStats";
 import EditProfileDialog from "../components/profile/EditProfileDialog";
+import PagedFeed from "../components/feed/PagedFeed";
+import { EditorialNote, SectionHeading } from "../components/feed/FeedStates";
 import postservice from "../services/Post.service";
 import useProfileStats from "../customHooks/useProfileStats";
+import useSavedPosts from "../customHooks/useSavedPosts";
+import useLikedPosts from "../customHooks/useLikedPosts";
 
 const PAGE_SIZE = 12;
+
+// The design's tabs, minus "Reading History" — the app doesn't record what
+// people read, and the profile brief rules it out.
+const TABS = [
+  { key: "posts", label: "My Posts" },
+  { key: "bookmarks", label: "Bookmarks" },
+  { key: "liked", label: "Liked" },
+  { key: "drafts", label: "Drafts" },
+];
 
 // Cursor pagination, same as the other feeds.
 const getNextPageParam = (lastPage) =>
@@ -17,137 +28,179 @@ const getNextPageParam = (lastPage) =>
     ? undefined
     : lastPage.rows[lastPage.rows.length - 1].$id;
 
-function Profile() {
-  const user = useSelector((state) => state.auth.userData);
-  const userId = user?.$id;
-  const [isEditing, setIsEditing] = useState(false);
-  const loaderRef = useRef(null);
-
-  const stats = useProfileStats(userId);
-
-  // Published posts only — drafts stay on the Home dashboard. Kept under
-  // ["posts", "user", userId] so post create/edit/delete refresh it too.
-  const myPosts = useInfiniteQuery({
-    queryKey: ["posts", "user", userId, "profile"],
+/** The signed-in user's own posts with one status — published or drafts. */
+function useOwnPosts(userId, status, key) {
+  const {
+    data,
+    isPending,
+    isError,
+    error,
+    refetch,
+    isFetching,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery({
+    // Under ["posts", "user", userId] so post create/edit/delete refresh it.
+    // `key` names the status ("profile" = published, kept from before).
+    queryKey: ["posts", "user", userId, key, status],
     queryFn: ({ pageParam }) =>
       postservice.getcursorRows({
         lastId: pageParam,
         limit: PAGE_SIZE,
         userID: userId,
-        status: "active",
+        status,
       }),
     initialPageParam: null,
     getNextPageParam,
     staleTime: 60000,
     enabled: Boolean(userId),
   });
+  return {
+    pages: data?.pages.map((page) => page.rows) ?? [],
+    isPending,
+    isError,
+    error,
+    refetch,
+    isFetching,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  };
+}
 
-  const posts = myPosts.data?.pages.flatMap((page) => page.rows) ?? [];
-  const { hasNextPage, isFetchingNextPage, fetchNextPage } = myPosts;
+// Each tab is its own component so only the open tab's query runs.
 
-  // Same infinite-scroll observer as AllPost.jsx.
-  useEffect(() => {
-    const sentinel = loaderRef.current;
-    if (!sentinel || !hasNextPage || isFetchingNextPage) return;
+function MyPostsTab({ userId }) {
+  return (
+    <PagedFeed
+      feed={useOwnPosts(userId, "active", "profile")}
+      loadingTitle="Loading your posts"
+      empty={{
+        title: "Nothing published yet.",
+        text: "Posts you publish will appear here. Drafts stay under Drafts until you make them public.",
+        action: { to: "/add-post", label: "Write your first post" },
+      }}
+    />
+  );
+}
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) fetchNextPage();
-      },
-      { rootMargin: "200px" },
-    );
+function DraftsTab({ userId }) {
+  return (
+    <PagedFeed
+      feed={useOwnPosts(userId, "inactive", "drafts")}
+      loadingTitle="Loading your drafts"
+      empty={{
+        title: "No drafts.",
+        text: "Save a post as a draft and it will wait here — only you can see it.",
+        action: { to: "/add-post", label: "Start a draft" },
+      }}
+    />
+  );
+}
 
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+function BookmarksTab() {
+  return (
+    <PagedFeed
+      feed={useSavedPosts()}
+      loadingTitle="Loading your bookmarks"
+      empty={{
+        title: "No saved posts yet.",
+        text: "Bookmark articles you want to read later and they'll appear here.",
+        action: { to: "/all-posts", label: "Explore Posts" },
+      }}
+    />
+  );
+}
+
+function LikedTab() {
+  return (
+    <PagedFeed
+      feed={useLikedPosts()}
+      loadingTitle="Loading posts you liked"
+      empty={{
+        title: "No liked posts yet.",
+        text: "Posts you like will collect here.",
+        action: { to: "/all-posts", label: "Explore Posts" },
+      }}
+    />
+  );
+}
+
+function Profile() {
+  const user = useSelector((state) => state.auth.userData);
+  const userId = user?.$id;
+  const [isEditing, setIsEditing] = useState(false);
+  const [params, setParams] = useSearchParams();
+  const stats = useProfileStats(userId);
+
+  // The open tab lives in the URL, so it survives a reload and can be linked.
+  const tab = TABS.find((item) => item.key === params.get("tab")) ?? TABS[0];
+  const selectTab = (key) =>
+    setParams(key === "posts" ? {} : { tab: key }, { replace: true });
 
   return (
-    <main className="min-h-screen bg-writr-bg dark:bg-gray-950">
-      <Container>
-        <div className="px-4 py-14 sm:px-6 lg:px-0">
-          <ProfileHeader user={user} onEdit={() => setIsEditing(true)} />
+    <div className="flex flex-col gap-8 px-5 py-8 sm:p-10">
+      <div>
+        <ProfileHeader
+          user={user}
+          onEdit={() => setIsEditing(true)}
+          stats={stats.data}
+          statsPending={stats.isPending}
+          statsError={stats.isError}
+          onRetry={() => stats.refetch()}
+        />
 
-          <ProfileStats
-            stats={stats.data}
-            isPending={stats.isPending}
-            isError={stats.isError}
-            isFetching={stats.isFetching}
-            onRetry={() => stats.refetch()}
-          />
-
-          <section aria-labelledby="my-posts-title">
-            <div className="mb-6 flex items-baseline justify-between border-b border-writr-border pb-3 dark:border-gray-800">
-              <h2
-                id="my-posts-title"
-                className="font-serif text-2xl text-writr-text dark:text-white"
+        <nav
+          aria-label="Profile sections"
+          className="flex h-16 gap-9 overflow-x-auto border-y border-ink-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {TABS.map((item) => {
+            const selected = item.key === tab.key;
+            return (
+              <button
+                key={item.key}
+                type="button"
+                aria-current={selected ? "page" : undefined}
+                onClick={() => selectTab(item.key)}
+                className={`flex h-full shrink-0 items-center px-1 text-[13px] transition-colors ${
+                  selected
+                    ? "border-b-[3px] border-ink-brand font-extrabold text-ink-brand"
+                    : "font-semibold text-ink-muted hover:text-ink-text"
+                }`}
               >
-                My Posts
-              </h2>
-              <Link
-                to="/add-post"
-                className="text-sm text-writr-text-2 underline-offset-4 hover:text-writr-text hover:underline dark:text-gray-400 dark:hover:text-white"
-              >
-                Write a post
-              </Link>
-            </div>
+                {item.label}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
 
-            {myPosts.isPending ? (
-              <Loader text="Loading your posts" />
-            ) : myPosts.isError ? (
-              <div className="rounded-[6px] border border-writr-border bg-writr-surface px-6 py-14 text-center dark:border-gray-800 dark:bg-gray-900">
-                <h3 className="text-lg font-medium text-writr-text dark:text-white">
-                  Something went wrong
-                </h3>
-                <p className="mt-2 text-sm text-writr-text-2 dark:text-gray-400">
-                  {myPosts.error?.message ??
-                    "We couldn't load your posts. Please try again."}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => myPosts.refetch()}
-                  disabled={myPosts.isFetching}
-                  className="mt-5 rounded-[4px] border border-writr-text px-4 py-2 text-sm text-writr-text transition-colors hover:bg-writr-text hover:text-writr-surface disabled:opacity-60 dark:border-gray-300 dark:text-gray-200"
-                >
-                  {myPosts.isFetching ? "Retrying…" : "Retry"}
-                </button>
-              </div>
-            ) : posts.length === 0 ? (
-              <div className="rounded-[6px] border border-dashed border-writr-border bg-writr-surface px-6 py-16 text-center dark:border-gray-700 dark:bg-gray-900">
-                <h3 className="font-serif text-xl text-writr-text dark:text-white">
-                  Nothing published yet
-                </h3>
-                <p className="mx-auto mt-2 max-w-md text-sm text-writr-text-2 dark:text-gray-400">
-                  Posts you publish will appear here. Drafts stay on your
-                  dashboard until you make them active.
-                </p>
-                <Link
-                  to="/add-post"
-                  className="mt-6 inline-block rounded-[4px] bg-writr-green px-5 py-2.5 text-sm font-medium text-writr-surface transition-colors hover:bg-writr-text dark:bg-gray-100 dark:text-gray-900"
-                >
-                  Write your first post
-                </Link>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {posts.map((post) => (
-                  <Postcard key={post.$id} {...post} />
-                ))}
-              </div>
-            )}
+      <section aria-labelledby="profile-tab-title" className="flex flex-col gap-6">
+        <SectionHeading
+          id="profile-tab-title"
+          title={tab.label.toUpperCase()}
+          meta={
+            tab.key === "posts" && stats.data
+              ? `${stats.data.posts} published post${stats.data.posts === 1 ? "" : "s"}`
+              : tab.key === "drafts"
+                ? "ONLY YOU CAN SEE DRAFTS"
+                : null
+          }
+        />
 
-            {isFetchingNextPage && (
-              <Loader text="Loading more" compact />
-            )}
+        {tab.key === "posts" && <MyPostsTab userId={userId} />}
+        {tab.key === "drafts" && <DraftsTab userId={userId} />}
+        {tab.key === "bookmarks" && <BookmarksTab />}
+        {tab.key === "liked" && <LikedTab />}
 
-            <div ref={loaderRef} className="h-10" />
-          </section>
-        </div>
-      </Container>
+        <EditorialNote left="YOUR WORDS, YOUR PACE." right="NEWEST FIRST" />
+      </section>
 
       {isEditing && (
         <EditProfileDialog user={user} onClose={() => setIsEditing(false)} />
       )}
-    </main>
+    </div>
   );
 }
 

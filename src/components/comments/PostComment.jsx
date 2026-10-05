@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import commentService from "../../services/comment.service";
+import UserAvatar from "../UserAvatar";
 
 const MAX_LENGTH = 1000;
 
@@ -48,11 +49,11 @@ function PostComment({ postId }) {
 
   if (!userData) {
     return (
-      <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-5 text-center dark:border-gray-700 dark:bg-gray-800/50">
-        <p className="text-sm text-gray-600 dark:text-gray-300">
+      <div className="rounded-[2px] border border-dashed border-ink-border bg-ink-surface px-4 py-5 text-center">
+        <p className="text-sm text-ink-text-2">
           <Link
             to="/login"
-            className="font-semibold text-indigo-600 hover:underline dark:text-indigo-400"
+            className="font-extrabold text-ink-brand underline underline-offset-4"
           >
             Sign in
           </Link>{" "}
@@ -64,22 +65,22 @@ function PostComment({ postId }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex gap-3">
-        <div
-          aria-hidden="true"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-sm font-bold text-white"
-        >
-          {userData.name?.charAt(0)?.toUpperCase() || "?"}
-        </div>
+      <div className="flex gap-3.5">
+        <UserAvatar
+          name={userData.name}
+          avatarId={userData.prefs?.avatarId}
+          size={36}
+          className="rounded-full bg-ink-sage text-xs text-ink-avatar-text"
+        />
 
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 rounded-[3px] border border-ink-border bg-ink-surface p-4 focus-within:border-ink-border-strong">
           <textarea
             rows={3}
             maxLength={MAX_LENGTH}
             placeholder="Write a comment…"
             aria-label="Write a comment"
             disabled={createComment.isPending}
-            className="w-full resize-y rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 disabled:opacity-60 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:ring-indigo-900/40"
+            className="w-full resize-none bg-transparent text-sm text-ink-text outline-none placeholder:text-ink-muted disabled:opacity-60"
             {...register("content", {
               required: "Comment cannot be empty",
               // A box full of spaces passes `required`, so check the trimmed value.
@@ -93,21 +94,21 @@ function PostComment({ postId }) {
             })}
           />
 
-          <div className="mt-2 flex items-center justify-between gap-3">
-            <p className="text-xs text-red-500" role="alert">
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <p className="text-xs text-ink-error" role="alert">
               {errors.content?.message}
             </p>
 
             <div className="flex shrink-0 items-center gap-3">
-              <span className="text-xs text-gray-400">
+              <span className="font-mono text-[11px] text-ink-muted">
                 {content?.length ?? 0}/{MAX_LENGTH}
               </span>
               <button
                 type="submit"
                 disabled={createComment.isPending}
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex h-11 items-center rounded-[3px] border border-ink-border-strong bg-ink-primary px-5 text-xs font-extrabold text-ink-on-primary disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {createComment.isPending ? "Posting…" : "Post comment"}
+                {createComment.isPending ? "Posting…" : "Post"}
               </button>
             </div>
           </div>

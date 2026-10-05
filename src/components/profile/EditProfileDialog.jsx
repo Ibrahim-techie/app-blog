@@ -8,7 +8,7 @@ const BIO_MAX = 200;
 const AVATAR_MAX_BYTES = 10 * 1024 * 1024; // before compression
 
 const fieldClass =
-  "w-full rounded-[4px] border border-writr-border bg-writr-surface px-3 py-2 text-sm text-writr-text outline-none transition-colors focus:border-writr-green dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:focus:border-gray-400";
+  "w-full rounded-[3px] border border-ink-border bg-ink-bg px-3 py-2 text-sm text-ink-text outline-none transition-colors focus:border-ink-border-strong";
 
 /** Modal form for the signed-in user's name, bio and avatar. */
 function EditProfileDialog({ user, onClose }) {
@@ -70,30 +70,30 @@ function EditProfileDialog({ user, onClose }) {
     (currentAvatarId ? fileservice.filePreview(currentAvatarId) : null);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-writr-text/40 px-4 dark:bg-black/60">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-text/40 px-4">
       <form
         onSubmit={handleSubmit(onSubmit)}
         role="dialog"
         aria-modal="true"
         aria-labelledby="edit-profile-title"
-        className="w-full max-w-lg rounded-[6px] border border-writr-border bg-writr-surface p-6 sm:p-8 dark:border-gray-800 dark:bg-gray-900"
+        className="w-full max-w-lg rounded-[3px] border border-ink-border bg-ink-surface p-6 sm:p-8"
       >
         <h2
           id="edit-profile-title"
-          className="font-serif text-2xl text-writr-text dark:text-white"
+          className="text-2xl font-extrabold tracking-[-0.6px] text-ink-text"
         >
           Edit profile
         </h2>
 
         <fieldset disabled={isSaving} className="mt-6 space-y-5">
           <div className="flex items-center gap-4">
-            <div className="size-16 shrink-0 overflow-hidden rounded-[4px] border border-writr-border bg-writr-surface-2 dark:border-gray-700 dark:bg-gray-800">
+            <div className="size-16 shrink-0 overflow-hidden rounded-[4px] border border-ink-border bg-ink-surface-2">
               {shownAvatar && (
                 <img src={shownAvatar} alt="" className="size-full object-cover" />
               )}
             </div>
             <div>
-              <label className="inline-block cursor-pointer rounded-[4px] border border-writr-border px-3 py-1.5 text-sm text-writr-text transition-colors hover:bg-writr-surface-2 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
+              <label className="inline-block cursor-pointer rounded-[4px] border border-ink-border px-3 py-1.5 text-sm text-ink-text transition-colors hover:bg-ink-surface-2">
                 {currentAvatarId || avatarFile ? "Change photo" : "Upload photo"}
                 <input
                   type="file"
@@ -103,7 +103,7 @@ function EditProfileDialog({ user, onClose }) {
                 />
               </label>
               {avatarError && (
-                <p role="alert" className="mt-1.5 text-xs text-red-700 dark:text-red-400">
+                <p role="alert" className="mt-1.5 text-xs text-ink-error">
                   {avatarError}
                 </p>
               )}
@@ -113,7 +113,7 @@ function EditProfileDialog({ user, onClose }) {
           <div>
             <label
               htmlFor="profile-name"
-              className="mb-1.5 block text-xs font-medium uppercase tracking-[0.15em] text-writr-muted dark:text-gray-400"
+              className="mb-1.5 block font-mono text-[10px] tracking-[0.3px] text-ink-muted uppercase"
             >
               Name
             </label>
@@ -131,7 +131,7 @@ function EditProfileDialog({ user, onClose }) {
               })}
             />
             {errors.name && (
-              <p role="alert" className="mt-1.5 text-xs text-red-700 dark:text-red-400">
+              <p role="alert" className="mt-1.5 text-xs text-ink-error">
                 {errors.name.message}
               </p>
             )}
@@ -141,11 +141,11 @@ function EditProfileDialog({ user, onClose }) {
             <div className="mb-1.5 flex items-baseline justify-between">
               <label
                 htmlFor="profile-bio"
-                className="text-xs font-medium uppercase tracking-[0.15em] text-writr-muted dark:text-gray-400"
+                className="font-mono text-[10px] tracking-[0.3px] text-ink-muted uppercase"
               >
                 Bio
               </label>
-              <span className="text-xs tabular-nums text-writr-muted dark:text-gray-500">
+              <span className="text-xs tabular-nums text-ink-muted">
                 {bioLength}/{BIO_MAX}
               </span>
             </div>
@@ -165,14 +165,14 @@ function EditProfileDialog({ user, onClose }) {
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            className="rounded-[4px] border border-writr-border px-4 py-2 text-sm text-writr-text transition-colors hover:bg-writr-surface-2 disabled:opacity-60 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+            className="inline-flex h-10 items-center rounded-[3px] border border-ink-border bg-ink-surface px-4 text-xs font-extrabold text-ink-text transition-colors hover:border-ink-border-strong disabled:opacity-60"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSaving || (!isDirty && !avatarFile)}
-            className="rounded-[4px] bg-writr-green px-4 py-2 text-sm font-medium text-writr-surface transition-colors hover:bg-writr-text disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
+            className="inline-flex h-10 items-center rounded-[3px] border border-ink-border-strong bg-ink-primary px-4 text-xs font-extrabold text-ink-on-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSaving ? "Saving…" : "Save changes"}
           </button>

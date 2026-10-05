@@ -5,11 +5,13 @@ import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import commentService from "../../services/comment.service";
 import { relativeTime, exactTime } from "../../utils/relativeTime";
+import UserAvatar from "../UserAvatar";
 
 const MAX_LENGTH = 1000;
 
 function CommentItem({ comment, postId }) {
   const currentUserId = useSelector((state) => state.auth.userData?.$id);
+  const myAvatarId = useSelector((state) => state.auth.userData?.prefs?.avatarId);
   const queryClient = useQueryClient();
   const queryKey = ["comments", postId];
 
@@ -113,31 +115,32 @@ function CommentItem({ comment, postId }) {
   };
 
   return (
-    <article className="flex gap-3">
-      {/* Placeholder avatar — real profile images come later. */}
-      <div
-        aria-hidden="true"
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-sm font-bold text-white"
-      >
-        {comment.userName?.charAt(0)?.toUpperCase() || "?"}
-      </div>
+    <article className="flex gap-3.5">
+      {/* Other people's photos live in their private account prefs, so only
+          your own comments can show one — the rest use initials. */}
+      <UserAvatar
+        name={comment.userName}
+        avatarId={isOwner ? myAvatarId : null}
+        size={36}
+        className="rounded-full bg-ink-surface-2 text-xs text-ink-brand"
+      />
 
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-3">
+            <p className="truncate text-[13px] font-extrabold text-ink-text">
               {comment.userName || "Anonymous"}
               {isOwner && (
-                <span className="ml-2 rounded bg-indigo-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
+                <span className="ml-2 rounded-[2px] bg-ink-sage px-1.5 py-0.5 font-mono text-[9px] font-medium tracking-[0.3px] text-ink-on-sage">
                   You
                 </span>
               )}
             </p>
             <p
-              className="text-xs text-gray-400 dark:text-gray-500"
+              className="font-mono text-[10px] text-ink-muted"
               title={exactTime(comment.$createdAt)}
             >
-              {relativeTime(comment.$createdAt)}
+              · {relativeTime(comment.$createdAt)}
               {wasEdited && " · edited"}
             </p>
           </div>
@@ -150,7 +153,7 @@ function CommentItem({ comment, postId }) {
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
                 aria-label="Comment actions"
-                className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                className="rounded-[3px] p-1.5 text-ink-muted transition-colors hover:bg-ink-surface-2 hover:text-ink-text"
               >
                 <MoreHorizontal size={18} />
               </button>
@@ -158,7 +161,7 @@ function CommentItem({ comment, postId }) {
               {menuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 z-10 mt-1 w-36 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                  className="absolute right-0 z-10 mt-1 w-36 overflow-hidden rounded-[3px] border border-ink-border bg-ink-surface py-1"
                 >
                   <button
                     type="button"
@@ -167,7 +170,7 @@ function CommentItem({ comment, postId }) {
                       setMenuOpen(false);
                       setIsEditing(true);
                     }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                    className="flex w-full items-center gap-2 px-3 py-2 text-xs font-semibold text-ink-text transition-colors hover:bg-ink-surface-2"
                   >
                     <Pencil size={14} /> Edit
                   </button>
@@ -178,7 +181,7 @@ function CommentItem({ comment, postId }) {
                       setMenuOpen(false);
                       setConfirmingDelete(true);
                     }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+                    className="flex w-full items-center gap-2 px-3 py-2 text-xs font-semibold text-ink-error transition-colors hover:bg-ink-surface-2"
                   >
                     <Trash2 size={14} /> Delete
                   </button>
@@ -197,17 +200,17 @@ function CommentItem({ comment, postId }) {
               maxLength={MAX_LENGTH}
               rows={3}
               disabled={updateMutation.isPending}
-              className="w-full resize-y rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 disabled:opacity-60 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:focus:ring-indigo-900/40"
+              className="w-full resize-y rounded-[3px] border border-ink-border bg-ink-surface px-3 py-2 text-sm text-ink-text outline-none transition-colors focus:border-ink-border-strong disabled:opacity-60"
             />
             <div className="mt-2 flex items-center justify-end gap-2">
-              <span className="mr-auto text-xs text-gray-400">
+              <span className="mr-auto font-mono text-[11px] text-ink-muted">
                 {draft.length}/{MAX_LENGTH}
               </span>
               <button
                 type="button"
                 onClick={cancelEdit}
                 disabled={updateMutation.isPending}
-                className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-60 dark:text-gray-300 dark:hover:bg-gray-800"
+                className="inline-flex h-8 items-center rounded-[3px] px-3 text-xs font-extrabold text-ink-text-2 transition-colors hover:bg-ink-surface-2 disabled:opacity-60"
               >
                 Cancel
               </button>
@@ -215,28 +218,28 @@ function CommentItem({ comment, postId }) {
                 type="button"
                 onClick={saveEdit}
                 disabled={updateMutation.isPending}
-                className="rounded-lg bg-indigo-600 px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex h-8 items-center rounded-[3px] border border-ink-border-strong bg-ink-primary px-4 text-xs font-extrabold text-ink-on-primary disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {updateMutation.isPending ? "Saving…" : "Save"}
               </button>
             </div>
           </div>
         ) : (
-          <p className="mt-1.5 whitespace-pre-wrap break-words text-sm leading-6 text-gray-700 dark:text-gray-300">
+          <p className="mt-3 whitespace-pre-wrap break-words text-[15px] leading-[1.65] text-ink-text-2">
             {comment.content}
           </p>
         )}
 
         {confirmingDelete && (
-          <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 dark:border-red-900 dark:bg-red-950/30">
-            <p className="text-sm text-red-700 dark:text-red-300">
+          <div className="mt-3 flex flex-wrap items-center gap-3 rounded-[3px] border border-ink-error/50 bg-ink-surface px-3 py-2">
+            <p className="text-sm font-semibold text-ink-error">
               Delete this comment?
             </p>
             <div className="ml-auto flex gap-2">
               <button
                 type="button"
                 onClick={() => setConfirmingDelete(false)}
-                className="rounded-lg px-3 py-1 text-sm font-medium text-gray-600 transition-colors hover:bg-white dark:text-gray-300 dark:hover:bg-gray-800"
+                className="inline-flex h-8 items-center rounded-[3px] px-3 text-xs font-extrabold text-ink-text-2 transition-colors hover:bg-ink-surface-2"
               >
                 Cancel
               </button>
@@ -246,7 +249,7 @@ function CommentItem({ comment, postId }) {
                   setConfirmingDelete(false);
                   deleteMutation.mutate();
                 }}
-                className="rounded-lg bg-red-600 px-3 py-1 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+                className="inline-flex h-8 items-center rounded-[3px] bg-ink-error px-3 text-xs font-extrabold text-ink-on-primary"
               >
                 Delete
               </button>

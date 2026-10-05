@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Postform, Container, Loader } from "../components";
+import { Postform, Loader } from "../components";
 import postservice from "../services/Post.service";
 import { useState, useEffect } from "react";
 import { postPath } from "../utils/postUrl";
@@ -48,11 +48,9 @@ function EditPost() {
   // The server-side lock is the update permission set in Post.service.js.
   if (post && post.userID === userId) {
     return (
-      <div className="py-8">
-        <Container>
-          {/* key resets the form if you jump straight to editing another post */}
-          <Postform key={post.$id} post={post} />
-        </Container>
+      <div className="px-5 py-8 sm:p-10">
+        {/* key resets the form if you jump straight to editing another post */}
+        <Postform key={post.$id} post={post} />
       </div>
     );
   }
@@ -63,24 +61,18 @@ function EditPost() {
     current?.error ||
     (post && (isPublic ? "You can only edit your own posts." : NOT_FOUND));
 
-  return (
-    <div className="min-h-[70vh] bg-gray-50 dark:bg-gray-950">
-      <Container>
-        {message ? (
-          <div role="alert" className="py-16 text-center">
-            <p className="text-slate-600 dark:text-slate-300">{message}</p>
-            <Link
-              to={isPublic ? postPath(post) : "/"}
-              className="mt-4 inline-block font-semibold text-indigo-600 dark:text-indigo-400"
-            >
-              {isPublic ? "Back to the post" : "Back to your dashboard"}
-            </Link>
-          </div>
-        ) : (
-          <Loader text="Preparing your editor" />
-        )}
-      </Container>
+  return message ? (
+    <div role="alert" className="px-5 py-16 text-center sm:px-10">
+      <p className="text-ink-text-2">{message}</p>
+      <Link
+        to={isPublic ? postPath(post) : "/"}
+        className="mt-4 inline-block text-sm font-extrabold text-ink-brand underline underline-offset-4"
+      >
+        {isPublic ? "Back to the post" : "Back to your dashboard"}
+      </Link>
     </div>
+  ) : (
+    <Loader text="Preparing your editor" />
   );
 }
 

@@ -3,9 +3,9 @@ import CommentItem from "./CommentItem";
 /** Presentational: turns a list of comments into rows. No data fetching here. */
 function CommentList({ comments, postId }) {
   return (
-    <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+    <ul className="flex flex-col">
       {comments.map((comment) => (
-        <li key={comment.$id} className="py-5 first:pt-0 last:pb-0">
+        <li key={comment.$id} className="border-b border-ink-border py-6">
           <CommentItem comment={comment} postId={postId} />
         </li>
       ))}

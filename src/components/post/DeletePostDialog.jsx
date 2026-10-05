@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import Button from "../Button";
 
 /** Confirmation modal for deleting a post. Presentational — no data logic. */
 function DeletePostDialog({
@@ -24,29 +23,28 @@ function DeletePostDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-text/50 px-4">
       <div
-        className="w-full max-w-md rounded-3xl border border-gray-200 bg-white p-6 shadow-2xl dark:border-gray-800 dark:bg-gray-900 sm:p-8"
+        className="w-full max-w-md rounded-[3px] border border-ink-border bg-ink-surface p-6 sm:p-8"
         role="dialog"
         aria-modal="true"
         aria-labelledby="delete-title"
       >
-        <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-xl dark:bg-red-950/50">
-          ⚠️
-        </div>
-
+        <p className="font-mono text-[10px] tracking-[0.3px] text-ink-error">
+          PERMANENT ACTION
+        </p>
         <h2
           id="delete-title"
-          className="text-xl font-bold tracking-tight text-gray-900 dark:text-white"
+          className="mt-2 text-2xl font-extrabold tracking-[-0.6px] text-ink-text"
         >
           Delete this post?
         </h2>
 
-        <p className="mt-3 line-clamp-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
+        <p className="mt-3 line-clamp-2 text-sm leading-6 text-ink-text">
           &quot;{title}&quot;
         </p>
 
-        <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
+        <p className="mt-2 text-sm leading-6 text-ink-text-2">
           This action cannot be undone. The post and its associated featured
           image will be permanently deleted.
         </p>
@@ -54,30 +52,30 @@ function DeletePostDialog({
         {error && (
           <p
             role="alert"
-            className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400"
+            className="mt-5 rounded-[3px] border border-ink-error/50 px-4 py-3 text-sm text-ink-error"
           >
             {error}
           </p>
         )}
 
         <div className="mt-7 flex justify-end gap-3">
-          <Button
-            bgColor="bg-gray-100"
-            className="!text-gray-700 hover:!bg-gray-200 dark:bg-gray-800 dark:!text-gray-200 dark:hover:!bg-gray-700"
+          <button
+            type="button"
             onClick={onCancel}
             disabled={isDeleting}
+            className="inline-flex h-10 items-center rounded-[3px] border border-ink-border bg-ink-surface px-4 text-xs font-extrabold text-ink-text transition-colors hover:border-ink-border-strong disabled:opacity-60"
           >
             Cancel
-          </Button>
+          </button>
 
-          <Button
-            bgColor="bg-red-500"
-            className="hover:bg-red-600"
+          <button
+            type="button"
             onClick={onConfirm}
             disabled={isDeleting}
+            className="inline-flex h-10 items-center rounded-[3px] bg-ink-error px-4 text-xs font-extrabold text-ink-on-primary disabled:opacity-60"
           >
             {isDeleting ? "Deleting…" : "Yes, Delete"}
-          </Button>
+          </button>
         </div>
       </div>
     </div>

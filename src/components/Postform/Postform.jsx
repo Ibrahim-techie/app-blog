@@ -1,6 +1,12 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { Button, Input, Select, RTE } from "../index";
+import { Input, RTE } from "../index";
+import {
+  ArrowUpRight,
+  Image as ImageIcon,
+  ImagePlus,
+  SlidersHorizontal,
+} from "lucide-react";
 import postservice from "../../services/Post.service";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -9,6 +15,8 @@ import fileservice from "../../services/storage.service";
 import { postPath, slugify } from "../../utils/postUrl";
 import { compressImage } from "../../utils/compressImage";
 import { toast } from "sonner";
+import { CATEGORIES } from "../../constants/categories";
+import { readingMinutes } from "../../utils/postText";
 
 const formatBytes = (bytes) =>
   bytes >= 1024 * 1024
@@ -36,11 +44,39 @@ function Postform({ post }) {
       content: post?.content || "",
       status: post?.status || "active",
       author: post?.author || userData?.name || "",
+      // Posts written before categories existed have none; "" shows the
+      // "Choose a category" option and is saved back as null.
+      category: post?.category || "",
     },
   });
 
   // Live preview of the readable part of the URL.
   const title = useWatch({ control, name: "title" });
+
+  // Word count and reading time under the editor, from the live body.
+  const content = useWatch({ control, name: "content" });
+  const { words, minutes } = useMemo(() => {
+    const text = content
+      ? new DOMParser().parseFromString(content, "text/html").body.textContent ?? ""
+      : "";
+    const count = text.split(/\s+/).filter(Boolean).length;
+    return { words: count, minutes: count ? readingMinutes(content) : 0 };
+  }, [content]);
+
+  // The chosen cover, previewed before upload; otherwise the current one.
+  const imageFiles = useWatch({ control, name: "image" });
+  const pickedFile = imageFiles?.[0];
+  const pickedPreview = useMemo(
+    () => (pickedFile ? URL.createObjectURL(pickedFile) : null),
+    [pickedFile],
+  );
+  useEffect(
+    () => () => pickedPreview && URL.revokeObjectURL(pickedPreview),
+    [pickedPreview],
+  );
+  const coverPreview =
+    pickedPreview ??
+    (post?.featuredImage ? fileservice.filePreview(post.featuredImage) : null);
 
   const submit = async (data) => {
     setSubmitError("");
@@ -51,9 +87,15 @@ function Postform({ post }) {
 
     // One toast that changes as the save progresses, rather than three stacked
     // ones. Passing the same id replaces the toast in place.
-    const toastId = toast.loading(
-      post ? "Saving your changes…" : "Publishing your post…",
-    );
+    // Wording follows the button pressed: Save Draft saves privately,
+    // Publish / Update goes public.
+    const isDraft = data.status === "inactive";
+    const progressLabel = isDraft
+      ? "Saving your draft…"
+      : post
+        ? "Saving your changes…"
+        : "Publishing your post…";
+    const toastId = toast.loading(progressLabel);
 
     try {
       let imageId = post?.featuredImage;
@@ -79,9 +121,7 @@ function Postform({ post }) {
         imageId = file.$id;
         orphanImageId = file.$id;
 
-        toast.loading(post ? "Saving your changes…" : "Publishing your post…", {
-          id: toastId,
-        });
+        toast.loading(progressLabel, { id: toastId });
       }
 
       if (!imageId) {
@@ -94,6 +134,7 @@ function Postform({ post }) {
         status: data.status,
         author: data.author.trim(),
         featuredImage: imageId,
+        category: data.category || null,
       };
 
       const saved = post
@@ -117,7 +158,7 @@ function Postform({ post }) {
 
       // The user is about to land on the post page, so this toast is the only
       // confirmation that the save actually succeeded.
-      toast.success(post ? "Changes saved" : "Post published", {
+      toast.success(isDraft ? "Draft saved" : post ? "Changes saved" : "Post published", {
         id: toastId,
         description:
           fields.status === "inactive"
@@ -141,182 +182,239 @@ function Postform({ post }) {
     }
   };
 
+  // Which status a button saves with. Save Draft keeps the post private;
+  // Publish / Update makes it public — the same active/inactive status the
+  // old Status dropdown set.
+  const submitAs = (status) => handleSubmit((data) => submit({ ...data, status }));
+
+  const isPublished = post?.status === "active";
+  const draftLabel = isPublished ? "Move to Drafts" : "Save Draft";
+  const publishLabel = post ? (isPublished ? "Update" : "Publish") : "Publish";
+
   return (
-    <form onSubmit={handleSubmit(submit)}>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <form onSubmit={submitAs("active")} noValidate>
+      <div className="mb-7 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-[28px] font-extrabold tracking-[-0.6px] text-ink-text sm:text-[32px]">
+            {post ? "Edit Post" : "Create a New Post"}
+          </h1>
+          <p className="text-[15px] text-ink-text-2">
+            {post
+              ? "Make changes to your post and save the updated version."
+              : "Share your ideas, experiences, and knowledge with the world."}
+          </p>
+          {post && (
+            <p className="font-mono text-[11px] text-ink-muted">
+              {isPublished ? "PUBLISHED — VISIBLE TO EVERYONE" : "DRAFT — ONLY YOU CAN SEE THIS"}
+            </p>
+          )}
+        </div>
+
+        <div className="flex shrink-0 gap-2">
+          {post && (
+            <button
+              type="button"
+              onClick={() => navigate(postPath(post))}
+              className="inline-flex h-[42px] items-center rounded-[3px] px-4 text-xs font-extrabold text-ink-text-2 hover:text-ink-text"
+            >
+              Cancel
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={submitAs("inactive")}
+            disabled={isSubmitting}
+            className="inline-flex h-[42px] items-center rounded-[3px] border border-ink-border bg-ink-surface px-4 text-[13px] font-semibold text-ink-text transition-colors hover:border-ink-border-strong disabled:opacity-60"
+          >
+            {draftLabel}
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="inline-flex h-[42px] items-center rounded-[3px] border border-ink-border-strong bg-ink-primary px-4 text-[13px] font-semibold text-ink-on-primary disabled:opacity-60"
+          >
+            {isSubmitting ? "Saving…" : publishLabel}
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_296px]">
         {/* ======================================
-            LEFT / MAIN EDITOR
+            WRITING EDITOR
         ====================================== */}
-        <div className="lg:col-span-2">
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
-            {/* Section Heading */}
-            <div className="mb-8">
-              <p className="text-sm font-semibold uppercase tracking-widest text-indigo-600">
-                {post ? "Edit Content" : "Create Content"}
+        <div className="overflow-hidden rounded-[6px] border border-ink-border bg-ink-surface">
+          {/* Title */}
+          <div className="px-6 pt-7 pb-5 sm:px-8">
+            <label htmlFor="post-title" className="sr-only">
+              Title
+            </label>
+            <input
+              id="post-title"
+              placeholder="Add a catchy title for your post…"
+              aria-invalid={Boolean(errors.title)}
+              className="w-full bg-transparent text-[24px] font-bold tracking-[-0.6px] text-ink-text outline-none placeholder:text-ink-muted sm:text-[30px]"
+              {...register("title", {
+                required: "Title is required",
+                validate: notBlank("Title"),
+              })}
+            />
+            {errors.title ? (
+              <p className="mt-2 text-xs text-ink-error">{errors.title.message}</p>
+            ) : (
+              <p className="mt-2 truncate font-mono text-[11px] text-ink-muted">
+                URL: /post/
+                <span className="text-ink-text-2">{title?.trim() ? slugify(title) : "…"}</span>/
+                {post ? post.$id : "…"}
               </p>
+            )}
+          </div>
 
-              <h2 className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
-                {post ? "Edit your post" : "Create a new post"}
-              </h2>
-
-              <p className="mt-2 text-sm text-gray-500">
-                {post
-                  ? "Make changes to your post and publish the updated version."
-                  : "Write something interesting and share it with your audience."}
-              </p>
-            </div>
-
-            {/* Title */}
-            <div className="mb-6">
-              <Input
-                label="Title"
-                placeholder="Enter your post title"
-                className="mb-1"
-                {...register("title", {
-                  required: "Title is required",
-                  validate: notBlank("Title"),
-                })}
-              />
-
-              {errors.title ? (
-                <p className="mt-1 text-sm text-red-500">
-                  {errors.title.message}
+          {/* Cover */}
+          <div className="px-6 pb-7 sm:px-8">
+            <input
+              id="post-cover"
+              type="file"
+              accept="image/png, image/jpg, image/jpeg, image/gif"
+              className="sr-only"
+              {...register("image", {
+                required: !post ? "Featured image is required" : false,
+              })}
+            />
+            {coverPreview ? (
+              <div className="relative h-[230px] overflow-hidden rounded-[3px] bg-ink-surface-2">
+                <img src={coverPreview} alt="" className="size-full object-cover" />
+                <label
+                  htmlFor="post-cover"
+                  className="absolute right-3 bottom-3 inline-flex h-[34px] cursor-pointer items-center gap-2 rounded-[3px] border border-ink-border bg-ink-surface px-3 text-xs font-semibold text-ink-text"
+                >
+                  <ImageIcon size={16} strokeWidth={1.75} aria-hidden="true" />
+                  Change image
+                </label>
+              </div>
+            ) : (
+              <div className="flex h-[188px] flex-col items-center justify-center gap-2 rounded-[3px] border border-dashed border-ink-border bg-ink-surface-2 text-center">
+                <ImagePlus size={27} strokeWidth={1.5} aria-hidden="true" className="text-ink-text-2" />
+                <p className="text-sm font-semibold text-ink-text">Add a cover image</p>
+                <p className="font-mono text-[10px] text-ink-muted">
+                  Large images are resized before upload
                 </p>
+                <label
+                  htmlFor="post-cover"
+                  className="mt-1 inline-flex h-[34px] cursor-pointer items-center rounded-[3px] border border-ink-border bg-ink-surface px-3 text-[13px] font-semibold text-ink-text hover:border-ink-border-strong"
+                >
+                  Upload Image
+                </label>
+              </div>
+            )}
+            {errors.image && (
+              <p className="mt-2 text-xs text-ink-error">Featured image is required</p>
+            )}
+          </div>
+
+          {/* Content */}
+          <div className="ink-editor border-t border-ink-border">
+            <RTE
+              name="content"
+              control={control}
+              defaultValue={getValues("content")}
+            />
+          </div>
+
+          <div className="flex items-center justify-between gap-4 border-t border-ink-border px-6 py-4 font-mono text-[10px] text-ink-muted">
+            <p>SAVED WHEN YOU PUBLISH OR SAVE A DRAFT</p>
+            <p className="shrink-0 tabular-nums">
+              {words} word{words === 1 ? "" : "s"} · {minutes} min read
+            </p>
+          </div>
+        </div>
+
+        {/* ======================================
+            POST SETTINGS
+        ====================================== */}
+        <div className="overflow-hidden rounded-[6px] border border-ink-border bg-ink-surface xl:sticky xl:top-28">
+          <div className="flex items-center gap-2.5 border-b border-ink-border p-6">
+            <SlidersHorizontal size={18} strokeWidth={1.75} aria-hidden="true" />
+            <h2 className="text-[17px] font-bold text-ink-text">Post Settings</h2>
+          </div>
+
+          <div className="flex flex-col gap-6 p-6">
+            {/* Category — required for new posts. A post from before
+                categories existed may stay uncategorised until its author
+                picks one. */}
+            <fieldset>
+              <legend className="mb-3 flex w-full items-center justify-between font-mono text-[10px]">
+                <span className="text-ink-text-2">CATEGORY</span>
+                <span className="text-ink-muted">{post ? "pick 1" : "required"}</span>
+              </legend>
+              <div className="flex flex-wrap gap-2">
+                {CATEGORIES.map((item) => (
+                  <label key={item.key} className="cursor-pointer">
+                    <input
+                      type="radio"
+                      value={item.key}
+                      className="peer sr-only"
+                      {...register("category", {
+                        validate: (value) =>
+                          Boolean(post) || Boolean(value) || "Choose a category",
+                      })}
+                    />
+                    <span className="inline-flex items-center rounded-[4px] border border-ink-border bg-ink-bg px-2.5 py-1.5 text-[11px] text-ink-text-2 transition-colors peer-checked:border-ink-sage peer-checked:bg-ink-sage peer-checked:font-semibold peer-checked:text-ink-on-sage peer-focus-visible:border-ink-border-strong hover:border-ink-border-strong">
+                      {item.label}
+                    </span>
+                  </label>
+                ))}
+              </div>
+              {errors.category ? (
+                <p className="mt-2 text-xs text-ink-error">{errors.category.message}</p>
               ) : (
-                <p className="mt-1 truncate pl-1 text-xs text-gray-400">
-                  URL: /post/
-                  <span className="font-medium text-gray-600">
-                    {slugify(title)}
-                  </span>
-                  /{post ? post.$id : "…"}
-                </p>
+                post &&
+                !post.category && (
+                  <p className="mt-2 text-xs text-ink-muted">
+                    This post has no category yet. Choosing one is optional.
+                  </p>
+                )
               )}
-            </div>
+            </fieldset>
+
+            <div className="h-px bg-ink-border" />
 
             {/* Author */}
-            <div className="mb-6">
+            <div>
               <Input
                 label="Author"
-                placeholder="Author-Name"
+                placeholder="Author name"
                 {...register("author", {
                   required: "Author is required",
                   validate: notBlank("Author"),
                 })}
               />
-
               {errors.author && (
-                <p className="mt-1 text-sm text-red-500">
-                  {errors.author.message}
-                </p>
+                <p className="mt-1.5 text-xs text-ink-error">{errors.author.message}</p>
               )}
-            </div>
-
-            {/* Content */}
-            <div>
-              <RTE
-                label="Content"
-                name="content"
-                control={control}
-                defaultValue={getValues("content")}
-              />
             </div>
           </div>
-        </div>
 
-        {/* ======================================
-            RIGHT / PUBLISHING SIDEBAR
-        ====================================== */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-24 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            {/* Sidebar Heading */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Publish</h3>
-
-              <p className="mt-1 text-sm text-gray-500">
-                Configure your post before publishing.
-              </p>
-            </div>
-
-            {/* Featured Image */}
-            <div className="mb-6">
-              <Input
-                label="Featured Image"
-                type="file"
-                accept="image/png, image/jpg, image/jpeg, image/gif"
-                {...register("image", {
-                  required: !post ? "Featured image is required" : false,
-                })}
-              />
-
-              {errors.image && (
-                <p className="mt-2 text-sm text-red-500">
-                  Featured image is required
-                </p>
-              )}
-            </div>
-
-            {/* Existing Image */}
-            {post?.featuredImage && (
-              <div className="mb-6 overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
-                <img
-                  src={fileservice.filePreview(post.featuredImage)}
-                  alt={post.title}
-                  className="h-48 w-full object-cover"
-                />
-
-                <p className="border-t border-gray-200 px-3 py-2 text-xs text-gray-500">
-                  Current featured image
-                </p>
-              </div>
-            )}
-
-            {/* Status */}
-            <div className="mb-6">
-              <Select
-                options={["active", "inactive"]}
-                label="Status"
-                {...register("status", {
-                  required: true,
-                })}
-              />
-            </div>
-
-            {/* Divider */}
-            <div className="mb-6 h-px bg-gray-200" />
-
+          <div className="flex flex-col gap-2.5 border-t border-ink-border p-6">
             {submitError && (
               <p
                 role="alert"
-                className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+                className="rounded-[3px] border border-ink-error/50 px-3 py-2 text-sm text-ink-error"
               >
                 {submitError}
               </p>
             )}
-
-            {/* Submit */}
-            <Button
+            <button
               type="submit"
-              bgColor={post ? "bg-green-500" : "bg-indigo-600"}
-              className="w-full shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
               disabled={isSubmitting}
+              className="inline-flex h-[42px] w-full items-center justify-center gap-2 rounded-[4px] border border-ink-border-strong bg-ink-primary px-4 text-[13px] font-semibold text-ink-on-primary disabled:opacity-60"
             >
-              {isSubmitting
-                ? "Saving..."
-                : post
-                  ? "Update Post"
-                  : "Publish Post"}
-            </Button>
-
-            {/* Cancel */}
-            {post && (
-              <button
-                type="button"
-                onClick={() => navigate(postPath(post))}
-                className="mt-3 w-full rounded-lg px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
-              >
-                Cancel
-              </button>
-            )}
+              <ArrowUpRight size={16} strokeWidth={2} aria-hidden="true" />
+              {isSubmitting ? "Saving…" : `${publishLabel} Post`}
+            </button>
+            <p className="text-[10px] leading-[1.5] text-ink-muted">
+              Your story will be visible to everyone. Use {draftLabel} to keep
+              it private.
+            </p>
           </div>
         </div>
       </div>

@@ -1,11 +1,9 @@
-import { Container, Postform } from "../components";
+import { Postform } from "../components";
 
 function AddPost() {
   return (
-    <div className="py-8">
-      <Container>
-        <Postform />
-      </Container>
+    <div className="px-5 py-8 sm:p-10">
+      <Postform />
     </div>
   );
 }
