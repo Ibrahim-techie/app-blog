@@ -14,13 +14,14 @@ const getNextPageParam = (lastPage) =>
     : lastPage.saved[lastPage.saved.length - 1].$id;
 
 /**
- * The signed-in user's saved posts, newest save first.
+ * The signed-in user's saved posts, newest save first (or oldest, with
+ * `order: "asc"`).
  *
  * savedPosts only links a user to a post id, so each page is two requests:
  * the saved rows, then all of their posts in one batch. The posts table stays
  * the single source of truth — nothing about a post is copied into savedPosts.
  */
-function useSavedPosts() {
+function useSavedPosts({ order = "desc" } = {}) {
   const userId = useSelector((state) => state.auth.userData?.$id);
 
   const {
@@ -34,12 +35,15 @@ function useSavedPosts() {
     isFetchingNextPage,
     fetchNextPage,
   } = useInfiniteQuery({
-    queryKey: ["saved", userId, "list"],
+    // "list" stays right after userId so existing invalidations of
+    // ["saved", userId, "list"] still cover every order.
+    queryKey: ["saved", userId, "list", order],
     queryFn: async ({ pageParam }) => {
       const { rows: saved } = await savedservice.getSavedPosts({
         userId,
         lastId: pageParam,
         limit: PAGE_SIZE,
+        order,
       });
 
       const found = await postservice.getPostsByIds(
@@ -62,11 +66,13 @@ function useSavedPosts() {
     staleTime: 60_000,
   });
 
-  const posts = data?.pages.flatMap((page) => page.posts) ?? [];
+  const pages = data?.pages.map((page) => page.posts) ?? [];
+  const posts = pages.flat();
 
   // Named fields rather than `...query`: TanStack only re-renders for the
   // properties a component actually reads, and spreading reads all of them.
   return {
+    pages,
     posts,
     isPending,
     isError,

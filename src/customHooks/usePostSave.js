@@ -57,10 +57,11 @@ function usePostSave(postId) {
       // The Saved page is a different query; mark it stale so it shows the
       // change next time it renders.
       queryClient.invalidateQueries({ queryKey: listKey });
+      queryClient.invalidateQueries({ queryKey: ["saved", userId, "count"] });
 
       if (row) {
         toast.success("Post saved", {
-          description: "Find it any time under Saved.",
+          description: "Find it any time under Bookmarks.",
           action: { label: "View", onClick: () => navigate("/saved") },
         });
       } else {

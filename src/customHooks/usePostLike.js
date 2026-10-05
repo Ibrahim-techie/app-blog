@@ -84,6 +84,9 @@ function usePostLike(postId) {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: mineKey });
       queryClient.invalidateQueries({ queryKey: countKey });
+      // Card grids and the profile "Liked" tab show likes too.
+      queryClient.invalidateQueries({ queryKey: ["card-meta"] });
+      queryClient.invalidateQueries({ queryKey: ["likes", "user", userId] });
     },
   });
 
