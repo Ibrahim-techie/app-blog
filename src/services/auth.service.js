@@ -77,7 +77,7 @@ class AuthService {
   // merged with their changes or every other key is lost.
   async updatePrefs(prefs) {
     try {
-      return await this.account.updatePrefs({ prefs });
+      return await this.account.updatePrefs({ ...prefs });
     } catch (error) {
       console.log("Error in updatePrefs :: auth.service.js::error", error);
       throw error;

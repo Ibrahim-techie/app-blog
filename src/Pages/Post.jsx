@@ -23,7 +23,7 @@ function Post() {
   const { id, slug } = useParams();
   const navigate = useNavigate();
   //fetch post
-  useRealtimePosts(id);// channel created 
+  useRealtimePosts(id); // channel created
   const {
     data: post,
     isPending: loading,

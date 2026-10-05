@@ -14,8 +14,8 @@ function PostCard({ $createdAt, $id, title, featuredImage, author }) {
       queryKey: ["post", $id],
       queryFn: () => postservice.getPost($id),
       staleTime: 60000,
-    }),
-    console.log(`fetched post whose ID is :${$id}`)
+    })
+    // console.log(`fetched post whose ID is :${$id}`)
   );
 
   return (
