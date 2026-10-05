@@ -1,25 +1,36 @@
-import { useRouteError, isRouteErrorResponse } from "react-router-dom";
+import { useRouteError, isRouteErrorResponse, Link } from "react-router-dom";
 
+// Rendered by the router *instead of* App, so there's no shell here — only
+// the INK colours, which still follow the theme class index.html applied.
 function ErrorPage() {
   const error = useRouteError();
 
   console.error(error);
 
-  if (isRouteErrorResponse(error)) {
-    // Error is a Response (like 404, 500)
-    return (
-      <div>
-        <h1>{error.status} {error.statusText}</h1>
-        <p>{error.data?.message || "Something went wrong."}</p>
-      </div>
-    );
-  }
+  const heading = isRouteErrorResponse(error)
+    ? `${error.status} ${error.statusText}`
+    : "Oops!";
+  const detail = isRouteErrorResponse(error)
+    ? error.data?.message || "Something went wrong."
+    : error?.message || "Unknown error occurred.";
 
-  // Error is a normal JS Error
   return (
-    <div>
-      <h1>Oops!</h1>
-      <p>{error.message || "Unknown error occurred."}</p>
+    <div className="flex min-h-screen flex-col items-start justify-center bg-ink-bg px-5 sm:px-10">
+      <p className="font-mono text-[10px] leading-[1.5] tracking-[0.3px] text-ink-error">
+        SOMETHING BROKE
+      </p>
+      <h1 className="mt-3 text-[48px] font-extrabold leading-[1] tracking-[-2.4px] text-ink-text">
+        {heading}
+      </h1>
+      <p className="mt-4 max-w-xl text-[15px] leading-[1.65] text-ink-text-2">
+        {detail}
+      </p>
+      <Link
+        to="/"
+        className="mt-8 inline-flex h-12 items-center rounded-[3px] border border-ink-border-strong bg-ink-primary px-5 text-xs font-extrabold text-ink-on-primary"
+      >
+        Go Back Home
+      </Link>
     </div>
   );
 }

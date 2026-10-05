@@ -2,7 +2,7 @@ import { Login as Logincomponent } from "../components/index";
 
 function Login() {
   return (
-    <div className="py-8">
+    <div className="flex w-full justify-center">
       <Logincomponent />
     </div>
   );

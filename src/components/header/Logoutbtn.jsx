@@ -3,7 +3,11 @@ import { logout } from "../../redux/authSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-function Logoutbtn() {
+function Logoutbtn({
+  className = "inline-flex h-9 items-center rounded-[3px] border border-ink-border px-4 text-xs font-extrabold text-ink-text",
+  children = "Logout",
+  ...props
+}) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -21,11 +25,8 @@ function Logoutbtn() {
     }
   }
   return (
-    <button
-      className="inline-block px-6 py-2 duration-200 rounded-full hover:bg-blue-100 bg-red-500 text-white"
-      onClick={logoutHandler}
-    >
-      Logout
+    <button type="button" className={className} onClick={logoutHandler} {...props}>
+      {children}
     </button>
   );
 }

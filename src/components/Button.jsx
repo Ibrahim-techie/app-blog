@@ -1,14 +1,16 @@
+// The INK primary button. bgColor / textColor still override the defaults
+// for callers that need a different pairing.
 function Button({
   children,
   type = "button",
-  bgColor = "bg-blue-500",
-  textColor = "text-white",
+  bgColor = "bg-ink-primary border border-ink-border-strong",
+  textColor = "text-ink-on-primary",
   className = "",
   ...props
 }) {
   return (
     <button
-      className={`px-4 py-2 rounded-lg ${bgColor} ${textColor} ${className}`}
+      className={`inline-flex h-11 items-center justify-center gap-2 rounded-[3px] px-5 text-xs font-extrabold transition-opacity disabled:cursor-not-allowed disabled:opacity-60 ${bgColor} ${textColor} ${className}`}
       type={type}
       {...props}
     >

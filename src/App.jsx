@@ -1,14 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import authService from "./services/auth.service";
 import { useDispatch } from "react-redux";
 import { login, logout } from "./redux/authSlice";
-import { Header, Footer, Loader } from "./components";
-import { Outlet } from "react-router-dom";
+import { Loader } from "./components";
+import { Outlet, useLocation } from "react-router-dom";
+import Sidebar from "./components/shell/Sidebar";
+import TopBar from "./components/shell/TopBar";
+import AuthShell from "./components/shell/AuthShell";
+import useTheme from "./customHooks/useTheme";
+
+const AUTH_PAGES = ["/login", "/signup"];
 
 function App() {
   const [loading, setloading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
   const dispatch = useDispatch();
+  const { pathname } = useLocation();
+
+  // Mounted for every route, so the theme class is applied everywhere —
+  // including the sign-in pages, which don't render the theme switch's shell.
+  useTheme();
 
   useEffect(() => {
     authService
@@ -28,24 +40,35 @@ function App() {
       });
   }, [dispatch]);
 
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="flex min-h-screen items-center justify-center bg-ink-bg">
         <Loader text="Preparing your workspace" />
       </div>
     );
   }
-  return !loading ? (
-    <div className="min-h-screen flex flex-wrap content-between bg-gray-400">
-      <div className="w-full block">
-        <Header />
-        <main>
+
+  if (AUTH_PAGES.includes(pathname)) {
+    return (
+      <AuthShell>
+        <Outlet />
+      </AuthShell>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen bg-ink-bg text-ink-text">
+      <Sidebar open={menuOpen} onClose={closeMenu} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <TopBar onOpenMenu={() => setMenuOpen(true)} />
+        <div className="flex-1">
           <Outlet />
-        </main>
-        <Footer />
+        </div>
       </div>
     </div>
-  ) : null;
+  );
 }
 
 export default App;

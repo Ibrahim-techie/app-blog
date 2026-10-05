@@ -11,7 +11,7 @@ function Loader({ text = "Loading", compact = false, className = "" }) {
             {[0, 1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="morph-loading-shape absolute h-4 w-4 bg-indigo-600 dark:bg-indigo-400"
+                className="morph-loading-shape absolute h-4 w-4 bg-ink-brand"
                 style={{
                   animation: `morph-${i} 2s infinite ease-in-out`,
                   animationDelay: `${i * 0.2}s`,
@@ -21,7 +21,7 @@ function Loader({ text = "Loading", compact = false, className = "" }) {
           </div>
         </div>
 
-        <p className="text-center text-sm font-medium tracking-wide text-slate-600 dark:text-slate-300">
+        <p className="text-center font-mono text-[11px] uppercase tracking-[0.3px] text-ink-muted">
           {text}
           <span aria-hidden="true">…</span>
         </p>

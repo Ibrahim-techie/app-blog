@@ -18,5 +18,5 @@ export default function Protected({ children, authentication = true }) {
 
   }, [authStatus, navigate, authentication]);
 
-  return authStatus !== authentication ? <Loader text="Checking your session" className="bg-slate-50 dark:bg-slate-950" /> : <>{children}</>;
+  return authStatus !== authentication ? <Loader text="Checking your session" /> : <>{children}</>;
 }

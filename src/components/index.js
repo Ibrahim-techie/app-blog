@@ -1,8 +1,4 @@
-import Container from "./container/Container";
 import Logoutbtn from "./header/Logoutbtn";
-import Logo from "./Logo";
-import Header from "./header/Header";
-import Footer from "./footer/Footer";
 import Button from "./Button";
 import Input from "./Input";
 import RTE from "./RTE";
@@ -15,11 +11,7 @@ import Signup from "./Signup";
 import Loader from "./Loading";
 import Comments from "./comments/Comments";
 export {
-  Container,
   Logoutbtn,
-  Logo,
-  Header,
-  Footer,
   Button,
   Input,
   Select,
