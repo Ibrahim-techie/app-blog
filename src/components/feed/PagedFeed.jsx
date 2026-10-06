@@ -48,7 +48,7 @@ function PagedFeed({ feed, loadingTitle, empty }) {
           isRetrying={feed.isFetching}
         />
       ) : count === 0 && !hasNextPage ? (
-        <FeedEmpty title={empty.title} action={empty.action}>
+        <FeedEmpty title={empty.title} action={empty.action} icon={empty.icon}>
           {empty.text}
         </FeedEmpty>
       ) : (
