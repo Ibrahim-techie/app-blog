@@ -14,6 +14,8 @@ import NotFound from "./Pages/NotFound.jsx";
 import Home from "./Pages/Home";
 import SavedPosts from "./Pages/SavedPosts.jsx";
 import Profile from "./Pages/Profile.jsx";
+import Verify from "./Pages/Verify.jsx";
+import VerifiedOnly from "./components/VerifiedOnly.jsx";
 import { Authlayout } from "./components/index.js";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import AppToaster from "./components/AppToaster.jsx";
@@ -55,7 +57,9 @@ const router = createBrowserRouter([
         path: "add-post",
         element: (
           <Authlayout>
-            <AddPost />
+            <VerifiedOnly action="write posts">
+              <AddPost />
+            </VerifiedOnly>
           </Authlayout>
         ),
       },
@@ -95,9 +99,16 @@ const router = createBrowserRouter([
         path: "edit-post/:id",
         element: (
           <Authlayout authentication={true}>
-            <EditPost />
+            <VerifiedOnly action="edit posts">
+              <EditPost />
+            </VerifiedOnly>
           </Authlayout>
         ),
+      },
+      {
+        // The link in the verification email lands here.
+        path: "verify",
+        element: <Verify />,
       },
       {
         path: "*",

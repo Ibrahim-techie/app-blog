@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 import authService from "./services/auth.service";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login, logout } from "./redux/authSlice";
 import { Loader } from "./components";
 import { Outlet, useLocation } from "react-router-dom";
@@ -10,6 +10,7 @@ import TopBar from "./components/shell/TopBar";
 import AuthShell from "./components/shell/AuthShell";
 import useTheme from "./customHooks/useTheme";
 import useProfileSync from "./customHooks/useProfileSync";
+import VerifyEmailNotice from "./components/VerifyEmailNotice";
 
 const AUTH_PAGES = ["/login", "/signup"];
 
@@ -18,6 +19,7 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const { pathname } = useLocation();
+  const user = useSelector((state) => state.auth.userData);
 
   // Mounted for every route, so the theme class is applied everywhere —
   // including the sign-in pages, which don't render the theme switch's shell.
@@ -68,6 +70,9 @@ function App() {
       <Sidebar open={menuOpen} onClose={closeMenu} />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar onOpenMenu={() => setMenuOpen(true)} />
+        {user && !user.emailVerification && pathname !== "/verify" && (
+          <VerifyEmailNotice banner />
+        )}
         <div className="flex-1">
           <Outlet />
         </div>
