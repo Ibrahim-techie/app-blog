@@ -62,9 +62,9 @@ function Comments({ postId }) {
       <div>
         <h2
           id="comments-heading"
-          className="mb-6 scroll-mt-28 text-[28px] font-bold tracking-[-0.56px] text-ink-text"
+          className="mb-6 scroll-mt-28 text-[28px] font-semibold leading-[1.1] tracking-[-0.64px] text-ink-text sm:text-[32px]"
         >
-          COMMENTS{!isPending && !isError && ` (${total})`}
+          Comments{!isPending && !isError && ` (${total})`}
         </h2>
 
         <PostComment postId={postId} />
@@ -73,8 +73,8 @@ function Comments({ postId }) {
           {isPending ? (
             <Loader text="Loading comments" compact />
           ) : isError ? (
-            <div className="rounded-[2px] border border-ink-error/50 bg-ink-surface px-4 py-6 text-center">
-              <p className="text-sm font-extrabold text-ink-error">
+            <div className="rounded-lg border border-ink-error/50 bg-ink-surface px-4 py-6 text-center">
+              <p className="text-sm font-semibold text-ink-error">
                 We couldn&apos;t load the comments.
               </p>
               <p className="mt-1 text-xs text-ink-text-2">
@@ -84,7 +84,7 @@ function Comments({ postId }) {
                 type="button"
                 onClick={() => refetch()}
                 disabled={isFetching}
-                className="mt-4 inline-flex h-9 items-center rounded-[3px] border border-ink-border-strong bg-ink-primary px-4 text-xs font-extrabold text-ink-on-primary disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-4 inline-flex h-9 items-center rounded-lg border border-ink-border-strong bg-ink-primary px-4 text-xs font-semibold text-ink-on-primary disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isFetching ? "Retrying…" : "Try again"}
               </button>
@@ -103,7 +103,7 @@ function Comments({ postId }) {
                     type="button"
                     onClick={() => fetchNextPage()}
                     disabled={isFetchingNextPage}
-                    className="inline-flex h-10 items-center rounded-[3px] border border-ink-border bg-ink-surface px-5 text-xs font-extrabold text-ink-text transition-colors hover:border-ink-border-strong disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex h-11 items-center rounded-lg border border-ink-border bg-ink-surface px-5 text-xs font-semibold text-ink-text transition-colors hover:bg-ink-surface-2 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {isFetchingNextPage
                       ? "Loading…"

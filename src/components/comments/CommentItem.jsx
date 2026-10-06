@@ -122,22 +122,22 @@ function CommentItem({ comment, postId }) {
         name={comment.userName}
         avatarId={isOwner ? myAvatarId : null}
         size={36}
-        className="rounded-full bg-ink-surface-2 text-xs text-ink-brand"
+        className="rounded-full bg-ink-surface-2 text-xs text-ink-text-2"
       />
 
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-baseline gap-x-3">
-            <p className="truncate text-[13px] font-extrabold text-ink-text">
+            <p className="truncate text-sm font-semibold text-ink-text">
               {comment.userName || "Anonymous"}
               {isOwner && (
-                <span className="ml-2 rounded-[2px] bg-ink-sage px-1.5 py-0.5 font-mono text-[9px] font-medium tracking-[0.3px] text-ink-on-sage">
+                <span className="ml-2 rounded-full border border-ink-border px-2 py-0.5 font-mono text-[11px] tracking-[0.96px] text-ink-text-2">
                   You
                 </span>
               )}
             </p>
             <p
-              className="font-mono text-[10px] text-ink-muted"
+              className="font-mono tracking-[0.96px] text-xs text-ink-text-2"
               title={exactTime(comment.$createdAt)}
             >
               · {relativeTime(comment.$createdAt)}
@@ -153,7 +153,7 @@ function CommentItem({ comment, postId }) {
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
                 aria-label="Comment actions"
-                className="rounded-[3px] p-1.5 text-ink-muted transition-colors hover:bg-ink-surface-2 hover:text-ink-text"
+                className="rounded-lg p-1.5 text-ink-muted transition-colors hover:bg-ink-surface-2 hover:text-ink-text"
               >
                 <MoreHorizontal size={18} />
               </button>
@@ -161,7 +161,7 @@ function CommentItem({ comment, postId }) {
               {menuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 z-10 mt-1 w-36 overflow-hidden rounded-[3px] border border-ink-border bg-ink-surface py-1"
+                  className="absolute right-0 z-10 mt-1 w-36 overflow-hidden rounded-lg border border-ink-border bg-ink-surface py-1"
                 >
                   <button
                     type="button"
@@ -200,17 +200,17 @@ function CommentItem({ comment, postId }) {
               maxLength={MAX_LENGTH}
               rows={3}
               disabled={updateMutation.isPending}
-              className="w-full resize-y rounded-[3px] border border-ink-border bg-ink-surface px-3 py-2 text-sm text-ink-text outline-none transition-colors focus:border-ink-border-strong disabled:opacity-60"
+              className="w-full resize-y rounded-lg border border-ink-border bg-ink-surface px-3 py-2 text-sm text-ink-text outline-none transition-colors focus:border-ink-border-strong disabled:opacity-60"
             />
             <div className="mt-2 flex items-center justify-end gap-2">
-              <span className="mr-auto font-mono text-[11px] text-ink-muted">
+              <span className="mr-auto font-mono tracking-[0.96px] text-xs text-ink-text-2">
                 {draft.length}/{MAX_LENGTH}
               </span>
               <button
                 type="button"
                 onClick={cancelEdit}
                 disabled={updateMutation.isPending}
-                className="inline-flex h-8 items-center rounded-[3px] px-3 text-xs font-extrabold text-ink-text-2 transition-colors hover:bg-ink-surface-2 disabled:opacity-60"
+                className="inline-flex h-8 items-center rounded-lg px-3 text-xs font-semibold text-ink-text-2 transition-colors hover:bg-ink-surface-2 disabled:opacity-60"
               >
                 Cancel
               </button>
@@ -218,20 +218,20 @@ function CommentItem({ comment, postId }) {
                 type="button"
                 onClick={saveEdit}
                 disabled={updateMutation.isPending}
-                className="inline-flex h-8 items-center rounded-[3px] border border-ink-border-strong bg-ink-primary px-4 text-xs font-extrabold text-ink-on-primary disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex h-8 items-center rounded-lg bg-ink-primary px-4 text-xs font-semibold text-ink-on-primary disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {updateMutation.isPending ? "Saving…" : "Save"}
               </button>
             </div>
           </div>
         ) : (
-          <p className="mt-3 whitespace-pre-wrap break-words text-[15px] leading-[1.65] text-ink-text-2">
+          <p className="mt-3 whitespace-pre-wrap break-words font-serif text-[17px] leading-[1.6] text-ink-text-2">
             {comment.content}
           </p>
         )}
 
         {confirmingDelete && (
-          <div className="mt-3 flex flex-wrap items-center gap-3 rounded-[3px] border border-ink-error/50 bg-ink-surface px-3 py-2">
+          <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg border border-ink-error/50 bg-ink-surface px-3 py-2">
             <p className="text-sm font-semibold text-ink-error">
               Delete this comment?
             </p>
@@ -239,7 +239,7 @@ function CommentItem({ comment, postId }) {
               <button
                 type="button"
                 onClick={() => setConfirmingDelete(false)}
-                className="inline-flex h-8 items-center rounded-[3px] px-3 text-xs font-extrabold text-ink-text-2 transition-colors hover:bg-ink-surface-2"
+                className="inline-flex h-8 items-center rounded-lg px-3 text-xs font-semibold text-ink-text-2 transition-colors hover:bg-ink-surface-2"
               >
                 Cancel
               </button>
@@ -249,7 +249,7 @@ function CommentItem({ comment, postId }) {
                   setConfirmingDelete(false);
                   deleteMutation.mutate();
                 }}
-                className="inline-flex h-8 items-center rounded-[3px] bg-ink-error px-3 text-xs font-extrabold text-ink-on-primary"
+                className="inline-flex h-8 items-center rounded-lg bg-ink-error px-3 text-xs font-semibold text-ink-on-primary"
               >
                 Delete
               </button>

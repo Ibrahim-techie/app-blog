@@ -49,11 +49,11 @@ function PostComment({ postId }) {
 
   if (!userData) {
     return (
-      <div className="rounded-[2px] border border-dashed border-ink-border bg-ink-surface px-4 py-5 text-center">
+      <div className="rounded-lg border border-dashed border-ink-border bg-ink-surface px-4 py-5 text-center">
         <p className="text-sm text-ink-text-2">
           <Link
             to="/login"
-            className="font-extrabold text-ink-brand underline underline-offset-4"
+            className="font-semibold text-ink-text underline underline-offset-4"
           >
             Sign in
           </Link>{" "}
@@ -70,17 +70,17 @@ function PostComment({ postId }) {
           name={userData.name}
           avatarId={userData.prefs?.avatarId}
           size={36}
-          className="rounded-full bg-ink-sage text-xs text-ink-avatar-text"
+          className="rounded-full bg-ink-surface-2 text-xs text-ink-text"
         />
 
-        <div className="min-w-0 flex-1 rounded-[3px] border border-ink-border bg-ink-surface p-4 focus-within:border-ink-border-strong">
+        <div className="min-w-0 flex-1 rounded-lg border border-ink-border bg-ink-surface p-4 focus-within:border-ink-border-strong">
           <textarea
             rows={3}
             maxLength={MAX_LENGTH}
             placeholder="Write a comment…"
             aria-label="Write a comment"
             disabled={createComment.isPending}
-            className="w-full resize-none bg-transparent text-sm text-ink-text outline-none placeholder:text-ink-muted disabled:opacity-60"
+            className="w-full resize-none bg-transparent text-sm text-ink-text outline-none placeholder:text-ink-text-2 disabled:opacity-60"
             {...register("content", {
               required: "Comment cannot be empty",
               // A box full of spaces passes `required`, so check the trimmed value.
@@ -100,13 +100,13 @@ function PostComment({ postId }) {
             </p>
 
             <div className="flex shrink-0 items-center gap-3">
-              <span className="font-mono text-[11px] text-ink-muted">
+              <span className="font-mono tracking-[0.96px] text-xs text-ink-text-2">
                 {content?.length ?? 0}/{MAX_LENGTH}
               </span>
               <button
                 type="submit"
                 disabled={createComment.isPending}
-                className="inline-flex h-11 items-center rounded-[3px] border border-ink-border-strong bg-ink-primary px-5 text-xs font-extrabold text-ink-on-primary disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex h-11 items-center rounded-lg bg-ink-primary px-5 text-xs font-semibold text-ink-on-primary transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {createComment.isPending ? "Posting…" : "Post"}
               </button>
