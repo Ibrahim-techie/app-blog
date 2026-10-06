@@ -5,48 +5,50 @@
  * INK palette. Each token is defined once per theme and exposed as a utility
  * (bg-ink-bg, text-ink-muted, border-ink-border…), so one class is right in
  * both themes — the `dark` class on <html> swaps the values underneath.
- * Values are taken from the INK Light and INK Dark Figma frames.
+ *
+ * Values follow the INK v2 frames. Dark is taken straight from INK-DARK; light
+ * mirrors the same roles (bg < sidebar/surface < surface-2, text at 72% / 50%
+ * for secondary / muted, hairline borders at ~7–10%) on the warm paper palette.
  */
 :root {
   --ink-bg: #f3f1ea;
-  --ink-sidebar: #f3f1ea;
+  --ink-sidebar: #ebe8df;
   --ink-surface: #faf9f5;
-  --ink-surface-2: #eae7dd;
-  --ink-text: #111412;
-  --ink-text-2: #4b4f4a;
-  --ink-muted: #777b75;
-  --ink-border: #c9c8c1;
-  --ink-border-strong: #25332d;
-  --ink-sage: #aab8b0;
-  --ink-sage-hover: #c4d0c9;
-  --ink-brand: #25332d;
-  --ink-primary: #25332d;
-  --ink-on-primary: #faf9f5;
-  --ink-on-sage: #111412;
-  --ink-avatar-text: #25332d;
-  --ink-caption: #25332d;
-  /* Figma has no light error colour; this is the red the app already used. */
+  --ink-surface-2: #e4e1d7;
+  --ink-text: #1c2420;
+  --ink-text-2: rgba(28, 36, 32, 0.72);
+  --ink-muted: rgba(28, 36, 32, 0.52);
+  --ink-border: rgba(28, 36, 32, 0.1);
+  --ink-border-strong: rgba(28, 36, 32, 0.32);
+  --ink-sage: #e4e1d7;
+  --ink-sage-hover: #dbd8cd;
+  --ink-brand: #1c2420;
+  --ink-primary: #1c2420;
+  --ink-on-primary: #f3f1ea;
+  --ink-on-sage: #1c2420;
+  --ink-avatar-text: #1c2420;
+  --ink-caption: #ebe8df;
   --ink-error: #b91c1c;
 }
 
 .dark {
-  --ink-bg: #25332d;
-  --ink-sidebar: #2d3b35;
-  --ink-surface: #2d3b35;
-  --ink-surface-2: #34443d;
-  --ink-text: #f3f1ea;
-  --ink-text-2: #c5cec8;
-  --ink-muted: #94a099;
-  --ink-border: #46554d;
-  --ink-border-strong: #617068;
-  --ink-sage: #aab8b0;
-  --ink-sage-hover: #c4d0c9;
-  --ink-brand: #aab8b0;
-  --ink-primary: #111814;
-  --ink-on-primary: #f3f1ea;
-  --ink-on-sage: #111814;
-  --ink-avatar-text: #111814;
-  --ink-caption: #34443d;
+  --ink-bg: #1c2420;
+  --ink-sidebar: #252f29;
+  --ink-surface: #252f29;
+  --ink-surface-2: #2f3a33;
+  --ink-text: #eceae3;
+  --ink-text-2: rgba(236, 234, 227, 0.72);
+  --ink-muted: rgba(236, 234, 227, 0.5);
+  --ink-border: rgba(255, 255, 255, 0.07);
+  --ink-border-strong: rgba(236, 234, 227, 0.3);
+  --ink-sage: #2f3a33;
+  --ink-sage-hover: #36433b;
+  --ink-brand: #eceae3;
+  --ink-primary: #eceae3;
+  --ink-on-primary: #1c2420;
+  --ink-on-sage: #eceae3;
+  --ink-avatar-text: #eceae3;
+  --ink-caption: #252f29;
   --ink-error: #d47b72;
 }
 
@@ -70,13 +72,22 @@
   --color-ink-caption: var(--ink-caption);
   --color-ink-error: var(--ink-error);
 
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Newsreader", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-brand: "Manrope", ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
   background-color: var(--ink-bg);
   color: var(--ink-text);
+  font-family: var(--font-sans);
+}
+
+/* Keyboard focus, from the v2 "States" frames: a 2px ring with a gap. */
+:focus-visible {
+  outline: 2px solid var(--ink-text);
+  outline-offset: 2px;
 }
 
 /*
@@ -85,8 +96,9 @@ body {
  * readable editorial layout in INK colours.
  */
 .ink-prose {
-  font-size: 17px;
-  line-height: 1.75;
+  font-family: var(--font-serif);
+  font-size: 19px;
+  line-height: 1.7;
   color: var(--ink-text-2);
 }
 .ink-prose > * + * {
@@ -97,7 +109,8 @@ body {
 .ink-prose h3,
 .ink-prose h4 {
   color: var(--ink-text);
-  font-weight: 800;
+  font-family: var(--font-sans);
+  font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.25;
   margin-top: 1.8em;
@@ -115,8 +128,11 @@ body {
 .ink-prose ol { list-style: decimal; padding-left: 1.4em; }
 .ink-prose li + li { margin-top: 0.35em; }
 .ink-prose blockquote {
-  border-left: 3px solid var(--ink-brand);
-  padding-left: 1em;
+  border-left: 2px solid var(--ink-text-2);
+  background: var(--ink-surface);
+  border-radius: 0 8px 8px 0;
+  padding: 0.9em 1.2em;
+  font-style: italic;
   color: var(--ink-text);
 }
 .ink-prose code {
@@ -124,19 +140,19 @@ body {
   font-size: 0.88em;
   background: var(--ink-surface-2);
   padding: 0.1em 0.35em;
-  border-radius: 2px;
+  border-radius: 4px;
 }
 .ink-prose pre {
   font-family: var(--font-mono);
   font-size: 14px;
   background: var(--ink-surface-2);
   border: 1px solid var(--ink-border);
-  border-radius: 2px;
+  border-radius: 8px;
   padding: 1em;
   overflow-x: auto;
 }
 .ink-prose pre code { background: none; padding: 0; }
-.ink-prose img { border-radius: 2px; max-width: 100%; height: auto; }
+.ink-prose img { border-radius: 8px; max-width: 100%; height: auto; }
 .ink-prose table { width: 100%; border-collapse: collapse; }
 .ink-prose th,
 .ink-prose td { border: 1px solid var(--ink-border); padding: 0.5em 0.75em; }
