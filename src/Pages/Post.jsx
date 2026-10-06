@@ -14,6 +14,8 @@ import { readingMinutes } from "../utils/postText";
 import { postPath, slugify } from "../utils/postUrl";
 import PostActionBar from "../components/post/PostActionBar";
 import ReadingSidebar from "../components/post/ReadingSidebar";
+import AuthorCard from "../components/post/AuthorCard";
+import { EditorialNote } from "../components/feed/FeedStates";
 import DeletePostDialog from "../components/post/DeletePostDialog";
 import useDeletePost from "../customHooks/useDeletePost";
 import useRealtimePosts from "../customHooks/useRealtimePost";
@@ -100,7 +102,7 @@ function Post() {
         </p>
         <Link
           to="/all-posts"
-          className="text-sm font-extrabold text-ink-brand underline underline-offset-4"
+          className="text-sm font-semibold text-ink-text underline underline-offset-4"
         >
           Back to all posts
         </Link>
@@ -117,8 +119,8 @@ function Post() {
 
   return (
     <div className="px-5 py-8 sm:p-10">
-      <div className="flex flex-col gap-10 xl:flex-row xl:items-start">
-        <article className="flex w-full min-w-0 max-w-[800px] flex-col gap-7">
+      <div className="mx-auto flex max-w-[1120px] flex-col gap-10 xl:flex-row xl:items-stretch">
+        <article className="flex w-full min-w-0 max-w-[680px] flex-col gap-7">
           {/* ================= HEADER ================= */}
           <div className="flex flex-wrap items-center justify-between gap-4">
             <Link
@@ -134,7 +136,7 @@ function Post() {
               <div className="flex gap-2">
                 <Link
                   to={`/edit-post/${post.$id}`}
-                  className="inline-flex h-9 items-center gap-2 rounded-[3px] border border-ink-border bg-ink-surface px-4 text-xs font-extrabold text-ink-text transition-colors hover:border-ink-border-strong"
+                  className="inline-flex h-9 items-center gap-2 rounded-lg border border-ink-border bg-ink-surface px-4 text-xs font-semibold text-ink-text transition-colors hover:bg-ink-surface-2"
                 >
                   <Pencil size={14} strokeWidth={1.75} aria-hidden="true" />
                   Edit
@@ -142,7 +144,7 @@ function Post() {
                 <button
                   type="button"
                   onClick={() => setShowCnfDlt(true)}
-                  className="inline-flex h-9 items-center gap-2 rounded-[3px] border border-ink-error/60 px-4 text-xs font-extrabold text-ink-error transition-colors hover:bg-ink-error/10"
+                  className="inline-flex h-9 items-center gap-2 rounded-lg border border-ink-error/60 px-4 text-xs font-semibold text-ink-error transition-colors hover:bg-ink-error/10"
                 >
                   <Trash2 size={14} strokeWidth={1.75} aria-hidden="true" />
                   Delete
@@ -152,7 +154,7 @@ function Post() {
           </div>
 
           <div className="flex flex-col gap-5 pt-3">
-            <p className="font-mono text-[10px] leading-[1.5] tracking-[0.3px] text-ink-brand">
+            <p className="font-mono text-xs leading-[1.5] tracking-[0.96px] text-ink-text-2">
               {label ? (
                 <Link
                   to={`/all-posts?category=${post.category}`}
@@ -168,7 +170,7 @@ function Post() {
                 <span className="text-ink-muted"> · DRAFT — ONLY YOU CAN SEE THIS</span>
               )}
             </p>
-            <h1 className="text-[40px] font-extrabold leading-[1.05] tracking-[-1.6px] text-ink-text sm:text-[64px] sm:tracking-[-3.2px]">
+            <h1 className="text-[40px] font-semibold leading-[1.1] tracking-[-1.2px] text-ink-text sm:text-[56px] sm:tracking-[-1.68px]">
               {post.title}
             </h1>
           </div>
@@ -179,10 +181,10 @@ function Post() {
                 name={post.author}
                 avatarId={authorAvatar}
                 size={44}
-                className="rounded-full bg-ink-sage text-base text-ink-avatar-text"
+                className="rounded-full bg-ink-surface-2 text-sm text-ink-text"
               />
               <div className="flex flex-col gap-1">
-                <p className="text-[13px] font-extrabold text-ink-text">
+                <p className="text-sm font-semibold text-ink-text">
                   {post.author || "Anonymous"}
                 </p>
                 {isUserAuthor && (
@@ -190,7 +192,7 @@ function Post() {
                 )}
               </div>
             </div>
-            <div className="hidden flex-col items-end gap-1 font-mono text-[10px] text-ink-muted sm:flex">
+            <div className="hidden flex-col items-end gap-1 font-mono tracking-[0.96px] text-xs text-ink-text-2 sm:flex">
               <p>PUBLISHED {longDate(post.$createdAt)}</p>
               <p>{minutes} MIN READ</p>
             </div>
@@ -198,7 +200,7 @@ function Post() {
 
           {/* ================= COVER ================= */}
           {post.featuredImage && (
-            <figure className="h-[240px] overflow-hidden rounded-[2px] bg-ink-surface-2 sm:h-[360px]">
+            <figure className="h-[240px] overflow-hidden rounded-lg bg-ink-surface-2 sm:h-[360px]">
               <img
                 src={fileservice.filePreview(post.featuredImage)}
                 alt=""
@@ -210,15 +212,15 @@ function Post() {
           <PostActionBar post={post} commentCount={commentCount} />
 
           {/* ================= ARTICLE CONTENT ================= */}
-          <div className="ink-prose py-3 sm:px-10">
+          <div className="ink-prose py-3">
             {HTMLReactParser(post.content)}
           </div>
 
           {label && (
-            <div className="sm:px-10">
+            <div>
               <Link
                 to={`/all-posts?category=${post.category}`}
-                className="inline-flex h-[27px] items-center rounded-[2px] border border-ink-border px-3 font-mono text-[10px] tracking-[0.3px] text-ink-text-2 hover:border-ink-border-strong"
+                className="inline-flex h-7 items-center rounded-full border border-ink-border px-3 font-mono text-xs tracking-[0.96px] text-ink-text-2 transition-colors hover:bg-ink-surface"
               >
                 {label.toUpperCase()}
               </Link>
@@ -227,8 +229,15 @@ function Post() {
 
           <PostActionBar post={post} commentCount={commentCount} />
 
+          <AuthorCard post={post} />
+
           {/* ================= COMMENTS ================= */}
           <Comments postId={post.$id} />
+
+          <EditorialNote
+            left="INDEPENDENT VOICES. FRESH PERSPECTIVES."
+            right="INK / POST"
+          />
         </article>
 
         <ReadingSidebar post={post} />
