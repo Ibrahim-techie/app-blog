@@ -34,15 +34,15 @@ function UserMenu() {
         onClick={() => setOpen((value) => !value)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex items-center gap-2.5 rounded-[3px]"
+        className="flex items-center gap-2.5 rounded-lg"
       >
         <UserAvatar
           name={user?.name}
           avatarId={user?.prefs?.avatarId}
           size={34}
-          className="rounded-[3px] bg-ink-sage text-xs text-ink-avatar-text"
+          className="rounded-lg bg-ink-sage text-xs text-ink-avatar-text"
         />
-        <span className="hidden max-w-40 truncate text-xs font-bold text-ink-text sm:block">
+        <span className="hidden max-w-40 truncate text-xs font-semibold text-ink-text sm:block">
           {user?.name || "Your account"}
         </span>
         <ChevronDown
@@ -56,7 +56,7 @@ function UserMenu() {
       {open && (
         <div
           role="menu"
-          className="absolute right-0 z-30 mt-2 w-44 overflow-hidden rounded-[3px] border border-ink-border bg-ink-surface py-1"
+          className="absolute right-0 z-30 mt-2 w-44 overflow-hidden rounded-lg border border-ink-border bg-ink-surface py-1"
         >
           <Link
             to="/profile"

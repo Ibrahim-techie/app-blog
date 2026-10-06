@@ -12,7 +12,7 @@ function ThemeToggle({ className = "" }) {
       onClick={toggleTheme}
       aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
       title={isDark ? "Light theme" : "Dark theme"}
-      className={`inline-flex size-9 items-center justify-center rounded-[3px] text-ink-text transition-colors hover:bg-ink-surface-2 ${className}`}
+      className={`inline-flex size-9 items-center justify-center rounded-lg text-ink-text transition-colors hover:bg-ink-surface-2 ${className}`}
     >
       <Icon size={22} strokeWidth={1.75} aria-hidden="true" />
     </button>

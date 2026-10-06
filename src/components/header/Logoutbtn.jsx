@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 function Logoutbtn({
-  className = "inline-flex h-9 items-center rounded-[3px] border border-ink-border px-4 text-xs font-extrabold text-ink-text",
+  className = "inline-flex h-9 items-center rounded-lg border border-ink-border px-4 text-xs font-semibold text-ink-text",
   children = "Logout",
   ...props
 }) {
