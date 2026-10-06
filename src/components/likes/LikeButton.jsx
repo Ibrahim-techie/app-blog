@@ -1,6 +1,7 @@
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
 import usePostLike from "../../customHooks/usePostLike";
+import useEmailVerification from "../../customHooks/useEmailVerification";
 
 /**
  * Like / unlike a post. `variant="bar"` is the plain "♡ Like · 124" action
@@ -8,15 +9,24 @@ import usePostLike from "../../customHooks/usePostLike";
  */
 function LikeButton({ postId, variant = "button" }) {
   const { liked, count, canLike, isPending, toggle } = usePostLike(postId);
+  const { isVerified, resend } = useEmailVerification();
 
   // A dead, disabled button tells a signed-out reader nothing. Let them press
   // it and explain what's missing.
-  const onClick = () =>
-    canLike
-      ? toggle()
-      : toast.info("Sign in to like this post", {
-          description: "It takes a few seconds to create an account.",
-        });
+  const onClick = () => {
+    if (!canLike) {
+      toast.info("Sign in to like this post", {
+        description: "It takes a few seconds to create an account.",
+      });
+    } else if (!isVerified) {
+      toast.info("Verify your email to like posts", {
+        description: "Check your inbox for the link.",
+        action: { label: "Resend", onClick: resend },
+      });
+    } else {
+      toggle();
+    }
+  };
 
   const shared = {
     type: "button",

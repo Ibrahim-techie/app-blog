@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import commentService from "../../services/comment.service";
 import UserAvatar from "../UserAvatar";
+import VerifyEmailNotice from "../VerifyEmailNotice";
 
 const MAX_LENGTH = 1000;
 
@@ -61,6 +62,10 @@ function PostComment({ postId }) {
         </p>
       </div>
     );
+  }
+
+  if (!userData.emailVerification) {
+    return <VerifyEmailNotice action="comment" />;
   }
 
   return (
