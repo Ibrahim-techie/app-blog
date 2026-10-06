@@ -77,6 +77,7 @@ function MyPostsTab({ userId }) {
       feed={useOwnPosts(userId, "active", "profile")}
       loadingTitle="Loading your posts"
       empty={{
+        icon: "posts",
         title: "Nothing published yet.",
         text: "Posts you publish will appear here. Drafts stay under Drafts until you make them public.",
         action: { to: "/add-post", label: "Write your first post" },
@@ -91,6 +92,7 @@ function DraftsTab({ userId }) {
       feed={useOwnPosts(userId, "inactive", "drafts")}
       loadingTitle="Loading your drafts"
       empty={{
+        icon: "posts",
         title: "No drafts.",
         text: "Save a post as a draft and it will wait here — only you can see it.",
         action: { to: "/add-post", label: "Start a draft" },
@@ -105,6 +107,7 @@ function BookmarksTab() {
       feed={useSavedPosts()}
       loadingTitle="Loading your bookmarks"
       empty={{
+        icon: "bookmark",
         title: "No saved posts yet.",
         text: "Bookmark articles you want to read later and they'll appear here.",
         action: { to: "/all-posts", label: "Explore Posts" },
@@ -140,7 +143,7 @@ function Profile() {
     setParams(key === "posts" ? {} : { tab: key }, { replace: true });
 
   return (
-    <div className="flex flex-col gap-8 px-5 py-8 sm:p-10">
+    <div className="mx-auto flex w-full max-w-[1216px] flex-col gap-8 px-5 py-8 sm:p-10">
       <div>
         <ProfileHeader
           user={user}
@@ -153,7 +156,7 @@ function Profile() {
 
         <nav
           aria-label="Profile sections"
-          className="flex h-16 gap-9 overflow-x-auto border-y border-ink-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex h-12 gap-9 overflow-x-auto border-y border-ink-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {TABS.map((item) => {
             const selected = item.key === tab.key;
@@ -163,10 +166,10 @@ function Profile() {
                 type="button"
                 aria-current={selected ? "page" : undefined}
                 onClick={() => selectTab(item.key)}
-                className={`flex h-full shrink-0 items-center px-1 text-[13px] transition-colors ${
+                className={`flex h-full shrink-0 items-center border-b-2 px-1 text-sm font-semibold transition-colors ${
                   selected
-                    ? "border-b-[3px] border-ink-brand font-extrabold text-ink-brand"
-                    : "font-semibold text-ink-muted hover:text-ink-text"
+                    ? "border-ink-text text-ink-text"
+                    : "border-transparent text-ink-text-2 hover:text-ink-text"
                 }`}
               >
                 {item.label}
@@ -179,10 +182,10 @@ function Profile() {
       <section aria-labelledby="profile-tab-title" className="flex flex-col gap-6">
         <SectionHeading
           id="profile-tab-title"
-          title={tab.label.toUpperCase()}
+          title={tab.label}
           meta={
             tab.key === "posts" && stats.data
-              ? `${stats.data.posts} published post${stats.data.posts === 1 ? "" : "s"}`
+              ? `LATEST WRITING / ${String(stats.data.posts).padStart(2, "0")}`
               : tab.key === "drafts"
                 ? "ONLY YOU CAN SEE DRAFTS"
                 : null
@@ -194,7 +197,10 @@ function Profile() {
         {tab.key === "bookmarks" && <BookmarksTab />}
         {tab.key === "liked" && <LikedTab />}
 
-        <EditorialNote left="YOUR WORDS, YOUR PACE." right="NEWEST FIRST" />
+        <EditorialNote
+          left="INDEPENDENT VOICES. FRESH PERSPECTIVES."
+          right={`INK / ${(user?.name || "YOU").toUpperCase()}`}
+        />
       </section>
 
       {isEditing && (

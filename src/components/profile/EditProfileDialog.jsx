@@ -8,7 +8,7 @@ const BIO_MAX = 200;
 const AVATAR_MAX_BYTES = 10 * 1024 * 1024; // before compression
 
 const fieldClass =
-  "w-full rounded-[3px] border border-ink-border bg-ink-bg px-3 py-2 text-sm text-ink-text outline-none transition-colors focus:border-ink-border-strong";
+  "w-full rounded-lg border border-ink-border bg-ink-bg px-3 py-2 text-sm text-ink-text outline-none transition-colors focus:border-ink-border-strong";
 
 /** Modal form for the signed-in user's name, bio and avatar. */
 function EditProfileDialog({ user, onClose }) {
@@ -76,11 +76,11 @@ function EditProfileDialog({ user, onClose }) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="edit-profile-title"
-        className="w-full max-w-lg rounded-[3px] border border-ink-border bg-ink-surface p-6 sm:p-8"
+        className="w-full max-w-lg rounded-lg border border-ink-border bg-ink-surface p-6 sm:p-8"
       >
         <h2
           id="edit-profile-title"
-          className="text-2xl font-extrabold tracking-[-0.6px] text-ink-text"
+          className="text-2xl font-semibold tracking-[-0.6px] text-ink-text"
         >
           Edit profile
         </h2>
@@ -113,7 +113,7 @@ function EditProfileDialog({ user, onClose }) {
           <div>
             <label
               htmlFor="profile-name"
-              className="mb-1.5 block font-mono text-[10px] tracking-[0.3px] text-ink-muted uppercase"
+              className="mb-1.5 block font-mono text-xs tracking-[0.96px] text-ink-text-2 uppercase"
             >
               Name
             </label>
@@ -141,7 +141,7 @@ function EditProfileDialog({ user, onClose }) {
             <div className="mb-1.5 flex items-baseline justify-between">
               <label
                 htmlFor="profile-bio"
-                className="font-mono text-[10px] tracking-[0.3px] text-ink-muted uppercase"
+                className="font-mono text-xs tracking-[0.96px] text-ink-text-2 uppercase"
               >
                 Bio
               </label>
@@ -165,14 +165,14 @@ function EditProfileDialog({ user, onClose }) {
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            className="inline-flex h-10 items-center rounded-[3px] border border-ink-border bg-ink-surface px-4 text-xs font-extrabold text-ink-text transition-colors hover:border-ink-border-strong disabled:opacity-60"
+            className="inline-flex h-10 items-center rounded-lg border border-ink-border bg-ink-surface px-4 text-xs font-semibold text-ink-text transition-colors hover:border-ink-border-strong disabled:opacity-60"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSaving || (!isDirty && !avatarFile)}
-            className="inline-flex h-10 items-center rounded-[3px] border border-ink-border-strong bg-ink-primary px-4 text-xs font-extrabold text-ink-on-primary disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-10 items-center rounded-lg border border-ink-border-strong bg-ink-primary px-4 text-xs font-semibold text-ink-on-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSaving ? "Saving…" : "Save changes"}
           </button>
