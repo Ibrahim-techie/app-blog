@@ -20,10 +20,10 @@ export function CategoryTabs({ value, onChange, label = "Filter by category" }) 
             type="button"
             aria-pressed={selected}
             onClick={() => onChange(tab.key)}
-            className={`flex h-full shrink-0 items-center px-1 text-[13px] transition-colors ${
+            className={`flex h-full shrink-0 items-center border-b-2 px-1 text-sm transition-colors ${
               selected
-                ? "border-b-2 border-ink-brand font-extrabold text-ink-brand"
-                : "font-semibold text-ink-muted hover:text-ink-text"
+                ? "border-ink-text font-semibold text-ink-text"
+                : "border-transparent text-ink-text-2 hover:text-ink-text"
             }`}
           >
             {tab.label}
@@ -60,7 +60,7 @@ export function SortMenu({ value, options, onChange }) {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="flex h-9 items-center gap-3 rounded-[3px] border border-ink-border bg-ink-surface px-3 text-xs font-semibold text-ink-text"
+        className="flex h-9 items-center gap-3 rounded-lg border border-ink-border bg-ink-surface px-3 text-xs font-semibold text-ink-text transition-colors hover:bg-ink-surface-2"
       >
         {current.label}
         <ChevronDown
@@ -74,9 +74,9 @@ export function SortMenu({ value, options, onChange }) {
         <ul
           role="listbox"
           aria-label="Sort"
-          className="absolute right-0 z-20 mt-2 flex w-48 flex-col gap-2 rounded-[2px] border border-ink-border bg-ink-surface p-4"
+          className="absolute right-0 z-20 mt-2 flex w-56 flex-col gap-3 rounded-lg border border-ink-border bg-ink-surface-2 p-4 shadow-lg"
         >
-          <li className="font-mono text-[10px] tracking-[0.3px] text-ink-muted">
+          <li className="font-mono text-xs tracking-[0.96px] text-ink-text-2">
             SORT BY
           </li>
           {options.map((option) => {
@@ -91,8 +91,8 @@ export function SortMenu({ value, options, onChange }) {
                     onChange(option.value);
                     setOpen(false);
                   }}
-                  className={`flex w-full items-center justify-between text-left text-xs ${
-                    selected ? "font-bold text-ink-brand" : "text-ink-text-2 hover:text-ink-text"
+                  className={`flex w-full items-center justify-between text-left text-sm ${
+                    selected ? "font-semibold text-ink-text" : "text-ink-text-2 hover:text-ink-text"
                   }`}
                 >
                   {option.label}
