@@ -1,13 +1,12 @@
 import fileservice from "../services/storage.service";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { Heart, MessageCircle } from "lucide-react";
 import { postPath } from "../utils/postUrl";
 import { useQueryClient } from "@tanstack/react-query";
 import postservice from "../services/Post.service";
 import { categoryLabel } from "../constants/categories";
 import { cardDate } from "../utils/postText";
-import UserAvatar from "./UserAvatar";
+import AuthorAvatar from "./AuthorAvatar";
 import SaveButton from "./saved/SaveButton";
 
 // The card sizes in the INK v2 designs.
@@ -69,15 +68,8 @@ function PostCard({
   showSave = false,
   variant = "featured",
 }) {
-  const me = useSelector((state) => state.auth.userData);
   const label = categoryLabel(category);
   const size = VARIANTS[variant] ?? VARIANTS.featured;
-
-  // Avatars live in each user's private account prefs, so the only photo a
-  // reader can see is their own — on their own posts. Everyone else gets
-  // initials.
-  const isMine = Boolean(me?.$id && me.$id === userID);
-  const avatarId = isMine ? me.prefs?.avatarId : null;
 
   const queryclient = useQueryClient();
   const prefetchpost = () =>
@@ -138,9 +130,9 @@ function PostCard({
         )}
 
         <div className="mt-auto flex items-center gap-2 border-t border-ink-border pt-3">
-          <UserAvatar
+          <AuthorAvatar
+            userId={userID}
             name={author}
-            avatarId={avatarId}
             size={variant === "featured" ? 32 : 27}
             className="rounded-lg bg-ink-surface-2 text-xs text-ink-text group-hover:bg-ink-sage-hover"
           />

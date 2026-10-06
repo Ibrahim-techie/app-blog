@@ -8,7 +8,7 @@ import commentService from "../services/comment.service";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { Loader, Comments } from "../components";
 import fileservice from "../services/storage.service";
-import UserAvatar from "../components/UserAvatar";
+import AuthorAvatar from "../components/AuthorAvatar";
 import { categoryLabel } from "../constants/categories";
 import { readingMinutes } from "../utils/postText";
 import { postPath, slugify } from "../utils/postUrl";
@@ -115,7 +115,6 @@ function Post() {
 
   const label = categoryLabel(post.category);
   const minutes = readingMinutes(post.content);
-  const authorAvatar = isUserAuthor ? userData?.prefs?.avatarId : null;
 
   return (
     <div className="px-5 py-8 sm:p-10">
@@ -177,9 +176,9 @@ function Post() {
 
           <div className="flex items-center justify-between gap-4 pb-1">
             <div className="flex items-center gap-3">
-              <UserAvatar
+              <AuthorAvatar
+                userId={post.userID}
                 name={post.author}
-                avatarId={authorAvatar}
                 size={44}
                 className="rounded-full bg-ink-surface-2 text-sm text-ink-text"
               />

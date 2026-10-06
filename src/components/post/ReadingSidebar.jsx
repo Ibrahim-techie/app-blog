@@ -5,17 +5,18 @@ import { Postcard } from "../index";
 import UserAvatar from "../UserAvatar";
 import postservice from "../../services/Post.service";
 import useCardMeta from "../../customHooks/useCardMeta";
+import useAuthorProfile from "../../customHooks/useAuthorProfile";
 
 /**
  * The Post page's right column: About the author, then Related articles.
  *
- * A bio and photo live in each user's private account prefs, so they can only
- * be shown on your own posts; for anyone else the panel shows the name only,
- * and there is no other-user profile page to link to.
+ * Photo and bio come from the author's public profile. There is no profile
+ * page for other users yet, so View Profile only appears on your own posts.
  */
 function ReadingSidebar({ post }) {
   const me = useSelector((state) => state.auth.userData);
   const isMine = Boolean(me?.$id && me.$id === post.userID);
+  const author = useAuthorProfile(post.userID);
 
   const related = useQuery({
     // Under ["posts"] so publishing or deleting a post refreshes it.
@@ -40,7 +41,7 @@ function ReadingSidebar({ post }) {
         <div className="flex items-center gap-3">
           <UserAvatar
             name={post.author}
-            avatarId={isMine ? me.prefs?.avatarId : null}
+            avatarId={author?.avatarId}
             size={48}
             className="rounded-full bg-ink-surface-2 text-sm text-ink-text"
           />
@@ -51,8 +52,10 @@ function ReadingSidebar({ post }) {
             {isMine && <p className="text-xs text-ink-text-2">That&apos;s you</p>}
           </div>
         </div>
-        {isMine && me.prefs?.bio && (
-          <p className="text-sm leading-[1.65] text-ink-text-2">{me.prefs.bio}</p>
+        {author?.bio && (
+          <p className="whitespace-pre-line text-sm leading-[1.65] text-ink-text-2">
+            {author.bio}
+          </p>
         )}
         {isMine && (
           <Link

@@ -5,13 +5,12 @@ import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import commentService from "../../services/comment.service";
 import { relativeTime, exactTime } from "../../utils/relativeTime";
-import UserAvatar from "../UserAvatar";
+import AuthorAvatar from "../AuthorAvatar";
 
 const MAX_LENGTH = 1000;
 
 function CommentItem({ comment, postId }) {
   const currentUserId = useSelector((state) => state.auth.userData?.$id);
-  const myAvatarId = useSelector((state) => state.auth.userData?.prefs?.avatarId);
   const queryClient = useQueryClient();
   const queryKey = ["comments", postId];
 
@@ -116,11 +115,9 @@ function CommentItem({ comment, postId }) {
 
   return (
     <article className="flex gap-3.5">
-      {/* Other people's photos live in their private account prefs, so only
-          your own comments can show one — the rest use initials. */}
-      <UserAvatar
+      <AuthorAvatar
+        userId={comment.userId}
         name={comment.userName}
-        avatarId={isOwner ? myAvatarId : null}
         size={36}
         className="rounded-full bg-ink-surface-2 text-xs text-ink-text-2"
       />

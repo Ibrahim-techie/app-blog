@@ -1,21 +1,23 @@
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import UserAvatar from "../UserAvatar";
+import useAuthorProfile from "../../customHooks/useAuthorProfile";
 
 /**
- * "Written by" under the article. As in ReadingSidebar, the bio and photo
- * live in the author's private account prefs, so they only appear on your
- * own posts; anyone else's card shows the name alone.
+ * "Written by" under the article, with the author's public photo and bio.
+ * View Profile only appears on your own posts — there is no profile page for
+ * other users yet.
  */
 function AuthorCard({ post }) {
   const me = useSelector((state) => state.auth.userData);
   const isMine = Boolean(me?.$id && me.$id === post.userID);
+  const author = useAuthorProfile(post.userID);
 
   return (
     <section className="flex flex-col gap-5 rounded-lg border border-ink-border bg-ink-surface-2 p-6 sm:flex-row sm:items-center">
       <UserAvatar
         name={post.author}
-        avatarId={isMine ? me.prefs?.avatarId : null}
+        avatarId={author?.avatarId}
         size={56}
         className="rounded-full bg-ink-surface text-sm text-ink-text"
       />
@@ -26,8 +28,10 @@ function AuthorCard({ post }) {
         <p className="text-xl font-semibold leading-[1.25] tracking-[-0.4px] text-ink-text">
           {post.author || "Anonymous"}
         </p>
-        {isMine && me.prefs?.bio && (
-          <p className="text-sm leading-[1.6] text-ink-text-2">{me.prefs.bio}</p>
+        {author?.bio && (
+          <p className="whitespace-pre-line text-sm leading-[1.6] text-ink-text-2">
+            {author.bio}
+          </p>
         )}
       </div>
       {isMine && (
