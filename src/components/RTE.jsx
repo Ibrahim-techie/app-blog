@@ -6,8 +6,16 @@ import config from "../Config/Config";
 // The editor page is an iframe and can't read the app's CSS variables, so the
 // INK v2 surface and text colours are passed in directly for each theme.
 const PAGE = {
-  light: { background: "#faf9f5", text: "#1c2420", soft: "rgba(28,36,32,0.72)" },
-  dark: { background: "#252f29", text: "#eceae3", soft: "rgba(236,234,227,0.72)" },
+  light: {
+    background: "#faf9f5",
+    text: "#1c2420",
+    soft: "rgba(28,36,32,0.72)",
+  },
+  dark: {
+    background: "#252f29",
+    text: "#eceae3",
+    soft: "rgba(236,234,227,0.72)",
+  },
 };
 
 // Body copy in Newsreader and headings in Inter, as on the published post.
@@ -53,7 +61,7 @@ function RTE({ name, control, defaultValue = "", label, ...props }) {
               // The INK design's toolbar: style, inline marks, lists, quote,
               // image, undo/redo.
               toolbar:
-                "blocks | bold italic underline codesample link | bullist numlist blockquote image | undo redo",
+                "blocks | bold italic underline codesample link | bullist numlist blockquote image | undo redo| align lineheight",
 
               content_style: contentStyle(PAGE[isDark ? "dark" : "light"]),
             }}
