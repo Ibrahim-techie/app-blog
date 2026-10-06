@@ -36,7 +36,7 @@ function SaveButton({ postId, variant = "button" }) {
       <button
         {...shared}
         className={`inline-flex items-center gap-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
-          saved ? "text-ink-brand" : "text-ink-text-2 hover:text-ink-text"
+          saved ? "text-ink-text" : "text-ink-text-2 hover:text-ink-text"
         }`}
       >
         <Bookmark
@@ -54,11 +54,11 @@ function SaveButton({ postId, variant = "button" }) {
     return (
       <button
         {...shared}
-        className="inline-flex size-7 items-center justify-center rounded-[2px] text-ink-text transition-colors hover:bg-ink-surface-2 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex size-7 items-center justify-center rounded-lg text-ink-text transition-colors hover:bg-ink-sage-hover disabled:cursor-not-allowed disabled:opacity-60"
       >
         <Bookmark
-          size={17}
-          strokeWidth={1.75}
+          size={16}
+          strokeWidth={1.5}
           fill={saved ? "currentColor" : "none"}
           aria-hidden="true"
         />
@@ -69,10 +69,10 @@ function SaveButton({ postId, variant = "button" }) {
   return (
     <button
       {...shared}
-      className={`inline-flex h-10 items-center gap-2 rounded-[3px] border px-4 text-xs font-extrabold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${
+      className={`inline-flex h-10 items-center gap-2 rounded-lg border px-4 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${
         saved
-          ? "border-ink-sage bg-ink-sage text-ink-on-sage"
-          : "border-ink-border bg-ink-surface text-ink-text hover:border-ink-border-strong"
+          ? "border-ink-border-strong bg-ink-surface-2 text-ink-text"
+          : "border-ink-border bg-ink-surface text-ink-text hover:bg-ink-surface-2"
       }`}
     >
       <Bookmark

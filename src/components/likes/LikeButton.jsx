@@ -52,7 +52,7 @@ function LikeButton({ postId, variant = "button" }) {
   return (
     <button
       {...shared}
-      className={`inline-flex h-10 items-center gap-2 rounded-[3px] border px-4 text-xs font-extrabold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${
+      className={`inline-flex h-10 items-center gap-2 rounded-lg border px-4 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${
         liked
           ? "border-ink-sage bg-ink-sage text-ink-on-sage"
           : "border-ink-border bg-ink-surface text-ink-text hover:border-ink-border-strong"
@@ -67,7 +67,7 @@ function LikeButton({ postId, variant = "button" }) {
       <span>{liked ? "Liked" : "Like"}</span>
       <span
         aria-label={`${count} ${count === 1 ? "like" : "likes"}`}
-        className="font-mono tabular-nums opacity-70"
+        className="font-mono tracking-[0.96px] tabular-nums opacity-70"
       >
         {count}
       </span>
