@@ -32,9 +32,9 @@ function ReadingSidebar({ post }) {
   useCardMeta((related.data ?? []).map((row) => row.$id));
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-10 border-t border-ink-border pt-10 xl:w-[315px] xl:border-t-0 xl:border-l xl:pt-[86px] xl:pl-6">
+    <aside className="flex w-full shrink-0 flex-col gap-10 border-t border-ink-border pt-10 xl:-my-10 xl:w-[400px] xl:border-t-0 xl:border-l xl:bg-ink-surface xl:px-6 xl:pt-[126px] xl:pb-10">
       <section className="flex flex-col gap-5">
-        <p className="font-mono text-[10px] leading-[1.5] tracking-[0.3px] text-ink-muted">
+        <p className="font-mono text-xs leading-[1.5] tracking-[0.96px] text-ink-text-2">
           ABOUT THE AUTHOR
         </p>
         <div className="flex items-center gap-3">
@@ -42,22 +42,22 @@ function ReadingSidebar({ post }) {
             name={post.author}
             avatarId={isMine ? me.prefs?.avatarId : null}
             size={48}
-            className="rounded-full bg-ink-sage text-base text-ink-avatar-text"
+            className="rounded-full bg-ink-surface-2 text-sm text-ink-text"
           />
           <div className="flex min-w-0 flex-col gap-1">
-            <p className="truncate text-lg font-extrabold text-ink-text">
+            <p className="truncate text-xl font-semibold leading-[1.25] text-ink-text">
               {post.author || "Anonymous"}
             </p>
             {isMine && <p className="text-xs text-ink-text-2">That&apos;s you</p>}
           </div>
         </div>
         {isMine && me.prefs?.bio && (
-          <p className="text-[13px] leading-[1.65] text-ink-text-2">{me.prefs.bio}</p>
+          <p className="text-sm leading-[1.65] text-ink-text-2">{me.prefs.bio}</p>
         )}
         {isMine && (
           <Link
             to="/profile"
-            className="inline-flex h-11 w-fit items-center rounded-[3px] border border-ink-border bg-ink-surface px-5 text-xs font-extrabold text-ink-text transition-colors hover:border-ink-border-strong"
+            className="inline-flex h-11 w-fit items-center rounded-lg border border-ink-border bg-ink-surface px-5 text-xs font-semibold text-ink-text transition-colors hover:bg-ink-surface-2"
           >
             View Profile
           </Link>
@@ -66,7 +66,7 @@ function ReadingSidebar({ post }) {
 
       {related.data?.length > 0 && (
         <section className="flex flex-col gap-5">
-          <p className="font-mono text-[10px] leading-[1.5] tracking-[0.3px] text-ink-muted">
+          <p className="font-mono text-xs leading-[1.5] tracking-[0.96px] text-ink-text-2">
             RELATED ARTICLES
           </p>
           {related.data.map((row) => (
