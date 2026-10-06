@@ -10,27 +10,37 @@ import { cardDate } from "../utils/postText";
 import UserAvatar from "./UserAvatar";
 import SaveButton from "./saved/SaveButton";
 
-// The three card sizes in the INK designs.
-//  featured — Home's three-up grid: tall image, 22px title.
-//  grid     — Explore / Profile / Bookmarks four-up grid: shorter image.
-//  compact  — the Post page's "Related articles" column: 20px title.
+// The card sizes in the INK v2 designs.
+//  featured — Home's three-up row: category inside the body, serif excerpt.
+//  grid     — Explore / Profile / Bookmarks three-up grid.
+//  wide     — the grid's first card, spanning two columns.
+//  compact  — the Post page's "Related articles" column: no excerpt.
 const VARIANTS = {
   featured: {
-    image: "aspect-[270/210]",
-    body: "gap-4 px-4 pt-4 pb-5",
-    title: "text-[22px] tracking-[-0.66px]",
+    image: "aspect-[357/235]",
+    body: "gap-4 p-6",
+    excerpt: "font-serif text-[17px] leading-[1.6]",
+    labelInBody: true,
   },
   grid: {
-    image: "aspect-[270/160]",
+    image: "aspect-[357/190]",
     body: "gap-3 p-4",
-    title: "text-[22px] tracking-[-0.66px]",
+    excerpt: "text-sm leading-[1.65]",
+  },
+  wide: {
+    span: "sm:col-span-2",
+    image: "aspect-[357/190] sm:aspect-auto sm:h-[222px]",
+    body: "gap-3 p-4",
+    excerpt: "text-sm leading-[1.65]",
   },
   compact: {
-    image: "aspect-[291/124]",
+    image: "aspect-[376/154]",
     body: "gap-4 p-4",
-    title: "text-[20px] tracking-[-0.6px]",
+    excerpt: "hidden",
   },
 };
+
+const LABEL = "font-mono text-xs leading-[14px] tracking-[0.96px] text-ink-text-2";
 
 /**
  * The INK article card, shared by Home, Explore, Bookmarks, Profile and the
@@ -80,10 +90,16 @@ function PostCard({
 
   const hasEngagement = likes !== undefined || comments !== undefined;
 
+  const categoryTag = label && (
+    <p className={size.labelInBody ? LABEL : `px-4 ${LABEL}`}>
+      {label.toUpperCase()}
+    </p>
+  );
+
   return (
     <article
       onMouseEnter={prefetchpost}
-      className="group relative flex h-full flex-col overflow-hidden rounded-[2px] border border-ink-border bg-ink-surface transition-colors hover:border-ink-border-strong"
+      className={`group relative flex h-full flex-col overflow-hidden rounded-lg border border-ink-border bg-ink-surface transition-colors hover:border-ink-border-strong hover:bg-ink-surface-2 has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-ink-text ${size.span ?? ""}`}
     >
       <div className="flex flex-col gap-4">
         <div className={`${size.image} w-full overflow-hidden bg-ink-surface-2`}>
@@ -97,49 +113,46 @@ function PostCard({
             />
           )}
         </div>
-        {label && (
-          <p className="px-4 font-mono text-[9px] font-medium leading-[14px] text-ink-brand">
-            {label.toUpperCase()}
-          </p>
-        )}
+        {!size.labelInBody && categoryTag}
       </div>
 
       <div className={`flex flex-1 flex-col ${size.body}`}>
-        <h3 className={`${size.title} font-bold leading-[1.25] text-ink-text`}>
+        {size.labelInBody && categoryTag}
+
+        <h3 className="text-xl font-semibold leading-[1.25] tracking-[-0.6px] text-ink-text">
           {/* The link stretches over the whole card, so the card stays one
-              big click target while the buttons sit above it. */}
+              big click target while the buttons sit above it. The card
+              draws the focus ring (has-[a:focus-visible]). */}
           <Link
             to={postPath({ $id, title })}
-            className="after:absolute after:inset-0 after:content-[''] focus-visible:underline focus-visible:outline-none"
+            className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
           >
             {title}
           </Link>
         </h3>
 
         {excerpt && (
-          <p className="line-clamp-3 text-[15px] leading-[1.65] text-ink-text-2">
+          <p className={`line-clamp-3 text-ink-text-2 ${size.excerpt}`}>
             {excerpt}
           </p>
         )}
 
-        <div className="mt-auto h-px w-full bg-ink-border opacity-80" />
-
-        <div className="flex items-center gap-2">
+        <div className="mt-auto flex items-center gap-2 border-t border-ink-border pt-3">
           <UserAvatar
             name={author}
             avatarId={avatarId}
-            size={27}
-            className={`rounded-[3px] text-[9px] ${
-              isMine
-                ? "bg-ink-sage text-ink-avatar-text"
-                : "bg-ink-surface-2 text-ink-brand"
-            }`}
+            size={variant === "featured" ? 32 : 27}
+            className="rounded-lg bg-ink-surface-2 text-xs text-ink-text group-hover:bg-ink-sage-hover"
           />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <p className="truncate text-xs font-extrabold text-ink-text">
+            <p
+              className={`truncate text-ink-text ${
+                variant === "featured" ? "text-sm font-medium" : "text-xs font-semibold"
+              }`}
+            >
               {author || "Anonymous"}
             </p>
-            <p className="truncate font-mono text-[11px] text-ink-muted">
+            <p className="truncate font-mono text-xs tracking-[0.96px] text-ink-text-2">
               <time dateTime={$createdAt}>{cardDate($createdAt)}</time>
               {readingMinutes ? ` · ${readingMinutes} MIN READ` : ""}
             </p>
@@ -152,14 +165,14 @@ function PostCard({
         </div>
 
         {hasEngagement && (
-          <div className="flex items-center gap-4 pt-1 font-mono text-[11px] text-ink-muted">
+          <div className="flex items-center gap-4 pt-2 font-mono tracking-[0.96px] text-xs leading-[1.4] text-ink-text-2">
             <span className="flex items-center gap-1.5" title="Likes">
-              <Heart size={14} strokeWidth={1.75} aria-hidden="true" />
+              <Heart size={14} strokeWidth={1.5} aria-hidden="true" />
               <span className="tabular-nums">{likes ?? "—"}</span>
               <span className="sr-only">likes</span>
             </span>
             <span className="flex items-center gap-1.5" title="Comments">
-              <MessageCircle size={14} strokeWidth={1.75} aria-hidden="true" />
+              <MessageCircle size={14} strokeWidth={1.5} aria-hidden="true" />
               <span className="tabular-nums">{comments ?? "—"}</span>
               <span className="sr-only">comments</span>
             </span>
