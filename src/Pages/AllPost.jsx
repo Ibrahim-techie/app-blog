@@ -145,8 +145,8 @@ function AllPost() {
       : null;
 
   return (
-    <div className="flex flex-col gap-8 px-5 py-8 sm:p-10">
-      <PageHero title="EXPLORE IDEAS.">
+    <div className="mx-auto flex w-full max-w-[1216px] flex-col gap-8 px-5 py-8 sm:p-10">
+      <PageHero title="Explore ideas.">
         Discover stories, knowledge and ideas from writers across INK.
       </PageHero>
 
@@ -169,11 +169,7 @@ function AllPost() {
         <SectionHeading
           id="explore-results"
           title={
-            isSearching
-              ? "SEARCH RESULTS"
-              : label
-                ? label.toUpperCase()
-                : "ALL POSTS"
+            isSearching ? "Search results" : label ? label : "All posts"
           }
           meta={meta}
         />
@@ -183,7 +179,7 @@ function AllPost() {
             {isSearching ? (
               <p className="text-sm text-ink-text-2">
                 Searching for{" "}
-                <span className="font-extrabold text-ink-text">
+                <span className="font-semibold text-ink-text">
                   &quot;{search}&quot;
                 </span>
                 {label && <> in {label}</>}
@@ -192,8 +188,8 @@ function AllPost() {
               <span />
             )}
             {isRefreshing && (
-              <span className="flex shrink-0 items-center gap-2 font-mono text-[10px] tracking-[0.3px] text-ink-muted">
-                <span className="size-1.5 animate-pulse bg-ink-brand" />
+              <span className="flex shrink-0 items-center gap-2 font-mono text-xs tracking-[0.96px] text-ink-text-2">
+                <span className="size-1.5 animate-pulse rounded-full bg-ink-text" />
                 UPDATING
               </span>
             )}
@@ -245,7 +241,7 @@ function AllPost() {
 
         <EditorialNote
           left="INDEPENDENT VOICES. FRESH PERSPECTIVES."
-          right={order === "asc" ? "OLDEST FIRST" : "NEWEST FIRST"}
+          right={`INK / EXPLORE · ${order === "asc" ? "OLDEST" : "NEWEST"} FIRST`}
         />
       </section>
     </div>
