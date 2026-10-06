@@ -21,7 +21,7 @@ function Loader({ text = "Loading", compact = false, className = "" }) {
           </div>
         </div>
 
-        <p className="text-center font-mono text-[11px] uppercase tracking-[0.3px] text-ink-muted">
+        <p className="text-center font-mono text-xs uppercase tracking-[0.96px] text-ink-text-2">
           {text}
           <span aria-hidden="true">…</span>
         </p>

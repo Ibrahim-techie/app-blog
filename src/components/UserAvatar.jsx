@@ -21,7 +21,7 @@ function UserAvatar({ name, avatarId, size = 34, className = "" }) {
     <span
       aria-hidden="true"
       style={{ width: size, height: size }}
-      className={`inline-flex shrink-0 items-center justify-center overflow-hidden font-extrabold leading-none ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center overflow-hidden font-semibold leading-none ${className}`}
     >
       {avatarId ? (
         <img

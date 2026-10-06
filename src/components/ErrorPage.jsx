@@ -16,10 +16,10 @@ function ErrorPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-start justify-center bg-ink-bg px-5 sm:px-10">
-      <p className="font-mono text-[10px] leading-[1.5] tracking-[0.3px] text-ink-error">
+      <p className="font-mono text-xs leading-[1.5] tracking-[0.96px] text-ink-error">
         SOMETHING BROKE
       </p>
-      <h1 className="mt-3 text-[48px] font-extrabold leading-[1] tracking-[-2.4px] text-ink-text">
+      <h1 className="mt-3 text-[48px] font-semibold leading-[1] tracking-[-2.4px] text-ink-text">
         {heading}
       </h1>
       <p className="mt-4 max-w-xl text-[15px] leading-[1.65] text-ink-text-2">
@@ -27,7 +27,7 @@ function ErrorPage() {
       </p>
       <Link
         to="/"
-        className="mt-8 inline-flex h-12 items-center rounded-[3px] border border-ink-border-strong bg-ink-primary px-5 text-xs font-extrabold text-ink-on-primary"
+        className="mt-8 inline-flex h-12 items-center rounded-lg border border-ink-border-strong bg-ink-primary px-5 text-xs font-semibold text-ink-on-primary"
       >
         Go Back Home
       </Link>
