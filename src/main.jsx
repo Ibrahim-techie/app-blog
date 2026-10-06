@@ -17,6 +17,7 @@ import Profile from "./Pages/Profile.jsx";
 import Verify from "./Pages/Verify.jsx";
 import ForgotPassword from "./Pages/ForgotPassword.jsx";
 import ResetPassword from "./Pages/ResetPassword.jsx";
+import OAuthCallback from "./Pages/OAuthCallback.jsx";
 import VerifiedOnly from "./components/VerifiedOnly.jsx";
 import { Authlayout } from "./components/index.js";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
@@ -106,6 +107,11 @@ const router = createBrowserRouter([
             </VerifiedOnly>
           </Authlayout>
         ),
+      },
+      {
+        // Google sign-in returns here to finish creating the session.
+        path: "auth/callback",
+        element: <OAuthCallback />,
       },
       {
         path: "forgot-password",
