@@ -3,6 +3,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { Input, RTE } from "../index";
 import {
   ArrowUpRight,
+  Check,
   Image as ImageIcon,
   ImagePlus,
   SlidersHorizontal,
@@ -195,16 +196,16 @@ function Postform({ post }) {
     <form onSubmit={submitAs("active")} noValidate>
       <div className="mb-7 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex flex-col gap-2">
-          <h1 className="text-[28px] font-extrabold tracking-[-0.6px] text-ink-text sm:text-[32px]">
+          <h1 className="text-[28px] font-semibold tracking-[-0.64px] text-ink-text sm:text-[32px]">
             {post ? "Edit Post" : "Create a New Post"}
           </h1>
-          <p className="text-[15px] text-ink-text-2">
+          <p className="text-sm text-ink-text-2">
             {post
               ? "Make changes to your post and save the updated version."
               : "Share your ideas, experiences, and knowledge with the world."}
           </p>
           {post && (
-            <p className="font-mono text-[11px] text-ink-muted">
+            <p className="font-mono tracking-[0.96px] text-xs text-ink-text-2">
               {isPublished ? "PUBLISHED — VISIBLE TO EVERYONE" : "DRAFT — ONLY YOU CAN SEE THIS"}
             </p>
           )}
@@ -215,7 +216,7 @@ function Postform({ post }) {
             <button
               type="button"
               onClick={() => navigate(postPath(post))}
-              className="inline-flex h-[42px] items-center rounded-[3px] px-4 text-xs font-extrabold text-ink-text-2 hover:text-ink-text"
+              className="inline-flex h-[42px] items-center rounded-lg px-4 text-sm font-semibold text-ink-text-2 hover:text-ink-text"
             >
               Cancel
             </button>
@@ -224,14 +225,14 @@ function Postform({ post }) {
             type="button"
             onClick={submitAs("inactive")}
             disabled={isSubmitting}
-            className="inline-flex h-[42px] items-center rounded-[3px] border border-ink-border bg-ink-surface px-4 text-[13px] font-semibold text-ink-text transition-colors hover:border-ink-border-strong disabled:opacity-60"
+            className="inline-flex h-[42px] items-center rounded-lg border border-ink-text-2 px-4 text-sm font-semibold text-ink-text transition-colors hover:bg-ink-surface disabled:opacity-60"
           >
             {draftLabel}
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex h-[42px] items-center rounded-[3px] border border-ink-border-strong bg-ink-primary px-4 text-[13px] font-semibold text-ink-on-primary disabled:opacity-60"
+            className="inline-flex h-[42px] items-center rounded-lg bg-ink-primary px-4 text-sm font-semibold text-ink-on-primary transition-opacity hover:opacity-90 disabled:opacity-60"
           >
             {isSubmitting ? "Saving…" : publishLabel}
           </button>
@@ -242,7 +243,7 @@ function Postform({ post }) {
         {/* ======================================
             WRITING EDITOR
         ====================================== */}
-        <div className="overflow-hidden rounded-[6px] border border-ink-border bg-ink-surface">
+        <div className="overflow-hidden rounded-lg border border-ink-border bg-ink-surface">
           {/* Title */}
           <div className="px-6 pt-7 pb-5 sm:px-8">
             <label htmlFor="post-title" className="sr-only">
@@ -252,7 +253,7 @@ function Postform({ post }) {
               id="post-title"
               placeholder="Add a catchy title for your post…"
               aria-invalid={Boolean(errors.title)}
-              className="w-full bg-transparent text-[24px] font-bold tracking-[-0.6px] text-ink-text outline-none placeholder:text-ink-muted sm:text-[30px]"
+              className="w-full bg-transparent text-[26px] font-semibold tracking-[-0.64px] text-ink-text outline-none placeholder:text-ink-text-2 sm:text-[32px]"
               {...register("title", {
                 required: "Title is required",
                 validate: notBlank("Title"),
@@ -261,7 +262,7 @@ function Postform({ post }) {
             {errors.title ? (
               <p className="mt-2 text-xs text-ink-error">{errors.title.message}</p>
             ) : (
-              <p className="mt-2 truncate font-mono text-[11px] text-ink-muted">
+              <p className="mt-2 truncate font-mono tracking-[0.96px] text-xs text-ink-text-2">
                 URL: /post/
                 <span className="text-ink-text-2">{title?.trim() ? slugify(title) : "…"}</span>/
                 {post ? post.$id : "…"}
@@ -281,26 +282,26 @@ function Postform({ post }) {
               })}
             />
             {coverPreview ? (
-              <div className="relative h-[230px] overflow-hidden rounded-[3px] bg-ink-surface-2">
+              <div className="relative h-[230px] overflow-hidden rounded-lg bg-ink-surface-2">
                 <img src={coverPreview} alt="" className="size-full object-cover" />
                 <label
                   htmlFor="post-cover"
-                  className="absolute right-3 bottom-3 inline-flex h-[34px] cursor-pointer items-center gap-2 rounded-[3px] border border-ink-border bg-ink-surface px-3 text-xs font-semibold text-ink-text"
+                  className="absolute right-3 bottom-3 inline-flex h-[34px] cursor-pointer items-center gap-2 rounded-lg bg-ink-bg px-3 text-sm font-medium text-ink-text transition-colors hover:bg-ink-surface-2"
                 >
-                  <ImageIcon size={16} strokeWidth={1.75} aria-hidden="true" />
-                  Change image
+                  <ImageIcon size={16} strokeWidth={1.5} aria-hidden="true" />
+                  Change Image
                 </label>
               </div>
             ) : (
-              <div className="flex h-[188px] flex-col items-center justify-center gap-2 rounded-[3px] border border-dashed border-ink-border bg-ink-surface-2 text-center">
-                <ImagePlus size={27} strokeWidth={1.5} aria-hidden="true" className="text-ink-text-2" />
+              <div className="flex h-[188px] flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-ink-border-strong bg-ink-bg text-center">
+                <ImagePlus size={27} strokeWidth={1.25} aria-hidden="true" className="text-ink-text-2" />
                 <p className="text-sm font-semibold text-ink-text">Add a cover image</p>
-                <p className="font-mono text-[10px] text-ink-muted">
-                  Large images are resized before upload
+                <p className="font-mono tracking-[0.96px] text-xs text-ink-text-2">
+                  Recommended size: 1200 × 630
                 </p>
                 <label
                   htmlFor="post-cover"
-                  className="mt-1 inline-flex h-[34px] cursor-pointer items-center rounded-[3px] border border-ink-border bg-ink-surface px-3 text-[13px] font-semibold text-ink-text hover:border-ink-border-strong"
+                  className="mt-1 inline-flex h-[34px] cursor-pointer items-center rounded-lg border border-ink-border bg-ink-surface px-3 text-sm font-semibold text-ink-text transition-colors hover:bg-ink-surface-2"
                 >
                   Upload Image
                 </label>
@@ -320,7 +321,7 @@ function Postform({ post }) {
             />
           </div>
 
-          <div className="flex items-center justify-between gap-4 border-t border-ink-border px-6 py-4 font-mono text-[10px] text-ink-muted">
+          <div className="flex items-center justify-between gap-4 border-t border-ink-border px-6 py-4 font-mono tracking-[0.96px] text-xs text-ink-text-2">
             <p>SAVED WHEN YOU PUBLISH OR SAVE A DRAFT</p>
             <p className="shrink-0 tabular-nums">
               {words} word{words === 1 ? "" : "s"} · {minutes} min read
@@ -331,10 +332,10 @@ function Postform({ post }) {
         {/* ======================================
             POST SETTINGS
         ====================================== */}
-        <div className="overflow-hidden rounded-[6px] border border-ink-border bg-ink-surface xl:sticky xl:top-28">
+        <div className="overflow-hidden rounded-lg border border-ink-border bg-ink-surface xl:sticky xl:top-28">
           <div className="flex items-center gap-2.5 border-b border-ink-border p-6">
-            <SlidersHorizontal size={18} strokeWidth={1.75} aria-hidden="true" />
-            <h2 className="text-[17px] font-bold text-ink-text">Post Settings</h2>
+            <SlidersHorizontal size={18} strokeWidth={1.5} aria-hidden="true" />
+            <h2 className="text-[15px] font-semibold text-ink-text">Post Settings</h2>
           </div>
 
           <div className="flex flex-col gap-6 p-6">
@@ -342,9 +343,9 @@ function Postform({ post }) {
                 categories existed may stay uncategorised until its author
                 picks one. */}
             <fieldset>
-              <legend className="mb-3 flex w-full items-center justify-between font-mono text-[10px]">
+              <legend className="mb-3 flex w-full items-center justify-between font-mono tracking-[0.96px] text-xs">
                 <span className="text-ink-text-2">CATEGORY</span>
-                <span className="text-ink-muted">{post ? "pick 1" : "required"}</span>
+                <span className="text-ink-text-2">{post ? "pick 1" : "required"}</span>
               </legend>
               <div className="flex flex-wrap gap-2">
                 {CATEGORIES.map((item) => (
@@ -358,7 +359,8 @@ function Postform({ post }) {
                           Boolean(post) || Boolean(value) || "Choose a category",
                       })}
                     />
-                    <span className="inline-flex items-center rounded-[4px] border border-ink-border bg-ink-bg px-2.5 py-1.5 text-[11px] text-ink-text-2 transition-colors peer-checked:border-ink-sage peer-checked:bg-ink-sage peer-checked:font-semibold peer-checked:text-ink-on-sage peer-focus-visible:border-ink-border-strong hover:border-ink-border-strong">
+                    <span className="inline-flex items-center gap-1 rounded-md border border-ink-border px-2.5 py-1.5 text-xs text-ink-text-2 transition-colors peer-checked:border-ink-text peer-checked:font-semibold peer-checked:text-ink-text peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink-text hover:bg-ink-surface-2 [&>svg]:hidden peer-checked:[&>svg]:block">
+                      <Check size={12} strokeWidth={2.5} aria-hidden="true" />
                       {item.label}
                     </span>
                   </label>
@@ -369,7 +371,7 @@ function Postform({ post }) {
               ) : (
                 post &&
                 !post.category && (
-                  <p className="mt-2 text-xs text-ink-muted">
+                  <p className="mt-2 text-xs text-ink-text-2">
                     This post has no category yet. Choosing one is optional.
                   </p>
                 )
@@ -398,7 +400,7 @@ function Postform({ post }) {
             {submitError && (
               <p
                 role="alert"
-                className="rounded-[3px] border border-ink-error/50 px-3 py-2 text-sm text-ink-error"
+                className="rounded-lg border border-ink-error/50 px-3 py-2 text-sm text-ink-error"
               >
                 {submitError}
               </p>
@@ -406,12 +408,12 @@ function Postform({ post }) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex h-[42px] w-full items-center justify-center gap-2 rounded-[4px] border border-ink-border-strong bg-ink-primary px-4 text-[13px] font-semibold text-ink-on-primary disabled:opacity-60"
+              className="inline-flex h-[42px] w-full items-center justify-center gap-2 rounded-lg bg-ink-primary px-4 text-sm font-semibold text-ink-on-primary transition-opacity hover:opacity-90 disabled:opacity-60"
             >
-              <ArrowUpRight size={16} strokeWidth={2} aria-hidden="true" />
+              <ArrowUpRight size={16} strokeWidth={1.75} aria-hidden="true" />
               {isSubmitting ? "Saving…" : `${publishLabel} Post`}
             </button>
-            <p className="text-[10px] leading-[1.5] text-ink-muted">
+            <p className="text-xs leading-[1.5] text-ink-text-2">
               Your story will be visible to everyone. Use {draftLabel} to keep
               it private.
             </p>

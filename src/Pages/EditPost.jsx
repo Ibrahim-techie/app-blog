@@ -66,7 +66,7 @@ function EditPost() {
       <p className="text-ink-text-2">{message}</p>
       <Link
         to={isPublic ? postPath(post) : "/"}
-        className="mt-4 inline-block text-sm font-extrabold text-ink-brand underline underline-offset-4"
+        className="mt-4 inline-block text-sm font-semibold text-ink-brand underline underline-offset-4"
       >
         {isPublic ? "Back to the post" : "Back to your dashboard"}
       </Link>
