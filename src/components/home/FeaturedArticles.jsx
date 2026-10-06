@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Postcard, Loader } from "../index";
 import { FeedError } from "../feed/FeedStates";
 import postservice from "../../services/Post.service";
@@ -20,20 +20,20 @@ function FeaturedArticles() {
   });
 
   return (
-    <section aria-labelledby="featured-title" className="flex min-w-0 flex-1 flex-col gap-6">
-      <div className="flex items-center justify-between gap-4 pb-2">
+    <section aria-labelledby="featured-title" className="flex flex-col gap-8">
+      <div className="flex items-center justify-between gap-4">
         <h2
           id="featured-title"
-          className="text-[24px] font-bold tracking-[-0.6px] text-ink-text sm:text-[30px]"
+          className="text-2xl font-semibold text-ink-text sm:text-[32px]"
         >
-          FEATURED ARTICLES
+          Featured articles
         </h2>
         <Link
           to="/all-posts"
-          className="flex shrink-0 items-center gap-2 font-mono text-[10px] leading-[1.5] tracking-[0.3px] text-ink-text-2 hover:text-ink-text"
+          className="flex shrink-0 items-center gap-1 text-sm text-ink-text-2 hover:text-ink-text"
         >
           View all
-          <ArrowUpRight size={14} strokeWidth={1.75} aria-hidden="true" />
+          <ArrowRight size={14} strokeWidth={1.75} aria-hidden="true" />
         </Link>
       </div>
 
@@ -48,11 +48,11 @@ function FeaturedArticles() {
           isRetrying={featured.isFetching}
         />
       ) : featured.data.length === 0 ? (
-        <p className="rounded-[2px] border border-dashed border-ink-border bg-ink-surface px-6 py-12 text-center text-sm text-ink-text-2">
+        <p className="rounded-lg border border-dashed border-ink-border bg-ink-surface px-6 py-12 text-center text-sm text-ink-text-2">
           Nothing has been published yet.
         </p>
       ) : (
-        <div className="grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {featured.data.map(({ content, ...post }) => (
             <Postcard
               key={post.$id}
@@ -65,9 +65,9 @@ function FeaturedArticles() {
         </div>
       )}
 
-      <div className="flex flex-wrap items-start justify-between gap-2 pt-1 font-mono text-[10px] leading-[1.5] tracking-[0.3px] text-ink-muted">
-        <p>INDEPENDENT VOICES. FRESH PERSPECTIVES.</p>
-        <p>NEWEST PUBLISHED FIRST</p>
+      <div className="flex flex-wrap items-start justify-between gap-2 text-xs text-ink-text-2">
+        <p>Independent voices. Fresh perspectives.</p>
+        <p>Newest published first</p>
       </div>
     </section>
   );
