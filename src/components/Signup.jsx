@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import GoogleIcon from "../assets/GoogleIcon";
+import { ALLOWED_EMAIL_HINT, isAllowedEmail } from "../utils/allowedEmail";
 
 function Signup() {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ function Signup() {
         if (getuserData) {
           dispatch(login(getuserData));
           toast.success("Account created", {
-            description: "Write your first post whenever you're ready.",
+            description: `We sent a verification link to ${getuserData.email}.`,
           });
           navigate("/");
         }
@@ -86,6 +87,9 @@ function Signup() {
                   value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
                   message: "Enter a valid email",
                 },
+                validate: (value) =>
+                  isAllowedEmail(value) ||
+                  `This email provider isn't supported. ${ALLOWED_EMAIL_HINT}`,
               })}
             />
             {errors.email && (
@@ -128,7 +132,7 @@ function Signup() {
             type="button"
             className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-ink-border bg-ink-bg text-xs font-semibold text-ink-text transition-colors hover:border-ink-border-strong"
             onClick={() => {
-              console.log("Google button clicked");
+              // console.log("Google button clicked");
               authService.signInwithGoogle();
             }}
           >
