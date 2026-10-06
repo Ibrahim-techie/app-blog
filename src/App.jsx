@@ -9,6 +9,7 @@ import Sidebar from "./components/shell/Sidebar";
 import TopBar from "./components/shell/TopBar";
 import AuthShell from "./components/shell/AuthShell";
 import useTheme from "./customHooks/useTheme";
+import useProfileSync from "./customHooks/useProfileSync";
 
 const AUTH_PAGES = ["/login", "/signup"];
 
@@ -21,6 +22,10 @@ function App() {
   // Mounted for every route, so the theme class is applied everywhere —
   // including the sign-in pages, which don't render the theme switch's shell.
   useTheme();
+
+  // Copies the signed-in user's name, bio and photo to their public profile
+  // so other readers can see them.
+  useProfileSync();
 
   useEffect(() => {
     authService
