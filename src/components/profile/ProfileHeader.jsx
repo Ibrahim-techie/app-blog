@@ -6,7 +6,7 @@ const compact = new Intl.NumberFormat("en", { notation: "compact" });
 
 /**
  * Cover, portrait, name, bio, Edit Profile and the real statistics, laid out
- * as in the INK Profile design. Presentational only.
+ * as in the INK v2 Profile design. Presentational only.
  *
  * The design's "Followers / Following" don't exist in this app, so the two
  * slots show likes and comments received instead — both counted from
@@ -24,30 +24,30 @@ function ProfileHeader({ user, onEdit, stats, statsPending, statsError, onRetry 
 
   return (
     <section className="relative">
-      <div className="h-40 overflow-hidden rounded-[2px] bg-ink-surface-2 sm:h-56">
+      <div className="h-40 overflow-hidden rounded-lg bg-ink-surface-2 sm:h-60">
         <img src={coverImage} alt="" className="size-full object-cover" />
       </div>
 
-      <div className="absolute left-6 top-28 flex rounded-full bg-ink-bg p-1 sm:left-8 sm:top-44">
+      <div className="absolute top-28 left-6 flex rounded-full bg-ink-bg p-1 sm:top-48 sm:left-8">
         <UserAvatar
           name={user?.name}
           avatarId={user?.prefs?.avatarId}
           size={96}
-          className="rounded-full bg-ink-sage text-[30px] text-ink-avatar-text"
+          className="rounded-full bg-ink-surface-2 text-[32px] font-semibold tracking-[-0.64px] text-ink-text"
         />
       </div>
 
       <div className="flex flex-col gap-8 pt-20 pb-8 lg:flex-row lg:items-start lg:gap-14 lg:pt-16">
         <div className="flex min-w-0 flex-1 flex-col gap-3">
-          <h1 className="break-words text-[36px] font-extrabold leading-[1.05] tracking-[-1.44px] text-ink-text sm:text-[44px] sm:tracking-[-1.76px]">
+          <h1 className="break-words text-[32px] font-semibold leading-[1.1] tracking-[-0.64px] text-ink-text">
             {user?.name || "Unnamed writer"}
           </h1>
           {bio ? (
-            <p className="max-w-[650px] whitespace-pre-line text-[15px] leading-[1.6] text-ink-text-2">
+            <p className="max-w-[650px] whitespace-pre-line font-serif text-[17px] leading-[1.6] text-ink-text-2">
               {bio}
             </p>
           ) : (
-            <p className="text-sm text-ink-muted">
+            <p className="text-sm text-ink-text-2">
               No bio yet — add one with Edit Profile.
             </p>
           )}
@@ -57,24 +57,24 @@ function ProfileHeader({ user, onEdit, stats, statsPending, statsError, onRetry 
           <button
             type="button"
             onClick={onEdit}
-            className="inline-flex h-11 items-center gap-2.5 self-start rounded-[3px] border border-ink-border-strong bg-ink-primary px-5 text-xs font-extrabold text-ink-on-primary lg:self-end"
+            className="inline-flex h-11 items-center gap-2.5 self-start rounded-lg bg-ink-primary px-5 text-xs font-semibold text-ink-on-primary transition-opacity hover:opacity-90 lg:self-end"
           >
-            <SquarePen size={16} strokeWidth={1.75} aria-hidden="true" />
+            <SquarePen size={16} strokeWidth={1.5} aria-hidden="true" />
             Edit Profile
           </button>
 
           <dl
             aria-label="Profile statistics"
-            className="flex w-full justify-between border-t border-ink-border pt-5"
+            className="flex w-full justify-between gap-4 border-t border-ink-border pt-5"
           >
             {items.map((item) => (
               <div key={item.label} className="flex flex-col gap-1.5">
-                <dd className="order-1 font-mono text-2xl font-medium text-ink-text tabular-nums">
+                <dd className="order-1 text-2xl font-semibold tracking-[-0.24px] text-ink-text tabular-nums">
                   {statsPending || statsError || item.value === undefined
                     ? "—"
                     : compact.format(item.value)}
                 </dd>
-                <dt className="order-2 font-mono text-[10px] text-ink-muted">
+                <dt className="order-2 font-mono text-xs tracking-[0.96px] text-ink-text-2">
                   {item.label}
                 </dt>
               </div>
@@ -86,7 +86,7 @@ function ProfileHeader({ user, onEdit, stats, statsPending, statsError, onRetry 
               <button
                 type="button"
                 onClick={onRetry}
-                className="font-extrabold underline underline-offset-4"
+                className="font-semibold underline underline-offset-4"
               >
                 Retry
               </button>
