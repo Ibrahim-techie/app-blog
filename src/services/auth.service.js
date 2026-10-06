@@ -17,7 +17,13 @@ class AuthService {
         name,
       });
 
-      return await this.logIn({ email: email, password: password });
+      const session = await this.logIn({ email: email, password: password });
+
+      // Prove the inbox is real. Not fatal if it fails — the banner in the
+      // app offers to resend.
+      await this.sendVerification().catch(() => {});
+
+      return session;
     } catch (error) {
       console.error(
         "Account creation failed::createAccount::auth.service.js::error",
@@ -80,6 +86,53 @@ class AuthService {
       return await this.account.updatePrefs({ ...prefs });
     } catch (error) {
       console.log("Error in updatePrefs :: auth.service.js::error", error);
+      throw error;
+    }
+  }
+
+  // Emails a link to /verify. Appwrite appends ?userId=…&secret=… to it.
+  async sendVerification() {
+    try {
+      return await this.account.createVerification({
+        url: `${window.location.origin}/verify`,
+      });
+    } catch (error) {
+      console.log("Error in sendVerification :: auth.service.js::error", error);
+      throw error;
+    }
+  }
+
+  // Completes verification from the link's userId and secret.
+  async confirmVerification({ userId, secret }) {
+    try {
+      return await this.account.updateVerification({ userId, secret });
+    } catch (error) {
+      console.log("Error in confirmVerification :: auth.service.js::error", error);
+      throw error;
+    }
+  }
+
+  // Emails a password-reset link to /reset-password; Appwrite appends
+  // ?userId=…&secret=…. Throws 404 for an unknown address.
+  async sendRecovery(email) {
+    try {
+      return await this.account.createRecovery({
+        email,
+        url: `${window.location.origin}/reset-password`,
+      });
+    } catch (error) {
+      console.log("Error in sendRecovery :: auth.service.js::error", error);
+      throw error;
+    }
+  }
+
+  // Sets the new password from the link's userId and secret. Works without
+  // being signed in.
+  async resetPassword({ userId, secret, password }) {
+    try {
+      return await this.account.updateRecovery({ userId, secret, password });
+    } catch (error) {
+      console.log("Error in resetPassword :: auth.service.js::error", error);
       throw error;
     }
   }
