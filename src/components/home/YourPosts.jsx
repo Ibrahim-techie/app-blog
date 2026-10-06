@@ -103,28 +103,28 @@ function YourPosts({ userId }) {
   const isCountKnown = !isDebouncing && !isTooShort && !active.isPending;
 
   return (
-    <section aria-labelledby="your-posts-title" className="border-t border-ink-border pt-10">
+    <section aria-labelledby="your-posts-title">
       <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="font-mono text-[10px] leading-[1.5] tracking-[0.3px] text-ink-brand">
-            YOUR DASHBOARD
+          <p className="text-xs font-semibold uppercase text-ink-text-2">
+            Your dashboard
           </p>
           <h2
             id="your-posts-title"
-            className="mt-3 text-[24px] font-bold tracking-[-0.6px] text-ink-text sm:text-[30px]"
+            className="mt-3 text-2xl font-semibold tracking-[-0.64px] text-ink-text sm:text-[32px]"
           >
-            YOUR POSTS
+            Your posts
           </h2>
-          <p className="mt-2 text-[15px] leading-[1.65] text-ink-text-2">
+          <p className="mt-2 font-serif text-[17px] leading-[1.6] text-ink-text-2">
             Manage, organize and read the content you&apos;ve created.
           </p>
         </div>
 
         <div className="w-fit">
-          <p className="font-mono text-[10px] tracking-[0.3px] text-ink-muted">
+          <p className="font-mono text-xs tracking-[0.96px] text-ink-text-2">
             SHOWING
           </p>
-          <p className="mt-0.5 text-xl font-extrabold text-ink-text tabular-nums">
+          <p className="mt-0.5 text-xl font-semibold text-ink-text tabular-nums">
             {isCountKnown ? (
               <>
                 {posts.length}
@@ -144,7 +144,7 @@ function YourPosts({ userId }) {
         <div
           role="group"
           aria-label="Post status"
-          className="inline-flex w-fit rounded-[3px] border border-ink-border bg-ink-surface p-1"
+          className="inline-flex w-fit rounded-lg border border-ink-border bg-ink-surface p-1"
         >
           {STATUS_TABS.map((status) => (
             <button
@@ -152,7 +152,7 @@ function YourPosts({ userId }) {
               type="button"
               aria-pressed={postStatus === status}
               onClick={() => setPostStatus(status)}
-              className={`h-9 rounded-[2px] px-4 text-xs font-extrabold capitalize transition-colors ${
+              className={`h-9 rounded-lg px-4 text-xs font-semibold capitalize transition-colors ${
                 postStatus === status
                   ? "bg-ink-sage text-ink-on-sage"
                   : "text-ink-text-2 hover:text-ink-text"
@@ -178,7 +178,7 @@ function YourPosts({ userId }) {
               <span className="font-semibold">{postStatus} </span>
             )}
             posts for{" "}
-            <span className="font-extrabold text-ink-text">
+            <span className="font-semibold text-ink-text">
               &quot;{search}&quot;
             </span>
           </p>
@@ -187,7 +187,7 @@ function YourPosts({ userId }) {
         )}
 
         {isRefreshing && (
-          <span className="flex shrink-0 items-center gap-2 font-mono text-[10px] tracking-[0.3px] text-ink-muted">
+          <span className="flex shrink-0 items-center gap-2 font-mono text-xs tracking-[0.96px] text-ink-text-2">
             <span className="size-1.5 animate-pulse bg-ink-brand" />
             UPDATING
           </span>

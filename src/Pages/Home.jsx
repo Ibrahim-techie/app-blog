@@ -14,15 +14,17 @@ function Home() {
   const isSignedIn = authStatus && Boolean(userId);
 
   return (
-    <div className="flex flex-col gap-10 px-5 py-8 sm:p-10">
+    <div className="mx-auto flex w-full max-w-[1216px] flex-col gap-16 px-5 py-8 sm:p-12 lg:gap-24">
       <HomeHero />
-
-      <div className="flex flex-col gap-8 xl:flex-row xl:items-start">
-        <FeaturedArticles />
-        <CommunityPanel />
-      </div>
+      <FeaturedArticles />
+      <CommunityPanel />
 
       {isSignedIn && <YourPosts userId={userId} />}
+
+      <footer className="flex justify-between gap-4 border-t border-ink-border pt-8 text-xs text-ink-text-2">
+        <p>© {new Date().getFullYear()} INK</p>
+        <p>Independent voices. Fresh perspectives.</p>
+      </footer>
     </div>
   );
 }
