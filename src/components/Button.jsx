@@ -10,7 +10,7 @@ function Button({
 }) {
   return (
     <button
-      className={`inline-flex h-11 items-center justify-center gap-2 rounded-[3px] px-5 text-xs font-extrabold transition-opacity disabled:cursor-not-allowed disabled:opacity-60 ${bgColor} ${textColor} ${className}`}
+      className={`inline-flex h-11 items-center justify-center gap-2 rounded-lg px-5 text-xs font-semibold transition-opacity disabled:cursor-not-allowed disabled:opacity-60 ${bgColor} ${textColor} ${className}`}
       type={type}
       {...props}
     >

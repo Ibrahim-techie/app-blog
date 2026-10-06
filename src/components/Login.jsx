@@ -59,11 +59,11 @@ function Login() {
 
   return (
     <div className="w-full max-w-[440px]">
-      <div className="rounded-[2px] border border-ink-border bg-ink-surface p-8 sm:p-10">
-        <p className="font-mono text-[10px] leading-[1.5] tracking-[0.3px] text-ink-brand">
+      <div className="rounded-lg border border-ink-border bg-ink-surface p-8 sm:p-10">
+        <p className="font-mono text-xs leading-[1.5] tracking-[0.96px] text-ink-text-2">
           WELCOME BACK
         </p>
-        <h1 className="mt-3 text-[32px] font-extrabold leading-[1.02] tracking-[-1.6px] text-ink-text">
+        <h1 className="mt-3 text-[32px] font-semibold leading-[1.02] tracking-[-1.6px] text-ink-text">
           SIGN IN TO INK.
         </h1>
 
@@ -71,7 +71,7 @@ function Login() {
           Don&apos;t have an account?&nbsp;
           <Link
             to="/signup"
-            className="font-extrabold text-ink-brand underline underline-offset-4"
+            className="font-semibold text-ink-brand underline underline-offset-4"
           >
             Sign Up
           </Link>
@@ -79,7 +79,7 @@ function Login() {
 
         {/* Redirect message */}
         {message && (
-          <p className="mt-5 rounded-[3px] border border-ink-border bg-ink-surface-2 px-3 py-2 text-sm text-ink-text">
+          <p className="mt-5 rounded-lg border border-ink-border bg-ink-surface-2 px-3 py-2 text-sm text-ink-text">
             {message}
           </p>
         )}
@@ -146,7 +146,7 @@ function Login() {
             {/* Google Login */}
             <button
               type="button"
-              className="flex h-11 w-full items-center justify-center gap-3 rounded-[3px] border border-ink-border bg-ink-bg text-xs font-extrabold text-ink-text transition-colors hover:border-ink-border-strong"
+              className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-ink-border bg-ink-bg text-xs font-semibold text-ink-text transition-colors hover:border-ink-border-strong"
               onClick={handleGoogleLogin}
             >
               <GoogleIcon className="h-6 w-6" />

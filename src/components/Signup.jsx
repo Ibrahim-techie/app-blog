@@ -40,18 +40,18 @@ function Signup() {
 
   return (
     <div className="w-full max-w-[440px]">
-      <div className="rounded-[2px] border border-ink-border bg-ink-surface p-8 sm:p-10">
-        <p className="font-mono text-[10px] leading-[1.5] tracking-[0.3px] text-ink-brand">
+      <div className="rounded-lg border border-ink-border bg-ink-surface p-8 sm:p-10">
+        <p className="font-mono text-xs leading-[1.5] tracking-[0.96px] text-ink-text-2">
           JOIN THE COMMUNITY
         </p>
-        <h1 className="mt-3 text-[32px] font-extrabold leading-[1.02] tracking-[-1.6px] text-ink-text">
+        <h1 className="mt-3 text-[32px] font-semibold leading-[1.02] tracking-[-1.6px] text-ink-text">
           CREATE YOUR ACCOUNT.
         </h1>
         <p className="mt-3 text-sm text-ink-text-2">
           Already have an account?&nbsp;
           <Link
             to="/login"
-            className="font-extrabold text-ink-brand underline underline-offset-4"
+            className="font-semibold text-ink-brand underline underline-offset-4"
           >
             Sign In
           </Link>
@@ -118,7 +118,7 @@ function Signup() {
 
           <div className="flex items-center gap-3">
             <span className="h-px flex-1 bg-ink-border" />
-            <span className="font-mono text-[10px] tracking-[0.3px] text-ink-muted">
+            <span className="font-mono text-xs tracking-[0.96px] text-ink-text-2">
               OR
             </span>
             <span className="h-px flex-1 bg-ink-border" />
@@ -126,7 +126,7 @@ function Signup() {
 
           <button
             type="button"
-            className="flex h-11 w-full items-center justify-center gap-3 rounded-[3px] border border-ink-border bg-ink-bg text-xs font-extrabold text-ink-text transition-colors hover:border-ink-border-strong"
+            className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-ink-border bg-ink-bg text-xs font-semibold text-ink-text transition-colors hover:border-ink-border-strong"
             onClick={() => {
               console.log("Google button clicked");
               authService.signInwithGoogle();

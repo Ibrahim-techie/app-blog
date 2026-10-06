@@ -12,7 +12,7 @@ function Select({ options, label, placeholder, className = "", ...props }, ref) 
       {label && (
         <label
           htmlFor={id}
-          className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.3px] text-ink-muted"
+          className="mb-1.5 block font-mono text-xs uppercase tracking-[0.96px] text-ink-text-2"
         >
           {label}
         </label>
@@ -21,7 +21,7 @@ function Select({ options, label, placeholder, className = "", ...props }, ref) 
         {...props}
         id={id}
         ref={ref}
-        className={`h-11 w-full rounded-[3px] border border-ink-border bg-ink-bg px-3 text-sm capitalize text-ink-text outline-none transition-colors focus:border-ink-border-strong aria-[invalid=true]:border-ink-error ${className}`}
+        className={`h-11 w-full rounded-lg border border-ink-border bg-ink-bg px-3 text-sm capitalize text-ink-text outline-none transition-colors focus:border-ink-border-strong aria-[invalid=true]:border-ink-error ${className}`}
       >
         {placeholder && <option value="">{placeholder}</option>}
         {options?.map((option) => {
