@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import { useQuery } from "@tanstack/react-query";
 import useSavedPosts from "../customHooks/useSavedPosts";
 import savedservice from "../services/saved.service";
+import postservice from "../services/Post.service";
+import { excerpt, readingMinutes } from "../utils/postText";
 import { categoryLabel } from "../constants/categories";
 import CardGrid from "../components/feed/CardGrid";
 import { FeedToolbar } from "../components/feed/FeedToolbar";
@@ -21,6 +23,37 @@ const SORT_OPTIONS = [
   { value: "desc", label: "Recently saved" },
   { value: "asc", label: "Oldest saved" },
 ];
+
+/**
+ * Shown under the empty state: the three newest published articles. Shares
+ * Home's "featured" query, so it's usually already cached.
+ */
+function SuggestedPosts() {
+  const newest = useQuery({
+    queryKey: ["posts", "featured"],
+    queryFn: () => postservice.getFeaturedPosts(3),
+    staleTime: 60_000,
+  });
+
+  if (!newest.data?.length) return null;
+
+  const rows = newest.data.map(({ content, ...post }) => ({
+    ...post,
+    excerpt: excerpt(content),
+    readingMinutes: readingMinutes(content),
+  }));
+
+  return (
+    <section aria-labelledby="suggested-title" className="flex flex-col gap-6 pt-4">
+      <SectionHeading
+        id="suggested-title"
+        title="Suggested for you"
+        meta="NEWEST ON INK"
+      />
+      <CardGrid pages={[rows]} wideFirst={false} />
+    </section>
+  );
+}
 
 function SavedPosts() {
   const userId = useSelector((state) => state.auth.userData?.$id);
@@ -81,9 +114,9 @@ function SavedPosts() {
   const count = savedCount.data;
 
   return (
-    <div className="flex flex-col gap-8 px-5 py-8 sm:p-10">
+    <div className="mx-auto flex w-full max-w-[1216px] flex-col gap-8 px-5 py-8 sm:p-10">
       <div className="flex flex-col gap-6">
-        <PageHero title="BOOKMARKS.">Save ideas worth coming back to.</PageHero>
+        <PageHero title="Bookmarks.">Save ideas worth coming back to.</PageHero>
         {!isEmpty && (
           <FeedToolbar
             category={category}
@@ -98,7 +131,7 @@ function SavedPosts() {
       <section aria-labelledby="saved-title" className="flex flex-col gap-6">
         <SectionHeading
           id="saved-title"
-          title={label ? `SAVED · ${label.toUpperCase()}` : "SAVED POSTS"}
+          title={label ? `Saved · ${label}` : "Saved posts"}
           meta={
             count === undefined
               ? null
@@ -121,11 +154,12 @@ function SavedPosts() {
           />
         ) : isEmpty ? (
           <FeedEmpty
+            icon="bookmark"
             title="No saved posts yet."
             action={{ to: "/all-posts", label: "Explore Posts" }}
           >
             Bookmark articles you want to read later and they&apos;ll appear
-            here. Only you can see this list.
+            here.
           </FeedEmpty>
         ) : visibleCount === 0 && !hasNextPage ? (
           <StateCard kind="empty" title={`No saved ${label} posts`}>
@@ -140,6 +174,8 @@ function SavedPosts() {
         {!hasNextPage && !isFetchingNextPage && visibleCount > 0 && <FeedEnd />}
 
         <div ref={loaderRef} className="h-10" />
+
+        {isEmpty && <SuggestedPosts />}
 
         {!isEmpty && (
           <EditorialNote
