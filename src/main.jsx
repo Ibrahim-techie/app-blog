@@ -15,6 +15,8 @@ import Home from "./Pages/Home";
 import SavedPosts from "./Pages/SavedPosts.jsx";
 import Profile from "./Pages/Profile.jsx";
 import Verify from "./Pages/Verify.jsx";
+import ForgotPassword from "./Pages/ForgotPassword.jsx";
+import ResetPassword from "./Pages/ResetPassword.jsx";
 import VerifiedOnly from "./components/VerifiedOnly.jsx";
 import { Authlayout } from "./components/index.js";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
@@ -104,6 +106,16 @@ const router = createBrowserRouter([
             </VerifiedOnly>
           </Authlayout>
         ),
+      },
+      {
+        path: "forgot-password",
+        element: <ForgotPassword />,
+      },
+      {
+        // The link in the password-reset email lands here. Not behind
+        // Authlayout: it must work whether or not you're signed in.
+        path: "reset-password",
+        element: <ResetPassword />,
       },
       {
         // The link in the verification email lands here.

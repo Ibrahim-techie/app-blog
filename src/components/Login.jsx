@@ -136,6 +136,12 @@ function Login() {
                   {errors.password.message}
                 </p>
               )}
+              <Link
+                to="/forgot-password"
+                className="mt-2 inline-block text-xs font-semibold text-ink-text-2 underline-offset-4 hover:text-ink-text hover:underline"
+              >
+                Forgot password?
+              </Link>
             </div>
 
             {/* Email Login */}

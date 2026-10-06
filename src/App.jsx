@@ -12,7 +12,7 @@ import useTheme from "./customHooks/useTheme";
 import useProfileSync from "./customHooks/useProfileSync";
 import VerifyEmailNotice from "./components/VerifyEmailNotice";
 
-const AUTH_PAGES = ["/login", "/signup"];
+const AUTH_PAGES = ["/login", "/signup", "/forgot-password", "/reset-password"];
 
 function App() {
   const [loading, setloading] = useState(true);
