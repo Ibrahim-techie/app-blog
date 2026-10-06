@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Menu, Search } from "lucide-react";
+import { Bell, Menu, Search } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import UserMenu from "./UserMenu";
 
@@ -9,7 +9,8 @@ const IS_MAC =
   typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
 
 /**
- * The INK header: search, theme switch and the account controls.
+ * The INK header: search, notifications (disabled), theme switch and the
+ * account controls.
  *
  * Searching hands off to Explore (`/all-posts?q=…`), which already owns
  * debounced title search with infinite scroll — this box is a shortcut to
@@ -47,7 +48,7 @@ function TopBar({ onOpenMenu }) {
         type="button"
         onClick={onOpenMenu}
         aria-label="Open menu"
-        className="inline-flex size-9 shrink-0 items-center justify-center rounded-[3px] text-ink-text hover:bg-ink-surface-2 lg:hidden"
+        className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-ink-text hover:bg-ink-surface-2 lg:hidden"
       >
         <Menu size={22} strokeWidth={1.75} aria-hidden="true" />
       </button>
@@ -55,7 +56,7 @@ function TopBar({ onOpenMenu }) {
       <form
         role="search"
         onSubmit={submit}
-        className="flex h-11 min-w-0 flex-1 items-center gap-3 rounded-[3px] border border-ink-border bg-ink-surface px-4 focus-within:border-ink-border-strong lg:w-[492px] lg:flex-none"
+        className="flex h-11 min-w-0 flex-1 items-center gap-3 rounded-lg border border-ink-border bg-ink-surface px-4 focus-within:border-ink-border-strong lg:w-[492px] lg:flex-none"
       >
         <Search
           size={17}
@@ -70,29 +71,40 @@ function TopBar({ onOpenMenu }) {
           onChange={(event) => setTerm(event.target.value)}
           placeholder="Search articles by title..."
           aria-label="Search articles"
-          className="min-w-0 flex-1 bg-transparent font-mono text-[11px] text-ink-text outline-none placeholder:text-ink-muted"
+          className="min-w-0 flex-1 bg-transparent font-mono text-xs tracking-[0.96px] text-ink-text outline-none placeholder:text-ink-text-2 [&::-webkit-search-cancel-button]:hidden"
         />
-        <kbd className="hidden shrink-0 font-mono text-[11px] leading-[1.5] tracking-[0.33px] text-ink-muted sm:block">
+        <kbd className="hidden shrink-0 font-mono text-xs leading-[1.4] tracking-[0.96px] text-ink-text-2 sm:block">
           {IS_MAC ? "⌘ K" : "Ctrl K"}
         </kbd>
       </form>
 
-      <div className="flex shrink-0 items-center gap-3 sm:gap-6">
+      <div className="flex shrink-0 items-center gap-2 sm:gap-4">
+        {/* In the design, but the app has no notifications yet — shown
+            disabled rather than left out or wired to nothing. */}
+        <button
+          type="button"
+          disabled
+          aria-label="Notifications (coming soon)"
+          title="Notifications are coming soon"
+          className="hidden size-9 cursor-not-allowed items-center justify-center rounded-lg text-ink-muted sm:inline-flex"
+        >
+          <Bell size={22} strokeWidth={1.5} aria-hidden="true" />
+        </button>
         <ThemeToggle />
-        <span aria-hidden="true" className="hidden h-7 w-px bg-ink-border sm:block" />
+        <span aria-hidden="true" className="mx-1 hidden h-7 w-px bg-ink-border sm:block" />
         {authStatus ? (
           <UserMenu />
         ) : (
           <div className="flex items-center gap-2">
             <Link
               to="/login"
-              className="inline-flex h-9 items-center rounded-[3px] border border-ink-border bg-ink-surface px-3 text-xs font-extrabold text-ink-text transition-colors hover:border-ink-border-strong sm:px-4"
+              className="inline-flex h-9 items-center rounded-lg border border-ink-border bg-ink-surface px-3 text-xs font-semibold text-ink-text transition-colors hover:bg-ink-surface-2 sm:px-4"
             >
               Sign in
             </Link>
             <Link
               to="/signup"
-              className="hidden h-9 items-center rounded-[3px] border border-ink-border-strong bg-ink-primary px-4 text-xs font-extrabold text-ink-on-primary sm:inline-flex"
+              className="hidden h-9 items-center rounded-lg bg-ink-primary px-4 text-xs font-semibold text-ink-on-primary transition-opacity hover:opacity-90 sm:inline-flex"
             >
               Sign up
             </Link>
