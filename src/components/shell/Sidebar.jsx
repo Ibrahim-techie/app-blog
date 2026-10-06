@@ -24,7 +24,7 @@ const NAV_ITEMS = [
 ];
 
 /**
- * The INK sidebar. A fixed 205px column on desktop; below `lg` it becomes a
+ * The INK sidebar. A fixed 240px column on desktop; below `lg` it becomes a
  * drawer that `open` slides in and any navigation closes.
  */
 function Sidebar({ open, onClose }) {
@@ -54,25 +54,25 @@ function Sidebar({ open, onClose }) {
       <aside
         aria-label="Main"
         // Desktop: pinned to the viewport, as the design's fixed-height
-        // "Sidebar content" block is — so the writing prompt never moves while
-        // infinite scroll grows the page. Every section keeps its full height;
-        // when the window is shorter than the sidebar, the sidebar itself
-        // scrolls (thin scrollbar, so that's discoverable).
+        // sidebar is — so the writing prompt never moves while infinite
+        // scroll grows the page. Every section keeps its full height; when
+        // the window is shorter than the sidebar, the sidebar itself scrolls
+        // (thin scrollbar, so that's discoverable).
         // Below lg: the same column as a fixed drawer.
-        className={`fixed inset-y-0 left-0 z-50 flex w-[205px] shrink-0 flex-col gap-6 overflow-y-auto border-r border-ink-border bg-ink-sidebar px-5 py-8 transition-transform duration-200 [scrollbar-color:var(--ink-border)_transparent] [scrollbar-width:thin] lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:self-start lg:translate-x-0 lg:transition-none ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[240px] shrink-0 flex-col gap-10 overflow-y-auto border-r border-ink-border bg-ink-sidebar px-6 py-8 transition-transform duration-200 [scrollbar-color:var(--ink-border-strong)_transparent] [scrollbar-width:thin] lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:self-start lg:translate-x-0 lg:transition-none ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <Link
           to="/"
           onClick={onClose}
-          className="flex h-[60px] shrink-0 items-start"
+          className="flex shrink-0 items-center self-start rounded-lg"
           aria-label="INK home"
         >
           <InkLogo />
         </Link>
 
-        <nav className="flex shrink-0 flex-col gap-2 pt-5 pb-8">
+        <nav className="flex shrink-0 flex-col gap-2">
           {NAV_ITEMS.filter((item) => !item.auth || authStatus).map(
             ({ label, to, icon: Icon, end }) => (
               <NavLink
@@ -81,45 +81,60 @@ function Sidebar({ open, onClose }) {
                 end={end}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `flex h-12 items-center gap-3.5 rounded-[3px] px-3 text-[13px] transition-colors ${
+                  `relative flex h-12 items-center gap-4 rounded-lg px-4 text-sm text-ink-text transition-colors ${
                     isActive
-                      ? "bg-ink-sage font-extrabold text-ink-on-sage"
-                      : "font-semibold text-ink-text hover:bg-ink-surface-2"
+                      ? "bg-ink-surface-2 font-semibold"
+                      : "hover:bg-ink-surface-2"
                   }`
                 }
               >
-                <Icon size={18} strokeWidth={1.75} aria-hidden="true" />
-                {label}
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute top-4 left-0 h-4 w-0.5 bg-ink-text"
+                      />
+                    )}
+                    <Icon size={20} strokeWidth={1.5} aria-hidden="true" />
+                    {label}
+                  </>
+                )}
               </NavLink>
             ),
           )}
         </nav>
 
-        <div className="h-px shrink-0 bg-ink-border" />
-
-        <div className="flex shrink-0 flex-col gap-6 pl-3 pt-8">
-          <p className="font-mono text-[10px] leading-[1.5] tracking-[0.3px] text-ink-muted">
-            YOUR CURIOSITIES
+        <div className="flex shrink-0 flex-col gap-5 border-t border-ink-border pt-8">
+          <p className="text-xs font-semibold uppercase text-ink-text-2">
+            Your curiosities
           </p>
-          {CATEGORIES.map((category) => (
-            <Link
-              key={category.key}
-              to={`/all-posts?category=${category.key}`}
-              onClick={onClose}
-              aria-current={activeCategory === category.key ? "page" : undefined}
-              className={`text-xs font-semibold transition-colors hover:text-ink-text ${
-                activeCategory === category.key
-                  ? "text-ink-text underline underline-offset-4"
-                  : "text-ink-text-2"
-              }`}
-            >
-              {category.label}
-            </Link>
-          ))}
+          {/* The design stacks five chips; with all eight categories they
+              wrap instead, so the writing prompt stays reachable. */}
+          <div className="flex flex-wrap gap-x-2 gap-y-3">
+            {CATEGORIES.map((category) => {
+              const active = activeCategory === category.key;
+              return (
+                <Link
+                  key={category.key}
+                  to={`/all-posts?category=${category.key}`}
+                  onClick={onClose}
+                  aria-current={active ? "page" : undefined}
+                  className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+                    active
+                      ? "border-ink-border-strong bg-ink-surface-2 text-ink-text"
+                      : "border-ink-border bg-ink-sidebar text-ink-text-2 hover:bg-ink-surface-2 hover:text-ink-text"
+                  }`}
+                >
+                  {category.label}
+                </Link>
+              );
+            })}
+          </div>
           <Link
             to="/all-posts"
             onClick={onClose}
-            className="flex items-center gap-2 text-[11px] font-extrabold text-ink-brand hover:underline"
+            className="flex items-center gap-1 self-start text-sm text-ink-text hover:underline"
           >
             All topics
             <ArrowUpRight size={14} strokeWidth={1.75} aria-hidden="true" />
@@ -128,25 +143,25 @@ function Sidebar({ open, onClose }) {
 
         <div aria-hidden="true" className="min-h-0 flex-1" />
 
-        <Link
-          to="/add-post"
-          onClick={onClose}
-          className="flex shrink-0 flex-col gap-4 rounded-[3px] border border-ink-border bg-ink-surface-2 p-5 transition-colors hover:border-ink-border-strong"
-        >
-          <PenLine size={22} strokeWidth={1.5} aria-hidden="true" />
-          <span className="text-base font-extrabold leading-[1.3] text-ink-text">
-            Your next idea
-            <br />
-            starts here.
-          </span>
-          <span className="text-[11px] leading-[1.6] text-ink-text-2">
-            A blank page. A fresh perspective. Make it yours.
-          </span>
-        </Link>
+        <div className="flex shrink-0 flex-col gap-6">
+          <Link
+            to="/add-post"
+            onClick={onClose}
+            className="flex flex-col gap-4 rounded-lg bg-ink-surface-2 p-6 transition-colors hover:bg-ink-sage-hover"
+          >
+            <PenLine size={20} strokeWidth={1.5} aria-hidden="true" />
+            <span className="text-xl font-semibold leading-[1.25] text-ink-text">
+              Your next idea starts here.
+            </span>
+            <span className="font-serif text-[17px] leading-[1.6] text-ink-text-2">
+              A blank page. A fresh perspective. Make it yours.
+            </span>
+          </Link>
 
-        <p className="shrink-0 pt-7 font-mono text-[9px] leading-[2.5] text-ink-muted">
-          © {new Date().getFullYear()} INK
-        </p>
+          <p className="text-xs leading-[1.6] text-ink-text-2">
+            © {new Date().getFullYear()} INK
+          </p>
+        </div>
       </aside>
     </>
   );
