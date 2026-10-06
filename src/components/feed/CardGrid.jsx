@@ -7,17 +7,17 @@ import { PostGrid } from "./FeedStates";
  * state (useCardMeta), so loading page 4 never refetches pages 1–3.
  * `display: contents` lets the cards sit directly in the parent grid.
  */
-function CardPage({ posts, showSave }) {
+function CardPage({ posts, showSave, leadWide }) {
   const ids = posts.map((post) => post.$id);
   const meta = useCardMeta(ids);
 
   return (
     <div className="contents">
-      {posts.map((post) => (
+      {posts.map((post, index) => (
         <Postcard
           key={post.$id}
           {...post}
-          variant="grid"
+          variant={leadWide && index === 0 ? "wide" : "grid"}
           showSave={showSave}
           // null = still loading (shows "—"); a number once counted.
           likes={meta.data ? meta.data.likes[post.$id] ?? 0 : null}
@@ -28,8 +28,11 @@ function CardPage({ posts, showSave }) {
   );
 }
 
-/** The INK four-up grid for an infinite feed, given its loaded pages. */
-function CardGrid({ pages, showSave = true }) {
+/**
+ * The INK three-up grid for an infinite feed, given its loaded pages. The
+ * very first card spans two columns, as in the v2 designs.
+ */
+function CardGrid({ pages, showSave = true, wideFirst = true }) {
   return (
     <PostGrid>
       {pages.map((posts, index) =>
@@ -38,6 +41,7 @@ function CardGrid({ pages, showSave = true }) {
             key={posts[0].$id + index}
             posts={posts}
             showSave={showSave}
+            leadWide={wideFirst && index === 0}
           />
         ) : null,
       )}
