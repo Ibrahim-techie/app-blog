@@ -4,15 +4,19 @@ import { useSelector } from "react-redux";
 import config from "../Config/Config";
 
 // The editor page is an iframe and can't read the app's CSS variables, so the
-// INK surface and text colours are passed in directly for each theme.
+// INK v2 surface and text colours are passed in directly for each theme.
 const PAGE = {
-  light: { background: "#faf9f5", text: "#111412" },
-  dark: { background: "#2d3b35", text: "#f3f1ea" },
+  light: { background: "#faf9f5", text: "#1c2420", soft: "rgba(28,36,32,0.72)" },
+  dark: { background: "#252f29", text: "#eceae3", soft: "rgba(236,234,227,0.72)" },
 };
 
-const contentStyle = ({ background, text }) =>
-  "@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap');" +
-  `body { font-family: Manrope, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.7; background: ${background}; color: ${text}; margin: 24px 32px; }`;
+// Body copy in Newsreader and headings in Inter, as on the published post.
+const contentStyle = ({ background, text, soft }) =>
+  "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@600&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap');" +
+  `body { font-family: Newsreader, Georgia, serif; font-size: 19px; line-height: 1.6; background: ${background}; color: ${soft}; margin: 24px 48px; }` +
+  `h1, h2, h3, h4 { font-family: Inter, Helvetica, Arial, sans-serif; font-weight: 600; color: ${text}; letter-spacing: -0.02em; }` +
+  `blockquote { border-left: 2px solid ${soft}; margin-left: 0; padding-left: 1em; font-style: italic; color: ${text}; }` +
+  `.mce-content-body[data-mce-placeholder]:not(.mce-visualblocks)::before { color: ${soft}; }`;
 
 function RTE({ name, control, defaultValue = "", label, ...props }) {
   // The skin is chosen once, when the editor mounts — TinyMCE can't re-skin a
@@ -22,7 +26,7 @@ function RTE({ name, control, defaultValue = "", label, ...props }) {
   return (
     <div>
       {label && (
-        <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.3px] text-ink-muted">
+        <p className="mb-1.5 font-mono text-xs uppercase tracking-[0.96px] text-ink-text-2">
           {label}
         </p>
       )}

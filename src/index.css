@@ -163,6 +163,53 @@ body {
   border-radius: 0;
 }
 
+/*
+ * The toolbar in INK colours. TinyMCE's own skins (oxide / oxide-dark) are
+ * blue-grey, and they set backgrounds with images too, hence the shorthand
+ * and !important.
+ */
+.ink-editor .tox .tox-editor-header,
+.ink-editor .tox .tox-toolbar,
+.ink-editor .tox .tox-toolbar__primary,
+.ink-editor .tox .tox-toolbar__overflow {
+  background: var(--ink-surface-2) !important;
+}
+.ink-editor .tox:not(.tox-tinymce-inline) .tox-editor-header {
+  border-bottom: 1px solid var(--ink-border);
+  box-shadow: none;
+  padding: 0;
+}
+.ink-editor .tox .tox-toolbar__group:not(:last-of-type) {
+  border-right: 1px solid var(--ink-border);
+}
+.ink-editor .tox .tox-tbtn {
+  color: var(--ink-text);
+  background: transparent;
+  border-radius: 6px;
+}
+.ink-editor .tox .tox-tbtn svg {
+  fill: var(--ink-text-2);
+}
+.ink-editor .tox .tox-tbtn:hover,
+.ink-editor .tox .tox-tbtn:focus,
+.ink-editor .tox .tox-tbtn--enabled,
+.ink-editor .tox .tox-tbtn--enabled:hover {
+  background: var(--ink-sage-hover);
+  color: var(--ink-text);
+}
+.ink-editor .tox .tox-tbtn:hover svg,
+.ink-editor .tox .tox-tbtn--enabled svg {
+  fill: var(--ink-text);
+}
+.ink-editor .tox .tox-tbtn--disabled svg,
+.ink-editor .tox .tox-tbtn:disabled svg {
+  fill: var(--ink-muted);
+}
+.ink-editor .tox .tox-edit-area::before {
+  border-color: var(--ink-border-strong);
+  border-radius: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .morph-loading-shape {
     animation: none !important;
