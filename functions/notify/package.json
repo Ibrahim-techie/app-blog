@@ -1,0 +1,11 @@
+{
+  "name": "notify",
+  "version": "1.0.0",
+  "description": "Appwrite Function: tells a post's author when someone likes or comments on it.",
+  "type": "module",
+  "main": "src/main.js",
+  "private": true,
+  "dependencies": {
+    "node-appwrite": "^29.1.0"
+  }
+}

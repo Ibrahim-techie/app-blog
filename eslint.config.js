@@ -20,4 +20,9 @@ export default defineConfig([
     },
   },
   ...pluginQuery.configs['flat/recommended'],
+  // Appwrite Functions run on Node, not in the browser.
+  {
+    files: ['functions/**/*.js'],
+    languageOptions: { globals: globals.node },
+  },
 ])
