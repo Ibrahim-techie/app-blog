@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Bell, Menu, Search, X } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import InkLogo from "../InkLogo";
+import NotificationBell from "./NotificationBell";
 import ThemeToggle from "./ThemeToggle";
 import UserMenu from "./UserMenu";
 
@@ -11,7 +12,7 @@ const IS_MAC =
   /Mac|iPhone|iPad/.test(navigator.platform);
 
 /**
- * The INK header: search, notifications (disabled), theme switch and the
+ * The INK header: search, notifications, theme switch and the
  * account controls.
  *
  * Searching hands off to Explore (`/all-posts?q=…`), which already owns
@@ -126,17 +127,7 @@ function TopBar({ onOpenMenu }) {
         >
           <Search size={20} strokeWidth={1.75} aria-hidden="true" />
         </button>
-        {/* In the design, but the app has no notifications yet — shown
-            disabled rather than left out or wired to nothing. */}
-        <button
-          type="button"
-          disabled
-          aria-label="Notifications (coming soon)"
-          title="Notifications are coming soon"
-          className="hidden size-9 cursor-not-allowed items-center justify-center rounded-lg text-ink-muted sm:inline-flex"
-        >
-          <Bell size={22} strokeWidth={1.5} aria-hidden="true" />
-        </button>
+        {authStatus && <NotificationBell />}
         <ThemeToggle />
         <span
           aria-hidden="true"
