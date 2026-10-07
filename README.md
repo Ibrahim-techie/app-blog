@@ -115,7 +115,7 @@ like / comment row created  →  event  →  notify function  →  notification 
 - **Self-actions** are skipped — liking your own post notifies nobody.
 - **Idempotent:** a notification's id comes from the row that caused it
   (`like_<likeId>`), so a redelivered event can't notify twice, and an unlike
-  removes exactly the notification it created.
+  or a deleted comment removes exactly the notification it created.
 - **Decoupled:** if the function fails, the like still stands.
 
 The bell subscribes to the notifications channel over Realtime, which only

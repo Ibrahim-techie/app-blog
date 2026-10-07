@@ -8,6 +8,7 @@ their post. The app never calls it: Appwrite runs it on these row events.
 | `tablesdb.<db>.tables.<likes>.rows.*.create` | Adds `like_<likeId>` for the post's author |
 | `tablesdb.<db>.tables.<likes>.rows.*.delete` | Removes `like_<likeId>` (an unlike) |
 | `tablesdb.<db>.tables.<comments>.rows.*.create` | Adds `comment_<commentId>` with the first 140 characters |
+| `tablesdb.<db>.tables.<comments>.rows.*.delete` | Removes `comment_<commentId>` (a deleted comment) |
 
 Nothing is written when an author likes or comments on their own post. Each
 notification is readable, updatable and deletable by its recipient only, and

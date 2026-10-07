@@ -29,7 +29,8 @@ const isCode = (code) => (error) =>
  *
  * Notification ids come from the row that caused them (`like_<likeId>`,
  * `comment_<commentId>`), so a redelivered event finds the row already there
- * instead of notifying twice, and an unlike knows exactly which one to remove.
+ * instead of notifying twice, and an unlike or a deleted comment knows exactly
+ * which one to remove.
  */
 export default async ({ req, res, log, error }) => {
   const match = ROW_EVENT.exec(req.headers["x-appwrite-event"] ?? "");
