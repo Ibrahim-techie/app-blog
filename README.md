@@ -19,6 +19,7 @@ A full blogging platform built with React 19 and Appwrite: accounts, a rich-text
 - **Search** — debounced full-text search over post titles, scoped to your own posts on the dashboard
 - **Readable URLs** — `/post/how-i-built-this/68c1f2a9e3b4` with automatic redirects when a title changes
 - **Instant navigation** — hovering a post card prefetches it, so opening it is immediate
+- **Notifications** — authors hear about likes and comments on their posts in real time
 - **Dark mode**, responsive layout
 
 ## Tech stack
@@ -93,6 +94,36 @@ Because a draft's readability depends on its status, the permissions are rewritt
 
 → [`src/services/Post.service.js`](src/services/Post.service.js)
 
+### Notifications are written by the server, not the reader
+
+When someone likes or comments on a post, the author should hear about it — but
+the reader's browser can't be trusted to write that notification. It could
+forge one for anybody, and it has no business writing into the author's data.
+
+So the browser only does what it's already allowed to do: create the like or
+the comment. Appwrite emits a row event, and an **Appwrite Function**
+(`functions/notify`) triggered by it looks up the post's author and writes a
+notification that only they can read, mark read or delete. The `notifications`
+table grants nothing to clients, and the function can't be called directly.
+
+```
+like / comment row created  →  event  →  notify function  →  notification row (author only)
+                                                                  ↓ realtime
+                                                           bell badge updates
+```
+
+- **Self-actions** are skipped — liking your own post notifies nobody.
+- **Idempotent:** a notification's id comes from the row that caused it
+  (`like_<likeId>`), so a redelivered event can't notify twice, and an unlike
+  removes exactly the notification it created.
+- **Decoupled:** if the function fails, the like still stands.
+
+The bell subscribes to the notifications channel over Realtime, which only
+delivers rows the user can read, and refetches the unread count when anything
+changes.
+
+→ [`functions/notify`](functions/notify), [`src/customHooks/useNotifications.js`](src/customHooks/useNotifications.js)
+
 ### Uploading an image before saving a post is a transaction
 
 Publishing does two things that can each fail: upload an image to Storage, then write a row to the database. If the upload succeeds and the save fails, the image is stranded in the bucket forever, and a naive `catch` leaves the user staring at a form that did nothing.
@@ -161,8 +192,11 @@ VITE_APPWRITE_PROJECT_ID=
 VITE_APPWRITE_DATABASE_ID=
 VITE_APPWRITE_Table_ID=
 VITE_APPWRITE_BUCKET_ID=
+VITE_APPWRITE_NOTIFICATIONS_TABLE_ID=
 VITE_TINYMCE_API_KEY=
 ```
+
+The full list, with every table id, is in [`.env.sample`](.env.sample).
 
 Anything prefixed `VITE_` is bundled into the client and visible to visitors. That's expected for these — Appwrite protects the project with a domain allowlist and per-row permissions, not by hiding the project ID. **Never put an Appwrite API secret key in a `VITE_` variable.**
 
@@ -179,6 +213,7 @@ Anything prefixed `VITE_` is bundled into the client and visible to visitors. Th
 ## Project structure
 
 ```
+functions/          Appwrite Functions (notify: likes and comments → notifications)
 src/
 ├── Pages/          route-level screens (Home, AllPost, Post, AddPost, EditPost, …)
 ├── components/     reusable UI + the post form
