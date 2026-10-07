@@ -2,6 +2,7 @@ import { Heart } from "lucide-react";
 import { toast } from "sonner";
 import usePostLike from "../../customHooks/usePostLike";
 import useEmailVerification from "../../customHooks/useEmailVerification";
+import { BAR_PILL, barTone } from "../post/barButton";
 
 /**
  * Like / unlike a post. `variant="bar"` is the plain "♡ Like · 124" action
@@ -41,9 +42,7 @@ function LikeButton({ postId, variant = "button" }) {
     return (
       <button
         {...shared}
-        className={`inline-flex items-center gap-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${
-          liked ? "text-ink-brand" : "text-ink-text-2 hover:text-ink-text"
-        }`}
+        className={`${BAR_PILL} ${barTone(liked)}`}
       >
         <Heart
           size={18}
@@ -52,7 +51,7 @@ function LikeButton({ postId, variant = "button" }) {
           aria-hidden="true"
         />
         <span>
-          {liked ? "Liked" : "Like"} ·{" "}
+          <span className="hidden sm:inline">{liked ? "Liked" : "Like"} · </span>
           <span className="tabular-nums">{count}</span>
         </span>
       </button>

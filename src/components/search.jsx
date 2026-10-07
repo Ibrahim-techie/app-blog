@@ -32,7 +32,7 @@ const SearchBar = ({
         className={`w-full rounded-lg border border-ink-border bg-ink-surface text-ink-text outline-none transition-colors placeholder:text-ink-text-2 focus:border-ink-border-strong [&::-webkit-search-cancel-button]:hidden ${
           large
             ? "h-[52px] pl-14 pr-5 font-serif text-[17px]"
-            : "h-11 pl-11 pr-4 font-mono tracking-[0.96px] text-xs"
+            : "h-11 pl-11 pr-4 font-mono tracking-[0.96px] text-base sm:text-xs"
         }`}
       />
     </div>

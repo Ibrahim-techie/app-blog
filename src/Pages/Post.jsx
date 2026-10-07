@@ -5,7 +5,7 @@ import { useNavigate, Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import postservice from "../services/Post.service";
 import commentService from "../services/comment.service";
-import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { Loader, Comments } from "../components";
 import fileservice from "../services/storage.service";
 import AuthorAvatar from "../components/AuthorAvatar";
@@ -115,20 +115,41 @@ function Post() {
 
   const label = categoryLabel(post.category);
   const minutes = readingMinutes(post.content);
+  const isDraft = isUserAuthor && post.status !== "active";
+  // "Oct 7, 2026" — the phone byline, which carries the date in place of
+  // the desktop's mono metadata line.
+  const shortDate = new Date(post.$createdAt).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 
   return (
-    <div className="px-5 py-8 sm:p-10">
+    <div className="px-6 py-6 sm:p-10">
       <div className="mx-auto flex max-w-[1120px] flex-col gap-10 xl:flex-row xl:items-stretch">
-        <article className="flex w-full min-w-0 max-w-[680px] flex-col gap-7">
+        <article className="flex w-full min-w-0 max-w-[680px] flex-col gap-6 sm:gap-7">
           {/* ================= HEADER ================= */}
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <Link
-              to="/all-posts"
-              className="inline-flex items-center gap-2 text-xs font-semibold text-ink-text-2 hover:text-ink-text"
+            <nav
+              aria-label="Breadcrumb"
+              className="flex min-w-0 items-center gap-1.5 text-xs font-semibold text-ink-text-2"
             >
               <ArrowLeft size={14} strokeWidth={2} aria-hidden="true" />
-              Back to Explore
-            </Link>
+              <Link to="/all-posts" className="hover:text-ink-text">
+                Explore
+              </Link>
+              {label && (
+                <>
+                  <ChevronRight size={14} strokeWidth={2} aria-hidden="true" />
+                  <Link
+                    to={`/all-posts?category=${post.category}`}
+                    className="truncate hover:text-ink-text"
+                  >
+                    {label}
+                  </Link>
+                </>
+              )}
+            </nav>
 
             {/* Author actions */}
             {isUserAuthor && (
@@ -152,8 +173,26 @@ function Post() {
             )}
           </div>
 
-          <div className="flex flex-col gap-5 pt-3">
-            <p className="font-mono text-xs leading-[1.5] tracking-[0.96px] text-ink-text-2">
+          <div className="flex flex-col items-start gap-4 sm:gap-5 sm:pt-3">
+            {/* Phones: category (and draft) as pills above the title. */}
+            {(label || isDraft) && (
+              <div className="flex flex-wrap gap-2 sm:hidden">
+                {label && (
+                  <Link
+                    to={`/all-posts?category=${post.category}`}
+                    className="inline-flex h-8 items-center rounded-full bg-ink-accent-soft px-3.5 text-sm font-medium text-ink-text"
+                  >
+                    {label}
+                  </Link>
+                )}
+                {isDraft && (
+                  <span className="inline-flex h-8 items-center rounded-full border border-ink-border px-3.5 text-sm text-ink-text-2">
+                    Draft · only you can see this
+                  </span>
+                )}
+              </div>
+            )}
+            <p className="hidden font-mono text-xs leading-[1.5] tracking-[0.96px] text-ink-text-2 sm:block">
               {label ? (
                 <Link
                   to={`/all-posts?category=${post.category}`}
@@ -165,11 +204,11 @@ function Post() {
                 "ARTICLE"
               )}
               {` · ${longDate(post.$createdAt)} · ${minutes} MIN READ`}
-              {isUserAuthor && post.status !== "active" && (
+              {isDraft && (
                 <span className="text-ink-muted"> · DRAFT — ONLY YOU CAN SEE THIS</span>
               )}
             </p>
-            <h1 className="text-[40px] font-semibold leading-[1.1] tracking-[-1.2px] text-ink-text sm:text-[56px] sm:tracking-[-1.68px]">
+            <h1 className="text-[34px] font-semibold leading-[1.12] tracking-[-1px] text-ink-text sm:text-[56px] sm:leading-[1.1] sm:tracking-[-1.68px]">
               {post.title}
             </h1>
           </div>
@@ -186,8 +225,11 @@ function Post() {
                 <p className="text-sm font-semibold text-ink-text">
                   {post.author || "Anonymous"}
                 </p>
+                <p className="text-xs text-ink-text-2 sm:hidden">
+                  <time dateTime={post.$createdAt}>{shortDate}</time> · {minutes} min read
+                </p>
                 {isUserAuthor && (
-                  <p className="text-xs text-ink-text-2">Your post</p>
+                  <p className="hidden text-xs text-ink-text-2 sm:block">Your post</p>
                 )}
               </div>
             </div>

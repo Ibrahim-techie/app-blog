@@ -2,6 +2,7 @@ import { MessageCircle, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import LikeButton from "../likes/LikeButton";
 import SaveButton from "../saved/SaveButton";
+import { BAR_ICON, BAR_PILL, barTone } from "./barButton";
 
 /**
  * Like · Comment · Bookmark · Share — the 60px action row from the INK post
@@ -33,34 +34,36 @@ function PostActionBar({ post, commentCount }) {
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   return (
-    <div className="flex h-[60px] items-center justify-between gap-4 border-y border-ink-border">
-      <div className="flex items-center gap-7">
+    <div className="flex items-center justify-between gap-3 py-1 sm:h-[60px] sm:gap-4 sm:border-y sm:border-ink-border sm:py-0">
+      <div className="flex items-center gap-2 sm:gap-7">
         <LikeButton postId={post.$id} variant="bar" />
         <button
           type="button"
           onClick={goToComments}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-ink-text-2 transition-colors hover:text-ink-text"
+          aria-label="Go to comments"
+          className={`${BAR_PILL} ${barTone(false)}`}
         >
           <MessageCircle size={18} strokeWidth={1.75} aria-hidden="true" />
           <span>
-            Comment
+            <span className="hidden sm:inline">
+              Comment{commentCount !== undefined && " · "}
+            </span>
             {commentCount !== undefined && (
-              <>
-                {" "}· <span className="tabular-nums">{commentCount}</span>
-              </>
+              <span className="tabular-nums">{commentCount}</span>
             )}
           </span>
         </button>
       </div>
-      <div className="flex items-center gap-7">
+      <div className="flex items-center gap-2 sm:gap-7">
         <SaveButton postId={post.$id} variant="bar" />
         <button
           type="button"
           onClick={share}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-ink-text-2 transition-colors hover:text-ink-text"
+          aria-label="Share this post"
+          className={`${BAR_ICON} ${barTone(false)}`}
         >
           <Share2 size={18} strokeWidth={1.75} aria-hidden="true" />
-          Share
+          <span className="hidden sm:inline">Share</span>
         </button>
       </div>
     </div>

@@ -194,7 +194,7 @@ function Postform({ post }) {
 
   return (
     <form onSubmit={submitAs("active")} noValidate>
-      <div className="mb-7 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+      <div className="mb-6 flex flex-col gap-5 sm:mb-7 sm:gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex flex-col gap-2">
           <h1 className="text-[28px] font-semibold tracking-[-0.64px] text-ink-text sm:text-[32px]">
             {post ? "Edit Post" : "Create a New Post"}
@@ -211,12 +211,12 @@ function Postform({ post }) {
           )}
         </div>
 
-        <div className="flex shrink-0 gap-2">
+        <div className="flex w-full shrink-0 gap-2 sm:w-auto">
           {post && (
             <button
               type="button"
               onClick={() => navigate(postPath(post))}
-              className="inline-flex h-[42px] items-center rounded-lg px-4 text-sm font-semibold text-ink-text-2 hover:text-ink-text"
+              className="inline-flex h-[42px] items-center justify-center rounded-lg px-3 text-sm font-semibold text-ink-text-2 hover:text-ink-text sm:px-4"
             >
               Cancel
             </button>
@@ -225,27 +225,27 @@ function Postform({ post }) {
             type="button"
             onClick={submitAs("inactive")}
             disabled={isSubmitting}
-            className="inline-flex h-[42px] items-center rounded-lg border border-ink-text-2 px-4 text-sm font-semibold text-ink-text transition-colors hover:bg-ink-surface disabled:opacity-60"
+            className="inline-flex h-[42px] flex-1 items-center justify-center rounded-lg border border-ink-text-2 px-4 text-sm font-semibold text-ink-text transition-colors hover:bg-ink-surface disabled:opacity-60 sm:flex-none"
           >
             {draftLabel}
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex h-[42px] items-center rounded-lg bg-ink-primary px-4 text-sm font-semibold text-ink-on-primary transition-opacity hover:opacity-90 disabled:opacity-60"
+            className="inline-flex h-[42px] flex-1 items-center justify-center rounded-lg bg-ink-primary px-4 text-sm font-semibold text-ink-on-primary transition-opacity hover:opacity-90 disabled:opacity-60 sm:flex-none"
           >
             {isSubmitting ? "Saving…" : publishLabel}
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_296px]">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 xl:grid-cols-[minmax(0,1fr)_296px]">
         {/* ======================================
             WRITING EDITOR
         ====================================== */}
         <div className="overflow-hidden rounded-lg border border-ink-border bg-ink-surface">
           {/* Title */}
-          <div className="px-6 pt-7 pb-5 sm:px-8">
+          <div className="px-4 pt-6 pb-5 sm:px-8 sm:pt-7">
             <label htmlFor="post-title" className="sr-only">
               Title
             </label>
@@ -271,7 +271,7 @@ function Postform({ post }) {
           </div>
 
           {/* Cover */}
-          <div className="px-6 pb-7 sm:px-8">
+          <div className="px-4 pb-6 sm:px-8 sm:pb-7">
             <input
               id="post-cover"
               type="file"
@@ -321,8 +321,8 @@ function Postform({ post }) {
             />
           </div>
 
-          <div className="flex items-center justify-between gap-4 border-t border-ink-border px-6 py-4 font-mono tracking-[0.96px] text-xs text-ink-text-2">
-            <p>SAVED WHEN YOU PUBLISH OR SAVE A DRAFT</p>
+          <div className="flex items-center justify-end gap-4 border-t border-ink-border px-4 py-4 font-mono tracking-[0.96px] text-xs text-ink-text-2 sm:justify-between sm:px-6">
+            <p className="hidden sm:block">SAVED WHEN YOU PUBLISH OR SAVE A DRAFT</p>
             <p className="shrink-0 tabular-nums">
               {words} word{words === 1 ? "" : "s"} · {minutes} min read
             </p>

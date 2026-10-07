@@ -1,6 +1,7 @@
 import { Bookmark } from "lucide-react";
 import { toast } from "sonner";
 import usePostSave from "../../customHooks/usePostSave";
+import { BAR_ICON, barTone } from "../post/barButton";
 
 /**
  * Save / unsave a post. `variant="icon"` is the bare bookmark used on article
@@ -35,9 +36,7 @@ function SaveButton({ postId, variant = "button" }) {
     return (
       <button
         {...shared}
-        className={`inline-flex items-center gap-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
-          saved ? "text-ink-text" : "text-ink-text-2 hover:text-ink-text"
-        }`}
+        className={`${BAR_ICON} ${barTone(saved)}`}
       >
         <Bookmark
           size={18}
@@ -45,7 +44,9 @@ function SaveButton({ postId, variant = "button" }) {
           fill={saved ? "currentColor" : "none"}
           aria-hidden="true"
         />
-        {isPending ? (saved ? "Removing…" : "Saving…") : saved ? "Bookmarked" : "Bookmark"}
+        <span className="hidden sm:inline">
+          {isPending ? (saved ? "Removing…" : "Saving…") : saved ? "Bookmarked" : "Bookmark"}
+        </span>
       </button>
     );
   }

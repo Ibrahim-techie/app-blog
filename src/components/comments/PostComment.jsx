@@ -85,7 +85,7 @@ function PostComment({ postId }) {
             placeholder="Write a comment…"
             aria-label="Write a comment"
             disabled={createComment.isPending}
-            className="w-full resize-none bg-transparent text-sm text-ink-text outline-none placeholder:text-ink-text-2 disabled:opacity-60"
+            className="w-full resize-none bg-transparent text-base text-ink-text sm:text-sm outline-none placeholder:text-ink-text-2 disabled:opacity-60"
             {...register("content", {
               required: "Comment cannot be empty",
               // A box full of spaces passes `required`, so check the trimmed value.
