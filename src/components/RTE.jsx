@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import { Controller } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -25,6 +26,13 @@ function RTE({ name, control, defaultValue = "", label, ...props }) {
   // live editor, and remounting it would throw away unsaved text.
   const isDark = useSelector((state) => state.system.theme === "dark");
 
+  // Read the starting content once. tinymce-react treats any change to
+  // `initialValue` as "reset the editor": it calls setContent, which throws
+  // the caret back to the start. The form re-renders on every keystroke (live
+  // word count), so passing the current value here made each typed character
+  // land at the beginning — text came out backwards.
+  const [initialValue] = useState(defaultValue);
+
   return (
     <div>
       {label && (
@@ -39,7 +47,7 @@ function RTE({ name, control, defaultValue = "", label, ...props }) {
         render={({ field: { onChange } }) => (
           <Editor
             apiKey={config.TinyMCE}
-            initialValue={defaultValue}
+            initialValue={initialValue}
             onEditorChange={onChange}
             init={{
               branding: false,
