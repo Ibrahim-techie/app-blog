@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { login as storeLogin } from "../redux/authSlice";
 import { Button, Input } from "./index";
 import { useDispatch } from "react-redux";
@@ -13,7 +13,14 @@ function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const message = location.state?.message;
+  const [params] = useSearchParams();
+  // Appwrite sends a cancelled or failed Google sign-in back to
+  // /login?oauth=failed (adding its own ?error=…).
+  const message =
+    location.state?.message ??
+    (params.get("oauth") === "failed" || params.has("error")
+      ? "Google sign-in was cancelled or didn't complete. Please try again."
+      : null);
 
   const {
     register,

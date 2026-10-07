@@ -45,18 +45,31 @@ class AuthService {
     }
   }
 
-  //oAuth2 session with google
-
+  // Google sign-in / sign-up. Token flow rather than createOAuth2Session:
+  // the session flow leaves the session only in a cookie on Appwrite's
+  // domain, which is third-party here and blocked by mobile Chrome, Safari
+  // and private windows — the account got created but the app never saw the
+  // user signed in. Here Google returns to /auth/callback with a one-time
+  // secret that finishOAuth turns into a session the SDK keeps itself.
   signInwithGoogle() {
-    return this.account.createOAuth2Session({
+    return this.account.createOAuth2Token({
       provider: OAuthProvider.Google,
-      success: `${window.location.origin}/`,
-      failure: `${window.location.origin}/login`,
+      success: `${window.location.origin}/auth/callback`,
+      failure: `${window.location.origin}/login?oauth=failed`,
       scopes: [
         "https://www.googleapis.com/auth/userinfo.email",
         "https://www.googleapis.com/auth/userinfo.profile",
       ],
     });
+  }
+
+  async finishOAuth({ userId, secret }) {
+    try {
+      return await this.account.createSession({ userId, secret });
+    } catch (error) {
+      console.log("Error in finishOAuth :: auth.service.js::error", error);
+      throw error;
+    }
   }
 
   async getCurrentUser() {
